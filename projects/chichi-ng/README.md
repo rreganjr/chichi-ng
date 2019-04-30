@@ -2,6 +2,12 @@
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.2.0.
 
+```
+ng new chichi-ng --prefix cc --createApplication=false --routing=false --style=scss
+ng generate library chichi-ng --prefix cc
+ng build
+```
+
 ## Code scaffolding
 
 Run `ng generate component component-name --project chichi-ng` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project chichi-ng`.
