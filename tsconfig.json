@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "chichi-ng": [
+        "dist/chichi-ng"
+      ],
+      "chichi-ng/*": [
+        "dist/chichi-ng/*"
+      ]
+    }
   }
 }
