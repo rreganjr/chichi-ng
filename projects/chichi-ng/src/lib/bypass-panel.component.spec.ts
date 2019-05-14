@@ -24,7 +24,7 @@ describe('BypassPanelComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should exist', () => {
     expect(component).toBeTruthy();
   });
 
@@ -41,6 +41,13 @@ describe('BypassPanelComponent', () => {
   });
 
   it('should have a right-panel in container div', () => {
+    expect(debugElement.query(By.css('div.container > div.right-panel')).nativeElement.innerText).toBe('');
+  });
+
+  it('should have a right-panel in container div', () => {
+    // change the state of the panel
+    component.rightPanelActive = true;
+    fixture.detectChanges();
     expect(debugElement.query(By.css('div.container > div.right-panel')).nativeElement.innerText).toBe('');
   });
 
