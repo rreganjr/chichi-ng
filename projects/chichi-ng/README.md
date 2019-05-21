@@ -1,4 +1,5 @@
 # Chi Chi Ng
+
 ## Fancy pants UI components for Angular
 
 [chichi - frilly or elaborate ornamentation](https://www.merriam-webster.com/dictionary/chichi)  
@@ -12,22 +13,13 @@ I didn't concieve of this design, I watched a [video](https://www.youtube.com/wa
 ![Slider Animation](./assets/ccbypasspanel.gif)
 
 [Gif by OnlineConverter.com](https://www.onlineconverter.com/mp4-to-gif)
+
 ### Using
-*note* this project isn't published to the npm repo so you will need to link it locally.
 
-To use this you must clone the project locally, build, and think link the built version to your local node cache:
-```
-cd c:\vsprojects\
-clone https://github.com/rreganjr/chichi-ng.git
-ng build
-cd .\dist\chichi-ng\
-npm link
-```
+the library is now published to npm, so install it
 
-Link it to the project where you want to use it:
 ```
-cd c:\vsprojects\myproj\
-npm link chichi-ng
+npm i chichi-ng
 ```
 import the module into your app.module.ts
 
