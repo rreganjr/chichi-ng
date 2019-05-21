@@ -80,3 +80,9 @@ You can style the overlay with css like:
 	background-position: 0 0;
 }
 ```
+
+## Running Tests
+
+I've setup ```ng test``` to run headless chrome and firefox, single run and exit. To have karma open chrome, watch files and rerun tests as files are change, use the alternative karma config file via ```ng test -c debug```
+
+to generate test code coverage report use ```ng test --code-coverage``` in the workspace root look for the coverage folder 
