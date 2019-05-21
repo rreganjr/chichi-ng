@@ -10,7 +10,7 @@ Like a closet with bypass doors where a panel (door) can be slid back and forth 
 
 I didn't concieve of this design, I watched a [video](https://www.youtube.com/watch?v=mUdo6w87rh4) by Traversy Media that put this together based on the article [DOUBLE SLIDER - SIGN IN/UP FORM](https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/) by Florin Pop who was inspired by the [Diprella Login](https://dribbble.com/shots/5311359-Diprella-Login) posted by Selecto on dribbble. I took the basic concept and created an Angular component that generalized the sliding panel.
 
-![Slider Animation](./assets/ccbypasspanel.gif)
+![Slider Animation](https://github.com/rreganjr/chichi-ng/blob/master/projects/chichi-ng/assets/ccbypasspanel.gif)
 
 [Gif by OnlineConverter.com](https://www.onlineconverter.com/mp4-to-gif)
 
