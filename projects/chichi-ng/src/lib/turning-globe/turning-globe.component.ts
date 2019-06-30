@@ -3,7 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 @Component({
   selector: 'cc-turning-globe',
   templateUrl: './turning-globe.component.html',
-  styleUrls: ['./turning-globe.component.css']
+  styleUrls: ['./turning-globe.component.scss']
 })
 export class ChiChiTurningGlobeComponent implements OnInit {
 
