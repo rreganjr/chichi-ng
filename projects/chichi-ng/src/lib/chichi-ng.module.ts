@@ -8,6 +8,6 @@ import { ChiChiTurningGlobeComponent } from './turning-globe/turning-globe.compo
   imports: [
     BrowserModule
   ],
-  exports: [ChiChiBypassPanelComponent]
+  exports: [ChiChiBypassPanelComponent, ChiChiTurningGlobeComponent]
 })
-export class ChichiNgModule { }
+export class ChiChiNgModule { }
