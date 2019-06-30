@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ChiChiBypassPanelComponent } from './bypass-panel.component';
+import { ChiChiBypassPanelComponent } from './bypass-panel/bypass-panel.component';
 
 @NgModule({
   declarations: [ChiChiBypassPanelComponent],
