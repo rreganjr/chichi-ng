@@ -1,11 +1,12 @@
 <div>
-  <div [@move]="state" 
-      (@move.done)="onEnd($event)" 
+  <div [@spin]="state" 
+      (@spin.done)="onEnd($event)" 
       class="globe" 
       [ngStyle]="{'background-image': 'url(' + globeImage + ')', 'width': width , 'height': height}" 
-      [@slidingDoorAnimation]="{params:{ time:'10s'} }"></div>
+      [@spin]="{value: state, params:{ time: spinTime} }"></div>
   <div>Globe Image: {{globeImage}}</div>
   <div>Height: {{height}}</div>
   <div>Width: {{width}}</div>
+  <div>Spin Time: {{spinTime}}</div>
 </div>
 

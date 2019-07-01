@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, HostBinding, AfterViewInit } from '@angular/core';
 import { trigger, state, style, animate, transition, keyframes } from '@angular/animations';
 
-export const spinningGlobeAnimation = trigger('move', [
+export const spinningGlobeAnimation = trigger('spin', [
   state('in', style({})),
   state('out', style({})),
   transition('in => out', animate('{{ time }}', keyframes([
@@ -28,6 +28,7 @@ export class ChiChiTurningGlobeComponent implements OnInit, AfterViewInit  {
   @Input() globeImage: string;
   @Input() height: string;
   @Input() width: string;
+  @Input() spinTime: string = '5s';
 
   constructor() { }
 
