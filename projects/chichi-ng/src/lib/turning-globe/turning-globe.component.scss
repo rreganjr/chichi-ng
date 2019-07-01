@@ -2,7 +2,7 @@
 .globe {
   border-radius: 50%;
   background-size: 630px;
-  animation: rotate 4s linear infinite;
+  //animation: rotate 4s linear infinite;
   transition: transform 200ms linear;
   transform-style: preserve-3d;
   box-shadow: inset 20px 0 80px 6px rgba(0, 0, 0, 1);
@@ -31,9 +31,4 @@
   height: 100%;
   opacity: 0.2;
   background: radial-gradient(circle at 100px 100px, #fff, #000);
-}
-
-@keyframes rotate {
-  0% {background-position: 0 0;}
-  100% {background-position: 630px 0;}
 }

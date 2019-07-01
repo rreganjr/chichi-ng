@@ -1,5 +1,9 @@
 <div>
-  <div class="globe" [ngStyle]="{background: 'url(' + globeImage + '); height: ' + height + 'px; width: ' + width + 'px;'}"></div>
+  <div [@move]="state" 
+      (@move.done)="onEnd($event)" 
+      class="globe" 
+      [ngStyle]="{'background-image': 'url(' + globeImage + ')', 'width': width , 'height': height}" 
+      [@slidingDoorAnimation]="{params:{ time:'10s'} }"></div>
   <div>Globe Image: {{globeImage}}</div>
   <div>Height: {{height}}</div>
   <div>Width: {{width}}</div>
