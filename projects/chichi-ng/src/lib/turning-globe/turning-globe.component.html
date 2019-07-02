@@ -1,12 +1,12 @@
 <div>
-  <div [@spin]="state" 
-      (@spin.done)="onEnd($event)" 
-      class="globe" 
-      [ngStyle]="{'background-image': 'url(' + globeImage + ')', 'width': width , 'height': height}" 
-      [@spin]="{value: state, params:{ time: spinTime} }"></div>
+  <div [@spin]="state"
+      (@spin.done)="onEnd($event)"
+      class="globe"
+      [ngStyle]="{'background-image': 'url(' + globeImage + ')', 'width': width , 'height': height}"
+      [@spin]="{value: state, params:{ time: secondsPerRotation} }"></div>
   <div>Globe Image: {{globeImage}}</div>
   <div>Height: {{height}}</div>
   <div>Width: {{width}}</div>
-  <div>Spin Time: {{spinTime}}</div>
+  <div>Seconds Per Rotation: {{secondsPerRotation}}</div>
 </div>
 

@@ -2,8 +2,7 @@
 .globe {
   border-radius: 50%;
   background-size: 630px;
-  //animation: rotate 4s linear infinite;
-  transition: transform 200ms linear;
+ // transition: transform 200ms linear;
   transform-style: preserve-3d;
   box-shadow: inset 20px 0 80px 6px rgba(0, 0, 0, 1);
   color: #000;

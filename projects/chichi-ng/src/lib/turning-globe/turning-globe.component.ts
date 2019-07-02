@@ -28,7 +28,7 @@ export class ChiChiTurningGlobeComponent implements OnInit, AfterViewInit  {
   @Input() globeImage: string;
   @Input() height: string;
   @Input() width: string;
-  @Input() spinTime: string = '5s';
+  @Input() secondsPerRotation: string = '5s';
 
   constructor() { }
 
