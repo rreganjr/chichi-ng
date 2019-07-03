@@ -6,11 +6,11 @@ export const spinningGlobeAnimation = trigger('spin', [
   state('out', style({})),
   transition('in => out', animate('{{ time }}', keyframes([
     style({ backgroundPosition: '0 0', offset: 0.0 }),
-    style({ backgroundPosition: '630px 0', offset: 1.0 })
+    style({ backgroundPosition: '720px 0', offset: 1.0 })
   ]))),
   transition('out => in', animate('{{ time }}', keyframes([
     style({ backgroundPosition: '0 0', offset: 0.0 }),
-    style({ backgroundPosition: '630px 0', offset: 1.0 })
+    style({ backgroundPosition: '720px 0', offset: 1.0 })
   ])))
 ]);
 

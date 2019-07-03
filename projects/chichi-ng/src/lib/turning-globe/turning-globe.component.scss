@@ -1,21 +1,23 @@
 
 .globe {
   border-radius: 50%;
-  background-size: 630px;
- // transition: transform 200ms linear;
+  // this must match the backgroundPosition in the transitions of the spinningGlobeAnimation
+  // trigger const in turning-globe.component.ts
+  background-size: 720px;
   transform-style: preserve-3d;
   box-shadow: inset 20px 0 80px 6px rgba(0, 0, 0, 1);
   color: #000;
+  // transition: transform 200ms linear;
 }
 
 .globe:before {
   content: "";
   position: absolute;
+  border-radius: 50%;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
   box-shadow: -80px 15px 80px 10px rgba(0,0,0,.9) inset;
   z-index: 2;
 }
