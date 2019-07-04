@@ -73,6 +73,23 @@ You can style the overlay with css like:
 }
 ```
 
+## spinning globe
+
+Thanks to this guy for the original spinning globe in html and css
+https://w3bits.com/css-earth/
+
+Thanks to this guy for how to run the animation for ever via the AfterViewInit and onEnd event.
+https://stackoverflow.com/questions/44535108/how-do-i-perform-infinite-animations-in-angular-2
+
+Thanks for this on doing keyframes
+https://angularfirebase.com/lessons/animation-examples-in-angular-4-3/
+
+Thanks for the tip on how to pass the time into the animation.
+https://stackoverflow.com/questions/50806212/how-to-use-input-parameters-in-angular-6-animation
+
+Thanks to these guys for the free texture maps
+https://www.solarsystemscope.com/textures/
+
 ## Running Tests
 
 I've setup ```ng test``` to run headless chrome and firefox, single run and exit. To have karma open chrome, watch files and rerun tests as files are change, use the alternative karma config file via ```ng test -c debug```
