@@ -75,20 +75,34 @@ You can style the overlay with css like:
 
 ## spinning globe
 
-Thanks to this guy for the original spinning globe in html and css
-https://w3bits.com/css-earth/
+This simulates a spinning globe by animating a surface map in the background of a div. The div sides are rounded to make it a circle and then optionally shadowing is applied to give a 3d effect. The original idea for this is from Rahul Arora's [article](https://w3bits.com/css-earth/) which I used as a basis and converted to angular with help from various sources like Jeff Delaney's [article](https://angularfirebase.com/lessons/animation-examples-in-angular-4-3/) about animation in Angular, Eliyas Hossain's answer for the [stack overflow question](https://stackoverflow.com/questions/44535108/how-do-i-perform-infinite-animations-in-angular-2) to make the animation infinite, and Jette's answer to the [stack overflow question](https://stackoverflow.com/questions/50806212/how-to-use-input-parameters-in-angular-6-animation) on parameterizing the animation so I could pass in the time for speeding or slowing the animtaion. Finally I'd like to thank the team at Inove for making texture maps freely availabe under the [creative commons license](https://creativecommons.org/licenses/by/4.0/) on this [site](https://www.solarsystemscope.com/textures/)
 
-Thanks to this guy for how to run the animation for ever via the AfterViewInit and onEnd event.
-https://stackoverflow.com/questions/44535108/how-do-i-perform-infinite-animations-in-angular-2
+### Using
 
-Thanks for this on doing keyframes
-https://angularfirebase.com/lessons/animation-examples-in-angular-4-3/
+See the top of the bypass panel using notes for adding the module to your project.
 
-Thanks for the tip on how to pass the time into the animation.
-https://stackoverflow.com/questions/50806212/how-to-use-input-parameters-in-angular-6-animation
+Add a cc-turning-globe element. Add an id so that you can style the element directly for size and spacing.
 
-Thanks to these guys for the free texture maps
-https://www.solarsystemscope.com/textures/
+* globeImage - This is the url to the image to use for the globe. The image should be a surface image.
+* secondsPerRotation - this controls how fast the animation "spins", higher numbers spin slower. The actual time will depend on the size of the image.
+* withShadow - This controls if there will be a shadow. For planets you want this to make them look round. it doesn't make sense for the sun and maybe non-planets.
+
+In the html add the element:
+```
+      <cc-turning-globe id="earth"  secondsPerRotation="30s" withShadow="true"
+        globeImage="https://cdn.pixabay.com/photo/2013/07/12/12/54/world-map-146505_960_720.png">
+      </cc-turning-globe>
+```
+
+In the css set the size:
+```
+#earth {
+  height: 200px;
+  width: 200px;
+}
+
+```
+
 
 ## Running Tests
 
