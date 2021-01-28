@@ -10,10 +10,15 @@
       "prefix": "cc",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "projects/chichi-ng/tsconfig.json",
             "project": "projects/chichi-ng/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/chichi-ng/tsconfig.lib.prod.json"
+            }
           }
         },
         "test": {
