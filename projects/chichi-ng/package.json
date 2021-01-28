@@ -9,7 +9,7 @@
     "url": "https://github.com/rreganjr/chichi-ng.git"
   },
   "peerDependencies": {
-    "@angular/common": "8.0.0 - ^11.x.x",
-    "@angular/core": "8.0.0 - ^11.x.x"
+    "@angular/common": "^8.x.x",
+    "@angular/core": "^8.x.x"
   }
 }
