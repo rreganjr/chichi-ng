@@ -1,27 +1,36 @@
-# ChichiNg
+# ChichiNg Library
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
+# Dev Notes
 
-## Development server
+## Using the devcontainer
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+This project is setup to develop in a devcontainer such that the environment to run and debug is defined in the project. As long as you have VS Code and Docker Desktop installed.
 
-## Code scaffolding
+see https://code.visualstudio.com/docs/remote/containers for requirements and setup.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### In VS Code
 
-## Build
+F1 > Remote-Containers: Clone Repository in Container Volume
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+*Provide repository URL or pick a repository source.*
 
-## Running unit tests
+Clone a repository from GitHub in a Container Volume
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+*Repository name (type to search)*
 
-## Running end-to-end tests
+rreganjr/gol-ng
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+*branch*
 
-## Further help
+master
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+### Rebuilding
+
+If you make changes to the devcontainer.json or Dockerfile you need to rebuild the container via 
+
+F1 > Remote-Containers: Rebuild Container without Cache
+
+## Running
+
+On the Run and Debug start the ng serve launch. this will run the npm start task and then open a chrome browser.
+
