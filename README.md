@@ -18,7 +18,7 @@ Clone a repository from GitHub in a Container Volume
 
 *Repository name (type to search)*
 
-rreganjr/gol-ng
+rreganjr/chichi-ng
 
 *branch*
 
