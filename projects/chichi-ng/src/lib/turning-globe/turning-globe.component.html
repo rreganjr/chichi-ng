@@ -1,0 +1,4 @@
+<div (@spin.done)="onEnd($event)"
+[ngClass]="{globe: true, shadow: withShadow}"
+[ngStyle]="{'background-image': 'url(' + globeImage + ')'}"
+[@spin]="{value: state, params:{ time: secondsPerRotation} }"></div>
