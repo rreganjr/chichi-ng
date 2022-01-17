@@ -32,7 +32,7 @@ F1 > Remote-Containers: Rebuild Container without Cache
 
 ## Running
 
-On the Run and Debug start the ng serve launch. this will run the npm start task and then open a chrome browser.
+This is a library don't run it.
 
 # Fubar Fix
 
