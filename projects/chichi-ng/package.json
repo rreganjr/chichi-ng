@@ -1,11 +1,16 @@
 {
   "name": "chichi-ng",
   "version": "2.0.0",
+  "license": "MIT",
+  "description": "A library of fancy UI components.",
+  "homepage": "https://github.com/rreganjr/chichi-ng",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rreganjr/chichi-ng.git"
+  },  
   "peerDependencies": {
     "@angular/common": "^13.1.0",
-    "@angular/core": "^13.1.0"
-  },
-  "dependencies": {
+    "@angular/core": "^13.1.0",
     "tslib": "^2.3.0"
-  }
+  },
 }
