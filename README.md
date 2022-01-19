@@ -1,5 +1,7 @@
 # ChichiNg
 
+This file has notes for development. To use the library see [./projects/chichi-ng/README.md](./projects/chichi-ng/README.md) 
+
 # Dev Notes
 
 ## Using the devcontainer
@@ -33,6 +35,19 @@ F1 > Remote-Containers: Rebuild Container without Cache
 ## Running
 
 This is a library don't run it.
+
+## Deploy by hand
+
+From https://jasonwatmore.com/post/2020/06/16/angular-npm-how-to-publish-an-angular-component-to-npm
+
+```
+ng build chichi-ng --prod
+cd dist/chichi-ng
+npm login
+npm publish
+```
+
+look at https://www.npmjs.com/package/chichi-ng
 
 # Fubar Fix
 

@@ -4,6 +4,11 @@
 
 [chichi - frilly or elaborate ornamentation](https://www.merriam-webster.com/dictionary/chichi)  
 
+## Notes
+
+In projects/chichi-ng/package.json tslib is defined as a peerDependency, but in the built library it gets moved to dependencies. 
+See  https://angular.io/guide/migration-update-libraries-tslib
+
 ## Bypass Panel
 
 Like a closet with bypass doors where a panel (door) can be slid back and forth to show content behind. The panels also have content and buttons for sliding them.
@@ -18,9 +23,12 @@ I didn't concieve of this design, I watched a [video](https://www.youtube.com/wa
 
 the library is now published to npm, so install it
 
+For Angular 8 use version 1.1.1, for Angular 13.1 use version 2.0.0
+
 ```
-npm i chichi-ng
+npm i chichi-ng@1.1.1
 ```
+
 import the module into your app.module.ts
 
 ```
