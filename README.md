@@ -47,7 +47,18 @@ npm login
 npm publish
 ```
 
-look at https://www.npmjs.com/package/chichi-ng
+then look at https://www.npmjs.com/package/chichi-ng
+
+## Building a Release with build-release github action
+
+The action defined in https://github.com/rreganjr/chichi-ng/blob/master/.github/workflows/build-release.yml
+is triggered by a push of a tag in the form v*, for example v2.0.0. In the vs code devcontainer open a terminal
+and create a tag, then push it. See the action results at https://github.com/rreganjr/chichi-ng/actions/workflows/build-release.yml
+
+```
+node ➜ /workspaces/chichi-ng (master) $ git tag -a -m "test build-release action" v2.0.0-test
+node ➜ /workspaces/chichi-ng (master) $ git push origin v2.0.0-test
+```
 
 # Fubar Fix
 
