@@ -29,8 +29,12 @@ jobs:
         run: |
           npm i
           npm run build:prod
+      - name: tar ball run
+        run: |
+          cd dist
+          tar cvzf chichi-ng.tgz chichi-ng/*
       - name: Push Build to Releases
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/*"
+          artifacts: "dist/chichi-ng.tgz"
           token: ${{ secrets.GITHUB_TOKEN }}
