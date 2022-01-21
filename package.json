@@ -6,7 +6,7 @@
     "start": "ng serve demo",
     "build:lib": "ng build chichi-ng",
     "build:demo": "ng build demo",
-    "build:prod": "ng chichi-ng --configuration production",
+    "build:prod": "ng build chichi-ng --configuration production",
     "watch:lib": "ng build chichi-ng --watch --configuration development",
     "test": "ng test"
   },
