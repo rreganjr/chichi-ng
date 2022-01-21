@@ -72,28 +72,36 @@ I took master and created branch angular8 for posterity.
 
 I then did this to replace master with the angular13 branch based on [this](https://stackoverflow.com/questions/2862590/how-to-replace-master-branch-in-git-entirely-from-another-branch)
 
-```
+```bash
 git merge --allow-unrelated-histories -s ours origin/master
 git checkout master
 git merge angular13
 ```
 
 # clean up global angular
+```bash
 npm uninstall -g @angular/cli
 npm cache verify
 npm install -g @angular/cli@latest
+```
 
 # create monorepo project workspace
+```bash
 ng new chichi-ng --create-application false
 cd chichi-ng
+```
 
-# create the library 
+# create the library
+```bash
 ng generate library chichi-ng --prefix cc
+```
+
 # add the components to the library
+```bash
 ng generate component bypass-panel --project=chichi-ng
 ng generate component turning-globe --project=chichi-ng
 ng generate component visual-scheduler  --project=chichi-ng
-
+```
 
 # The Demo
 
