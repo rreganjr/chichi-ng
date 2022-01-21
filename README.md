@@ -2,6 +2,8 @@
 
 This file has notes for development. To use the library see [./projects/chichi-ng/README.md](./projects/chichi-ng/README.md) 
 
+The gh pages project site https://rreganjr.github.io/chichi-ng/
+
 # Dev Notes
 
 ## Using the devcontainer
