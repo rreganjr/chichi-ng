@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "build:prod": "ng build --configuration production",
-    "watch": "ng build --watch --configuration development",
+    "start": "ng serve demo",
+    "build:lib": "ng build chichi-ng",
+    "build:demo": "ng build demo",
+    "build:prod": "ng chichi-ng --configuration production",
+    "watch:lib": "ng build chichi-ng --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
