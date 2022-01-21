@@ -1,0 +1,42 @@
+
+header {
+    padding-bottom: 5rem;
+}
+  
+#title {
+    top: 2.5rem; 
+    left: 0;
+    height: 10rem;
+    vertical-align: middle; 
+    font-size: 4rem; 
+    font-family: Arial, Helvetica, sans-serif; 
+    font-weight: bold; 
+    font-style: italic;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;  
+}
+
+#spinning-earth {
+    position: absolute;
+    display: block;
+    height: 10rem;
+    width: 10rem;  
+}
+
+#globe-text {
+    flex: 0 0 10rem;
+    text-align: center;
+    color: #fff;
+    z-index: 5; 
+}
+
+#right-text {
+    flex: 1 1 auto;
+    color: #000;
+}
+
+sign-up-or-in {
+    height: 300px;
+}

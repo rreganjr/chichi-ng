@@ -95,4 +95,22 @@ ng generate component turning-globe --project=chichi-ng
 ng generate component visual-scheduler  --project=chichi-ng
 
 
+# The Demo
+
+In the project root I ran
+
+```
+ng generate application demo --prefix demo --style scss
+```
+
+I added a signup component that uses the slider
+
+```
+ng g component SignUpOrIn --project demo --selector sign-up-or-in 
+```
+
+I added the spinning globe component to a header on the app page
+
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.

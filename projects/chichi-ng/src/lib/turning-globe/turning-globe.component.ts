@@ -26,7 +26,7 @@ export class TurningGlobeComponent implements OnInit, AfterViewInit  {
 
   state: string = 'in';
   @Input() globeImage: string = '';
-   @Input() withShadow: boolean = false;
+  @Input() withShadow: boolean = false;
   @Input() secondsPerRotation: string = '5s';
 
   constructor() { }

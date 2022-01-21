@@ -1,0 +1,46 @@
+<cc-bypass-panel [rightPanelActive]="rightPanelActive">
+    <div class="left-panel-content form-container">
+            <form action="#">
+              <h1>Sign in</h1>
+              <div class="social-container">
+                <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+              <span>or use your account</span>
+              <input type="email" placeholder="Email" />
+              <input type="password" placeholder="Password" />
+              <a href="#">Forgot your password?</a>
+              <button class="sign-in">Sign In</button>
+            </form>
+      </div>
+  
+      <div class="right-panel-content form-container">
+          <form action="#">
+              <h1>Create Account</h1>
+              <div class="social-container">
+                <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+              <span>or use your email for registration</span>
+              <input type="text" placeholder="Name" />
+              <input type="email" placeholder="Email" />
+              <input type="password" placeholder="Password" />
+              <button class="sign-up">Sign Up</button>
+            </form>
+      </div>
+  
+      <div class="overlay-left-content message-container">
+                  <h1>Already Registered?</h1>
+                  <p>Go sign in.</p>
+                  <button class="ghost" id="signUp" (click)="rightPanelActive=false">Goto Sign In</button>
+          </div>
+  
+      <div class="overlay-right-content message-container">
+          <h1>Not Registered?</h1>
+          <p>Go sign up.</p>
+        <button class="ghost" id="signIn" (click)="rightPanelActive=true">Goto Sign Up</button>
+      </div>
+  
+    </cc-bypass-panel>

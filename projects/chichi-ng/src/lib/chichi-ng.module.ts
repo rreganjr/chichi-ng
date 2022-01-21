@@ -19,7 +19,10 @@ import { VisualSchedulerComponent } from './visual-scheduler/visual-scheduler.co
     CommonModule
   ],
   exports: [
-    ChichiNgComponent
+    ChichiNgComponent,
+    BypassPanelComponent,
+    TurningGlobeComponent,
+    VisualSchedulerComponent
   ]
 })
 export class ChichiNgModule { }
