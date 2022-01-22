@@ -6,6 +6,7 @@
     "start": "ng serve demo",
     "build:lib": "ng build chichi-ng",
     "build:demo": "ng build demo",
+    "build:docs:demo": "ng build demo --configuration production --outputPath=docs/demo/ --baseHref=/chichi-ng/demo/ && cp docs/demo/index.html docs/demo/404.html",
     "build:prod": "ng build chichi-ng --configuration production",
     "watch:lib": "ng build chichi-ng --watch --configuration development",
     "test": "ng test"
