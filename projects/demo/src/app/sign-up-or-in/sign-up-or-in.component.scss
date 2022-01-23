@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
+:host {
+    display: block
+}
 
 h1 {
 	font-weight: bold;
@@ -54,7 +57,6 @@ button.sign-in {
 	background-color: #1565C0;
 }
 
-
 button:focus {
 	outline: none;
 }
@@ -62,12 +64,6 @@ button:focus {
 button.ghost {
 	background-color: transparent;
 	border-color: #FFFFFF;
-}
-
-.form-container {
-  top: 0;
-  height: 100%;
-  padding-top: 20px;
 }
 
 .message-container {
@@ -79,6 +75,11 @@ button.ghost {
 	flex-direction: column;
 	padding: 0 50px;
 	text-align: center;
+}
+
+.form-container {
+	padding-top: 2em;
+	padding-bottom: 2em;
 }
 
 form {

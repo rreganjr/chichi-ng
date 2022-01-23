@@ -42,7 +42,7 @@ This is a library don't run it.
 
 From https://jasonwatmore.com/post/2020/06/16/angular-npm-how-to-publish-an-angular-component-to-npm
 
-```
+```bash
 ng build chichi-ng --prod
 cd dist/chichi-ng
 npm login
@@ -57,10 +57,39 @@ The action defined in https://github.com/rreganjr/chichi-ng/blob/master/.github/
 is triggered by a push of a tag in the form v*, for example v2.0.0. In the vs code devcontainer open a terminal
 and create a tag, then push it. See the action results at https://github.com/rreganjr/chichi-ng/actions/workflows/build-release.yml
 
-```
+```bash
 node ➜ /workspaces/chichi-ng (master) $ git tag -a -m "test build-release action" v2.0.0-test
 node ➜ /workspaces/chichi-ng (master) $ git push origin v2.0.0-test
 ```
+
+# Angular Components default to "display: inline"
+
+I found [this stackoverflow query](https://stackoverflow.com/questions/51032328/angular-component-default-style-css-display-block) answered
+by [rryter](https://stackoverflow.com/users/1219080/rryter) a change in Angular v9.1 detailed in [blog entry](https://blog.rryter.ch/2020/01/19/angular-cli-generating-block-components-by-default/)
+
+I updated angular.json to add "displayBlock": true for future components in the library and demo
+
+```json
+"@schematics/angular:component": {
+    ...
+    "displayBlock": true
+}
+```
+and manually added "display: block" to the existing library components scss files.
+```css
+:host {
+    display: block
+}
+```
+
+# Fixing Bypass Panel laout
+
+When I looked at the demo page I saw that the size of the panel always fills the width of the page and created [an issue](https://github.com/rreganjr/chichi-ng/issues/32). I was also explicitly setting the height in the bypass panel to a fixed 480px, which isn't good.
+
+I changed the bypass-panel .container to use "display: flex" and changed the panels to not have absolute position. I also removed the height on the .container so
+the height will grow to match the supplied content.
+
+In the demo app component I styled the sign-up-or-in component to be 50% and centered left and right.
 
 # Fubar Fix
 
