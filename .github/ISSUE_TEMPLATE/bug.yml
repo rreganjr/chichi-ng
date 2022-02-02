@@ -1,42 +1,40 @@
-# borrwed from https://github.com/angular/components/blob/master/.github/ISSUE_TEMPLATE/bug.yml
-#
+# see https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository#creating-issue-forms
 name: Bug Report
-description: Report a bug in Angular Material or the CDK
-title: "bug(COMPONENT): TITLE"
-labels: ["needs triage"]
+description: Report a bug in Chichi-ng
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - rreganjr
 body:
-  - type: checkboxes
-    id: is-regression
+  - type: dropdown
+    id: version
     attributes:
-      label: Is this a regression?
-      description: Did this behavior use to work in the previous version?
+      label: Chichi-ng Version
+      description: What version of the library are you running
       options:
-        - label: Yes, this behavior used to work in the previous version
-  - type: input
-    id: version-bug-was-not-present
-    attributes:
-      label: The previous version in which this bug was not present was
+        - 2.0.2 (Angular 13)
+        - 2.0.1 (Angular 13)
+        - 1.1.1 (Angular 8)
+        - 1.1.0 (Angular 8)
+        - 1.0.3 (Angular 7)
+        - 1.0.2 (Angular 7)
+        - 1.0.1 (Angular 7)
+        - 1.0.0 (Angular 7)
+        - not listed
     validations:
-      required: false
+      required: true
+  - type: textarea
+    id: angular-version
+    attributes:
+      label: Angular Version
+      description: what version of angular are you using, run ng version
+    validations:
+      required: true
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: A clear and concise description of the problem.
-    validations:
-      required: true
-  - type: textarea
-    id: reproduction
-    attributes:
-      label: Reproduction
-      description: |
-        **Use StackBlitz to reproduce your issue:**
-        - [Components](https://stackblitz.com/fork/components-issue)
-        - [Harnesses](https://stackblitz.com/fork/harness-issue)
-      value: |
-        Steps to reproduce:
-        1. 
-        2. 
+      description: A clear description what is wrong. Include a link to stackblitz.com if you can.
     validations:
       required: true
   - type: textarea
@@ -51,17 +49,5 @@ body:
     attributes:
       label: Actual Behavior
       description: What behavior did you actually see?
-    validations:
-      required: true
-  - type: textarea
-    id: environment
-    attributes:
-      label: Environment
-      description: You can use `ng version` command.
-      value: |
-        - Angular:
-        - CDK/Material:
-        - Browser(s):
-        - Operating System (e.g. Windows, macOS, Ubuntu):
     validations:
       required: true
