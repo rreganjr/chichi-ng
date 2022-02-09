@@ -160,4 +160,29 @@ ng build demo --configuration production --outputPath=docs/demo/ --baseHref=/chi
 cp docs/demo/index.html docs/demo/404.html
 ```
 
+# The Visual Schedular Component
+
+add some types
+
+```
+npm install ngx-drag-drop --save
+npm install moment
+ng g class visual-scheduler/Instant --project chichi-ng --type=model
+ng g class visual-scheduler/TimeSpan --project chichi-ng --type=model
+ng g component visual-scheduler/time-scale --project=chichi-ng
+ng g component visual-scheduler/time-line --project=chichi-ng
+ng g component visual-scheduler/agenda-item --project=chichi-ng
+ng g component visual-scheduler//agenda-item/agenda-item-schedule-box --project=chichi-ng
+ng g component visual-scheduler/toolbox --project=chichi-ng
+ng g component visual-scheduler/toolbox/tool --project=chichi-ng
+ng g service visual-scheduler/visual-scheduler --project=chichi-ng
+```
+
+# The Visual Schedular in the Demo
+
+```
+ng g component event-scheduler --project=demo
+
+```
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.
