@@ -150,6 +150,14 @@ ng g component SignUpOrIn --project demo --selector sign-up-or-in
 
 I added the spinning globe component to a header on the app page
 
+# deploying the demo under the project gh pages
 
+see https://github.com/rreganjr/chichi-ng/settings/pages
+Under source set Branch: master and /docs folder
+
+```
+ng build demo --configuration production --outputPath=docs/demo/ --baseHref=/chichi-ng/demo/
+cp docs/demo/index.html docs/demo/404.html
+```
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.
