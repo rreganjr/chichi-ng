@@ -131,7 +131,6 @@ ng generate library chichi-ng --prefix cc
 ```bash
 ng generate component bypass-panel --project=chichi-ng
 ng generate component turning-globe --project=chichi-ng
-ng generate component visual-scheduler  --project=chichi-ng
 ```
 
 # The Demo
@@ -162,19 +161,25 @@ cp docs/demo/index.html docs/demo/404.html
 
 # The Visual Schedular Component
 
-add some types
+The visual scheduler will have its own module in the chchi-ng library
 
 ```
 npm install ngx-drag-drop --save
-npm install moment
+npm install moment --save
+
+ng g module visual-scheduler --project=chichi-ng
+ng g component visual-scheduler --project=chichi-ng
+
 ng g class visual-scheduler/Instant --project chichi-ng --type=model
 ng g class visual-scheduler/TimeSpan --project chichi-ng --type=model
-ng g component visual-scheduler/time-scale --project=chichi-ng
-ng g component visual-scheduler/time-line --project=chichi-ng
-ng g component visual-scheduler/agenda-item --project=chichi-ng
-ng g component visual-scheduler//agenda-item/agenda-item-schedule-box --project=chichi-ng
+
+ng g component visual-scheduler/timescale --project=chichi-ng
+ng g component visual-scheduler/timeline --project=chichi-ng
+ng g component visual-scheduler/resource --project=chichi-ng
+ng g component visual-scheduler/resource/agenda-box --project=chichi-ng
 ng g component visual-scheduler/toolbox --project=chichi-ng
 ng g component visual-scheduler/toolbox/tool --project=chichi-ng
+
 ng g service visual-scheduler/visual-scheduler --project=chichi-ng
 ```
 
