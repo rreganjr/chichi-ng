@@ -4,7 +4,6 @@ import {CommonModule} from '@angular/common'
 import { ChichiNgComponent } from './chichi-ng.component';
 import { BypassPanelComponent } from './bypass-panel/bypass-panel.component';
 import { TurningGlobeComponent } from './turning-globe/turning-globe.component';
-import { VisualSchedulerComponent } from './visual-scheduler/visual-scheduler.component';
 
 
 
@@ -12,8 +11,7 @@ import { VisualSchedulerComponent } from './visual-scheduler/visual-scheduler.co
   declarations: [
     ChichiNgComponent,
     BypassPanelComponent,
-    TurningGlobeComponent,
-    VisualSchedulerComponent
+    TurningGlobeComponent
   ],
   imports: [
     CommonModule
@@ -21,8 +19,7 @@ import { VisualSchedulerComponent } from './visual-scheduler/visual-scheduler.co
   exports: [
     ChichiNgComponent,
     BypassPanelComponent,
-    TurningGlobeComponent,
-    VisualSchedulerComponent
+    TurningGlobeComponent
   ]
 })
 export class ChichiNgModule { }
