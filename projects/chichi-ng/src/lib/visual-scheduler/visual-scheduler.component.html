@@ -1,10 +1,10 @@
 <div>
     <div class="top">
-        <cc-toolbox></cc-toolbox>
+        <ng-content select="cc-toolbox"></ng-content>
         <cc-timescale></cc-timescale>
     </div>
     <div class="agenda">
         <cc-timeline></cc-timeline>
-        <ng-content></ng-content>
+        <ng-content select="cc-resource"></ng-content>
     </div>
 </div>

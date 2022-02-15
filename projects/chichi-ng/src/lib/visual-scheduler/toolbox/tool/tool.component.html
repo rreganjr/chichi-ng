@@ -2,8 +2,8 @@
     [dndType]="toolType"
     [dndEffectAllowed]="effectAllowed"
     [dndDisableIf]="disabled"
-    (dndStart)="onDragStart(<DragEvent> $event, toolType)"
-    (dndEnd)="onDragEnd(<DragEvent> $event, toolType)"
+    (dndStart)="onDragStart($event, toolType)"
+    (dndEnd)="onDragEnd($event, toolType)"
     >
     <ng-content></ng-content>
 </div>

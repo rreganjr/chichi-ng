@@ -19,11 +19,11 @@ export class ToolComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  public onDragStart($event: DragEvent, type: string) : void {
+  public onDragStart($event: Event, type: string) : void {
 
   }
 
-  public onDragEnd($event: DragEvent, type: string) : void {
+  public onDragEnd($event: Event, type: string) : void {
 
   }
 

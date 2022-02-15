@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+import { DndModule } from 'ngx-drag-drop';
 import { VisualSchedulerComponent } from './visual-scheduler.component';
 import { TimescaleComponent } from './timescale/timescale.component';
 import { TimelineComponent } from './timeline/timeline.component';
@@ -21,7 +23,8 @@ import { ToolComponent } from './toolbox/tool/tool.component';
     ToolComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    DndModule
   ],
   exports: [
     VisualSchedulerComponent,
