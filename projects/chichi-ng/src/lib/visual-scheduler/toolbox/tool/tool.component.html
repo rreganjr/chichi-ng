@@ -1,3 +1,9 @@
-<div class="cc-tool">
-    <ng-content></ng-content>>
+<div dndDraggable
+    [dndType]="toolType"
+    [dndEffectAllowed]="effectAllowed"
+    [dndDisableIf]="disabled"
+    (dndStart)="onDragStart(<DragEvent> $event, toolType)"
+    (dndEnd)="onDragEnd(<DragEvent> $event, toolType)"
+    >
+    <ng-content></ng-content>
 </div>

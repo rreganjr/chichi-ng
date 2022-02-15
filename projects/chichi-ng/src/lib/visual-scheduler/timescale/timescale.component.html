@@ -1,18 +1,12 @@
 <div>
-    <div>
-        <div>Offset</div>
-        <div>0 hours</div>
-    </div>
-    <div>
-        <div>Zoom</div>
-        <ul>
-            <li>1 hour</li>
-            <li>2 hour</li>
-            <li>6 hour</li>
-            <li>12 hour</li>
-            <li>1 day</li>
-            <li>2 day</li>
-            <li>3 day</li>
-        </ul>    
+    <div class="button-container">
+        <div>Zoom:</div>
+        <div (click)="setVisibleHours(3)" [ngClass]="{'time-highlight': visibleHours === 3}">3 hr.</div>
+        <div (click)="setVisibleHours(6)" [ngClass]="{'time-highlight': visibleHours === 6}">6 hr.</div>
+        <div (click)="setVisibleHours(12)" [ngClass]="{'time-highlight': visibleHours === 12}">12 hr.</div>
+        <div (click)="setVisibleHours(24)" [ngClass]="{'time-highlight': visibleHours === 24}">1 Day</div>
+        <div (click)="setVisibleHours(48)" [ngClass]="{'time-highlight': visibleHours === 48}">2 Days</div>
+        <div (click)="setVisibleHours(72)" [ngClass]="{'time-highlight': visibleHours === 72}">3 Days</div>
+        <div>&nbsp;</div>
     </div>
 </div>

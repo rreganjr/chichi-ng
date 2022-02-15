@@ -165,7 +165,9 @@ The visual scheduler will have its own module in the chchi-ng library
 
 ```
 npm install ngx-drag-drop --save
-npm install moment --save
+
+npm install luxon --save
+npm install @types/luxon --save-dev
 
 ng g module visual-scheduler --project=chichi-ng
 ng g component visual-scheduler --project=chichi-ng
