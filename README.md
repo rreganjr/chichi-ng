@@ -159,33 +159,29 @@ ng build demo --configuration production --outputPath=docs/demo/ --baseHref=/chi
 cp docs/demo/index.html docs/demo/404.html
 ```
 
-# The Visual Schedular Component
+# The Visual Scheduler Component
 
 The visual scheduler will have its own module in the chchi-ng library
 
 ```
-npm install ngx-drag-drop --save
-
-npm install luxon --save
-npm install @types/luxon --save-dev
-
 ng g module visual-scheduler --project=chichi-ng
 ng g component visual-scheduler --project=chichi-ng
-
-ng g class visual-scheduler/Instant --project chichi-ng --type=model
-ng g class visual-scheduler/TimeSpan --project chichi-ng --type=model
-
 ng g component visual-scheduler/timescale --project=chichi-ng
 ng g component visual-scheduler/timeline --project=chichi-ng
 ng g component visual-scheduler/resource --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box --project=chichi-ng
 ng g component visual-scheduler/toolbox --project=chichi-ng
 ng g component visual-scheduler/toolbox/tool --project=chichi-ng
-
 ng g service visual-scheduler/visual-scheduler --project=chichi-ng
+
+npm install ngx-drag-drop --save
+
+npm install luxon --save
+npm install @types/luxon --save-dev
+
 ```
 
-# The Visual Schedular in the Demo
+# The Visual Scheduler in the Demo
 
 ```
 ng g component event-scheduler --project=demo
