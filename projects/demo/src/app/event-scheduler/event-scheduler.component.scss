@@ -1,3 +1,68 @@
 :host {
   display: block;
 }
+
+$phi: 1.6180339887498948482;
+
+cc-visual-scheduler {
+  display: block;
+}
+
+cc-toolbox {
+  border: 1px solid black;
+  border-radius: 1em;
+  background-color: lightpink;
+}
+
+cc-tool {
+  flex: auto;
+  border: 2px solid black;
+  border-radius: 0.5em;
+  background-color: white;
+  font-size: large;
+  height: 3em;
+  width: 3em * $phi;
+
+  &.blue {
+    color: blue;
+  }
+  &.red {
+    color: red;
+  }
+  &.green {
+    color: green;
+  }
+
+  // from https://sebhastian.com/html-hover-text/
+  &.hovertext {
+    position: relative;
+  }
+  
+  &.hovertext:before {
+    content: attr(data-hover);
+    visibility: hidden;
+    opacity: 0;
+
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: .25em;
+    padding: .5em .5em;
+    transition: opacity 1s ease-in-out;
+  
+    position: absolute;
+    z-index: 1;
+    bottom: -15%;
+    right: -15%
+  }
+  
+  &.hovertext:hover:before {
+    opacity: 70%;
+    visibility: visible;
+  }
+}
+
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
