@@ -1,3 +1,17 @@
 :host {
-  display: block;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 1rem;
+}
+
+cc-agenda-box {
+  height: 3rem;
+  width: 80%;
+  margin-left: auto;
+  border: 1px solid #aaa;
+  border-radius: 1rem;
+  overflow: hidden;  
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'cc-resource',
@@ -6,8 +6,6 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./resource.component.scss']
 })
 export class ResourceComponent implements OnInit {
-
-  @Input() label!: String;
 
   constructor() { }
 

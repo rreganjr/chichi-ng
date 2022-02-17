@@ -1,52 +1,47 @@
 import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { Interval } from 'luxon';
+import { Timescale } from './timescale.model';
 
 @Injectable({
   providedIn: null
 })
 export class VisualSchedulerService {
 
-  /**
-   * The min and max date range in the visual scheduler
-   */
-  private boundsIntervalSubject: ReplaySubject<Interval> = new ReplaySubject(1);
+  private _timescale = new Timescale(
+    Interval.fromDateTimes(new Date(), new Date(new Date().getMilliseconds() + 24 * 60 * 60 * 1000)),
+    12,
+    0
+  );
 
-  /**
-   * The number of hours visible in the scheduler
-   */
-  private timeScaleVisibleHoursSubject: ReplaySubject<number> = new ReplaySubject(1);
+  private timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
 
-  /**
-   * The number of hours from the start of the bounds to what is visible, i.e. the point of time at the start of the visible hours
-   */
-  private timeScaleOffsetHoursSubject: ReplaySubject<number> = new ReplaySubject(1);
+  constructor() {
+    this.timescaleSubject.next(this._timescale);
+  }
 
-  constructor() { }
-
-  public getBoundsInterval$(): Observable<Interval> {
-    return this.boundsIntervalSubject.asObservable();
+  public getTimescale$(): Observable<Timescale> {
+    return this.timescaleSubject.asObservable();
   }
 
   public setBoundsInterval(interval: Interval) {
-    this.boundsIntervalSubject.next(interval);
-  }
-
-  public getTimeScaleOffsestHours$(): Observable<number> {
-    return this.timeScaleOffsetHoursSubject.asObservable();
+    this._timescale = new Timescale(interval, this._timescale.visibleHours, this._timescale.offsetHours);
+    this.timescaleSubject.next(this._timescale);
   }
 
   public setTimeScaleOffsetHours(offsetHours: number) {
-    if (offsetHours > 0) {
-      this.timeScaleOffsetHoursSubject.next(offsetHours);
+    offsetHours = Math.round(offsetHours);
+    if (offsetHours >= 0 && offsetHours <= this._timescale.boundsInterval.end.hour - this._timescale.visibleHours) {
+      this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleHours, offsetHours);
+      this.timescaleSubject.next(this._timescale);
     }
   }
 
-  public getTimeScaleVisibleHours$(): Observable<number> {
-    return this.timeScaleVisibleHoursSubject.asObservable();
-  }
-
   public setTimeScaleVisibleHours(visibleHours: number) {
-    this.timeScaleVisibleHoursSubject.next(visibleHours);
+    visibleHours = Math.round(visibleHours);
+    if (visibleHours > 0 && visibleHours <= 7 * 24) {
+      this._timescale = new Timescale(this._timescale.boundsInterval, visibleHours, this._timescale.offsetHours);
+      this.timescaleSubject.next(this._timescale);
+    }
   }
 }

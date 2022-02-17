@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Interval } from 'luxon';
+import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
 
 @Component({
@@ -10,21 +11,13 @@ import { VisualSchedulerService } from '../visual-scheduler.service';
 })
 export class TimescaleComponent implements OnInit {
 
-  public boundsInterval: Interval = Interval.fromDateTimes(new Date(), new Date());
-  public visibleHours: number = 3;
-  public offsetHours: number = 0;
+  private _timescale!: Timescale;
 
   constructor(
     private visualSchedulerService: VisualSchedulerService
     ) { 
-      this.visualSchedulerService.getBoundsInterval$().subscribe( (interval: Interval) => {
-          this.boundsInterval = interval;
-      });
-      this.visualSchedulerService.getTimeScaleVisibleHours$().subscribe ((visibleHours: number) => {
-        this.visibleHours = visibleHours;
-      });
-      this.visualSchedulerService.getTimeScaleOffsestHours$().subscribe( (offsetHours: number) => {
-        this.offsetHours = offsetHours;
+      this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
+          this._timescale = timescale;
       });
     }
 
@@ -32,19 +25,23 @@ export class TimescaleComponent implements OnInit {
   }
 
   public zoomIn(): void {
-    this.visualSchedulerService.setTimeScaleVisibleHours(this.visibleHours * 2);
+    this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours / 2);  // TODO: round
   }
 
   public zoomOut(): void {
-    this.visualSchedulerService.setTimeScaleVisibleHours(this.visibleHours * 2); // TODO: round
+    this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours * 2);
   }
 
   public panBack(): void {
-    if (this.offsetHours > 0) {
-        this.visualSchedulerService.setTimeScaleOffsetHours(this.offsetHours - this.visibleHours);
+    if (this._timescale.offsetHours > 0) {
+        this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetHours - this._timescale.visibleHours);
     }
   }
 
+  public get visibleHours(): number {
+    return this._timescale.visibleHours;
+  }
+  
   public setVisibleHours(visibleHours: number): void {
     this.visualSchedulerService.setTimeScaleVisibleHours(visibleHours);
   }
