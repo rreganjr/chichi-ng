@@ -1,31 +1,30 @@
 :host {
-  display: flex;
   position: absolute;
-  width: 100%;
-  bottom: 0;
-  left: 0;
-  height: 1rem;
+  display: flex;
   flex-direction: row;
   align-items: flex-end;
+  height: 100%;
+  width: 100%;
 
   .day {
-    border-left: 3px solid #000;
-    min-height: 20px;
+    border-left: 2px solid #000;
+    height: 100%;
   }
 
   .hour {
     border-left: 2px solid #ccc;
-    min-height: 20px;
+    height: 100%;
   }
 
   .subHour {
     border-left: 1px solid #ccc;
-    max-height: 10px;
-    min-height: 10px;
+    height: 33%;
   }
 }
 
 div.hour-label {
-  height: 2rem;
-  top: 0;
+  position: absolute;
+  font-size: .75rem;
+  top: 0.25rem;
+  padding-left: 0.10rem;
 }
