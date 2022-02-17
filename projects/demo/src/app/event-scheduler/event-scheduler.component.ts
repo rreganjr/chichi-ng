@@ -7,8 +7,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EventSchedulerComponent implements OnInit {
 
-  startDate: Date = new Date();
-  endDate: Date = new Date(this.startDate.getMilliseconds() + 24 * 60 * 60 * 1000);
+  public startDate: Date = new Date();
+  public endDate: Date = new Date(this.startDate.getTime() + 24 * 60 * 60 * 1000);
 
   constructor() { }
 

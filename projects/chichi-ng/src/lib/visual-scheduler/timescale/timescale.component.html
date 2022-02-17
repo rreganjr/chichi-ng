@@ -9,4 +9,9 @@
         <div (click)="setVisibleHours(72)" [ngClass]="{'time-highlight': visibleHours === 72}">3 Days</div>
         <div>&nbsp;</div>
     </div>
+    <div>
+        <div><span>visibleHours:</span><span>{{_timescale.visibleHours}}</span></div>
+        <div><span>offsetHours:</span><span>{{_timescale.offsetHours}}</span></div>
+        <div><span>bounds:</span><span>{{_timescale.boundsInterval}}</span></div>
+    </div>
 </div>

@@ -9,7 +9,7 @@ import { Timescale } from './timescale.model';
 export class VisualSchedulerService {
 
   private _timescale = new Timescale(
-    Interval.fromDateTimes(new Date(), new Date(new Date().getMilliseconds() + 24 * 60 * 60 * 1000)),
+    Interval.fromDateTimes(new Date(), new Date(new Date().getTime() + 24 * 60 * 60 * 1000)),
     12,
     0
   );

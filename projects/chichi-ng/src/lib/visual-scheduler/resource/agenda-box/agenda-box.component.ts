@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'cc-agenda-box',
@@ -6,6 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./agenda-box.component.scss']
 })
 export class AgendaBoxComponent implements OnInit {
+
+  @Input() showHourLabel: boolean = false;
 
   constructor() { }
 

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
@@ -10,22 +10,31 @@ import { VisualSchedulerService } from '../visual-scheduler.service';
   styleUrls: ['./timeline.component.scss'],
   providers: [VisualSchedulerService]
 })
-export class TimelineComponent implements OnInit {
+export class TimelineComponent implements OnInit, OnDestroy {
 
-  private _timescaleSubscription!: Subscription;
+  private _timescaleSubscription?: Subscription;
   private _timescale!: Timescale;
 
-  @ViewChild('timeline', {static: false}) timelineElement!: ElementRef;
-
+  @Input() showHourLabel: boolean = false;
+ 
   constructor(
     private visualSchedulerService: VisualSchedulerService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private timelineElement: ElementRef
   ) { }
 
   ngOnInit(): void {
     this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
       this._timescale = timescale;
+      this.draw();
     });
+  }
+
+  ngOnDestroy(): void {
+      if (this._timescaleSubscription) {
+        this._timescaleSubscription.unsubscribe();
+        this._timescaleSubscription = undefined;
+      }
   }
 
   /**
@@ -57,20 +66,20 @@ export class TimelineComponent implements OnInit {
     return this.startHour + this._timescale.visibleHours;
   }
 
-  private draw(renderer: Renderer2, timelineElement: ElementRef, includeHourLabel: boolean = false): void {
-    const tempDiv: HTMLDivElement = renderer.createElement('div');
-    if (timelineElement !== undefined) {
+  private draw(): void {
+    const tempDiv: HTMLDivElement = this.renderer.createElement('div');
+    if (this.timelineElement !== undefined) {
       // 
-      for (const child of timelineElement.nativeElement.children) {
-        renderer.removeChild(timelineElement.nativeElement, child);
+      for (const child of this.timelineElement.nativeElement.children) {
+        this.renderer.removeChild(this.timelineElement.nativeElement, child);
       }
 
-      renderer.appendChild(timelineElement.nativeElement, this.makeRulerElement(renderer, this.timeDivisionsPerHour, this.startHour, includeHourLabel)); // The hour line to start
+      this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(this.timeDivisionsPerHour, this.startHour, this.showHourLabel));
 
       // The actual drawing of the lines
       for (let hour = this.startHour + 1; hour <= this.endHour; hour++) {
         for (let timeDivision = 1; timeDivision <= this.timeDivisionsPerHour; timeDivision++) {
-          renderer.appendChild(timelineElement.nativeElement, this.makeRulerElement(renderer, timeDivision, hour, includeHourLabel));
+          this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(timeDivision, hour, this.showHourLabel));
         }
       }
     }
@@ -83,8 +92,8 @@ export class TimelineComponent implements OnInit {
    * @param includeHourLabel : boolean - when true a label for the hour is add to the div in its own div
    * @returns an hour/subHour div element for the supplied hour and timeDivision
    */
-  private makeRulerElement(renderer: Renderer2, timeDivision: number, hour: number, includeHourLabel: boolean): HTMLDivElement {
-    const tempDiv: HTMLDivElement = renderer.createElement('div');
+  private makeRulerElement(timeDivision: number, hour: number, includeHourLabel: boolean): HTMLDivElement {
+    const tempDiv: HTMLDivElement = this.renderer.createElement('div');
     tempDiv.style.width = this.timeDivisionWidth;
     tempDiv.className = (timeDivision === this.timeDivisionsPerHour) ? ((hour % 24 === 0) ? 'day' : 'hour') : 'subHour';
     if (this._timescale.visibleHours >= 24 && (hour % (4 / this.timeDivisionsPerHour)) === (this.startHour % (4 / this.timeDivisionsPerHour))) {
@@ -92,10 +101,10 @@ export class TimelineComponent implements OnInit {
     }
     if (timeDivision === this.timeDivisionsPerHour) { // the hour
       if (includeHourLabel && (this._timescale.visibleHours < 24 || ((hour % (4 / this.timeDivisionsPerHour)) === (this.startHour % (4 / this.timeDivisionsPerHour))))) {
-        const labelDiv: HTMLDivElement = renderer.createElement('div');
+        const labelDiv: HTMLDivElement = this.renderer.createElement('div');
         labelDiv.textContent = this.get12HourTime(hour);  // Label the hour
         labelDiv.className = 'hour-label';
-        renderer.appendChild(tempDiv, labelDiv);
+        this.renderer.appendChild(tempDiv, labelDiv);
       }
     }
     return tempDiv;

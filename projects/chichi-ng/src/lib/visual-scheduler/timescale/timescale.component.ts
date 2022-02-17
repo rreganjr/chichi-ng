@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Interval } from 'luxon';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
 
@@ -11,7 +10,7 @@ import { VisualSchedulerService } from '../visual-scheduler.service';
 })
 export class TimescaleComponent implements OnInit {
 
-  private _timescale!: Timescale;
+  public _timescale!: Timescale;
 
   constructor(
     private visualSchedulerService: VisualSchedulerService
@@ -25,7 +24,7 @@ export class TimescaleComponent implements OnInit {
   }
 
   public zoomIn(): void {
-    this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours / 2);  // TODO: round
+    this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours / 2); 
   }
 
   public zoomOut(): void {

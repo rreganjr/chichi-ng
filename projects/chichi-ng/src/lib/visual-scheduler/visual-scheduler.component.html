@@ -1,10 +1,12 @@
 <div>
     <div class="top">
         <ng-content select="cc-toolbox"></ng-content>
+        <div><span>startDate: </span><span>{{startDate | date:'short' }}</span></div>
+        <div><span>endDate: </span><span>{{endDate | date:'short'}}</span></div>
         <cc-timescale></cc-timescale>
     </div>
     <div class="agenda">
-        <cc-resource><div class="label"></div></cc-resource>
+        <cc-resource></cc-resource>
         <ng-content select="cc-resource"></ng-content>
     </div>
 </div>

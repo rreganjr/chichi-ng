@@ -1,8 +1,4 @@
 :host {
-  display: block;
-}
-
-.timeline {
   display: flex;
   position: absolute;
   width: 100%;
@@ -26,5 +22,10 @@
     border-left: 1px solid #ccc;
     max-height: 10px;
     min-height: 10px;
-  }  
+  }
+}
+
+div.hour-label {
+  height: 2rem;
+  top: 0;
 }

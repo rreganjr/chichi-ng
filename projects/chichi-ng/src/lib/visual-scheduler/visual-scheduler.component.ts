@@ -1,15 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Interval } from 'luxon';
+import { VisualSchedulerService } from './visual-scheduler.service';
 
 @Component({
   selector: 'cc-visual-scheduler',
   templateUrl: './visual-scheduler.component.html',
-  styleUrls: ['./visual-scheduler.component.scss']
+  styleUrls: ['./visual-scheduler.component.scss'],
+  providers: [VisualSchedulerService]
 })
-export class VisualSchedulerComponent implements OnInit {
+export class VisualSchedulerComponent implements OnInit, OnChanges {
 
-  constructor() { }
+  @Input() startDate!: Date;
+  @Input() endDate!: Date;
+
+  constructor(
+    private visualSchedulerService: VisualSchedulerService
+  ) { }
 
   ngOnInit(): void {
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.startDate && this.endDate && (changes['startDate'].currentValue || changes['endDate'].currentValue)) {
+      this.visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(this.startDate, this.endDate));
+    }
+  }
 }
