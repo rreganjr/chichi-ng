@@ -188,5 +188,11 @@ npm install @types/luxon --save-dev
 ng g component event-scheduler --project=demo
 
 ```
+# Interactive Development of Library and Demo
+
+```
+ng build chichi-ng --watch
+ng serve demo
+```
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.

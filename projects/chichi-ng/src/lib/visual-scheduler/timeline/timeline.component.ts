@@ -79,7 +79,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       // The actual drawing of the lines
       for (let hour = this.startHour + 1; hour <= this.endHour; hour++) {
         for (let timeDivision = 1; timeDivision <= this.timeDivisionsPerHour; timeDivision++) {
-          this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(timeDivision, hour, this.showHourLabel));
+          this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(timeDivision, hour, (this.showHourLabel && hour !== this.endHour)));
         }
       }
     }

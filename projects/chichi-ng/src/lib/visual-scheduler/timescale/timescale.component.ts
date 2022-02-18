@@ -31,9 +31,15 @@ export class TimescaleComponent implements OnInit {
     this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours * 2);
   }
 
-  public panBack(): void {
+  public scanBack(): void {
     if (this._timescale.offsetHours > 0) {
         this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetHours - this._timescale.visibleHours);
+    }
+  }
+
+  public scanForward(): void {
+    if (this._timescale.offsetHours < this._timescale.boundsInterval.end.hour) {
+        this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetHours + this._timescale.visibleHours);
     }
   }
 
