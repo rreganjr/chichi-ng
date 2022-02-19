@@ -194,5 +194,8 @@ ng g component event-scheduler --project=demo
 ng build chichi-ng --watch
 ng serve demo
 ```
+# Service Providers
+
+I want each visual scheduler to use its own visual scheduler service so that if there is more than one on a page they don't mess up each other. In the VisualSchedulerService I set @Injectable(providedIn: null) so there isn't a default at the root level. I didn't add it to the VisualSchedulerModule as a provider so that there wouldn't be one for all VisualScheduler components. In VisualSchedulerComponent I added it to the providers. I mistakenly added it to the TimescaleComponent and TimelineComponent which made it so that when I zoomed in or out in the timescale the timeline didn't get updated. Watching https://www.youtube.com/watch?v=XpfxmHM6E4E set me straight.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.

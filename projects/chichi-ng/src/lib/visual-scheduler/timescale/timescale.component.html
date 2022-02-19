@@ -1,17 +1,19 @@
 <div>
-    <div class="button-container">
-        <div>Zoom:</div>
-        <div (click)="setVisibleHours(3)" [ngClass]="{'time-highlight': visibleHours === 3}">3 hr.</div>
-        <div (click)="setVisibleHours(6)" [ngClass]="{'time-highlight': visibleHours === 6}">6 hr.</div>
-        <div (click)="setVisibleHours(12)" [ngClass]="{'time-highlight': visibleHours === 12}">12 hr.</div>
-        <div (click)="setVisibleHours(24)" [ngClass]="{'time-highlight': visibleHours === 24}">1 Day</div>
-        <div (click)="setVisibleHours(48)" [ngClass]="{'time-highlight': visibleHours === 48}">2 Days</div>
-        <div (click)="setVisibleHours(72)" [ngClass]="{'time-highlight': visibleHours === 72}">3 Days</div>
-        <div>&nbsp;</div>
+    <div class="scales">
+        <div class="ends"><div class="material-icons  md-48">schedule</div><div>ZOOM</div></div>
+        <div (click)="zoomIn()" class="button"><span class="material-icons md-48">zoom_in</span></div>
+        <div (click)="setVisibleHours(3)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 3}">3 Hours</div>
+        <div (click)="setVisibleHours(6)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 6}">6 Hours</div>
+        <div (click)="setVisibleHours(12)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 12}">12 Hours</div>
+        <div (click)="setVisibleHours(24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 24}">1 Day</div>
+        <div (click)="setVisibleHours(2*24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 2*24}">2 Days</div>
+        <div (click)="setVisibleHours(4*24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 4*24}">4 Days</div>
+        <div (click)="setVisibleHours(7*24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 7*24}">1 Week</div>
+        <div (click)="zoomOut()" class="button"><span class="material-icons md-48">zoom_out</span></div>
+        <div class="ends">&nbsp;</div>
     </div>
     <div>
-        <div><span>visibleHours:</span><span>{{_timescale.visibleHours}}</span></div>
-        <div><span>offsetHours:</span><span>{{_timescale.offsetHours}}</span></div>
-        <div><span>bounds:</span><span>{{_timescale.boundsInterval}}</span></div>
-    </div>
+        <div><span>startDate: </span><span>{{_timescale.boundsInterval.start.toBSON()| date:'long' }}</span></div>
+        <div><span>endDate: </span><span>{{_timescale.boundsInterval.end.toBSON()| date:'long'}}</span></div>
+    </div>    
 </div>

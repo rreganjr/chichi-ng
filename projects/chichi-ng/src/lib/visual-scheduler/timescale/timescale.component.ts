@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
 
@@ -6,21 +7,28 @@ import { VisualSchedulerService } from '../visual-scheduler.service';
   selector: 'cc-timescale',
   templateUrl: './timescale.component.html',
   styleUrls: ['./timescale.component.scss'],
-  providers: [VisualSchedulerService]
 })
-export class TimescaleComponent implements OnInit {
+export class TimescaleComponent implements OnInit, OnDestroy {
 
+  private _timescaleSubscription?: Subscription;
   public _timescale!: Timescale;
 
   constructor(
     private visualSchedulerService: VisualSchedulerService
-    ) { 
-      this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
-          this._timescale = timescale;
-      });
-    }
+    ) {}
 
   ngOnInit(): void {
+    this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
+      console.log(`timescale changed`, timescale);
+      this._timescale = timescale;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this._timescaleSubscription) {
+      this._timescaleSubscription.unsubscribe();
+      this._timescaleSubscription = undefined;
+    }
   }
 
   public zoomIn(): void {

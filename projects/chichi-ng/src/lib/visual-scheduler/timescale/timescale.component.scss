@@ -1,3 +1,40 @@
 :host {
-  display: block;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 1em;
+}
+
+.scales {
+  display: flex;
+  font-size: 1rem;
+  border: 1px solid black;
+  border-radius: 1rem;
+  .selected {
+    background-color: lightpink;
+    font-weight: bold;
+  }
+
+  > div {
+    border-right: 1px solid black;
+    padding: .5rem;
+    width: 5rem;
+    text-align: center;
+    &.ends {
+      background-color: lightgray;
+      &:first-child {
+        border-radius: 1rem 0 0 1rem;
+      }
+      &:last-child {
+        border-right: 0;
+        border-radius: 0 1rem 1rem 0;
+      }
+    }
+  }
+}
+
+.button {
+  cursor: pointer;
 }

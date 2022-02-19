@@ -56,6 +56,11 @@ export class VisualSchedulerService {
    */
   public setTimeScaleVisibleHours(visibleHours: number) {
     visibleHours = Math.round(visibleHours);
+    if (visibleHours < 3) {
+      visibleHours = 3;
+    } else if (visibleHours > 7 * 24) {
+      visibleHours = 7 * 24;
+    }
     if (visibleHours > 0 && visibleHours <= 7 * 24) {
       this._timescale = new Timescale(this._timescale.boundsInterval, visibleHours, this._timescale.offsetHours);
       this.timescaleSubject.next(this._timescale);

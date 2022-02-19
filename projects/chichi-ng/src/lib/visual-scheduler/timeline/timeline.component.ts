@@ -1,5 +1,4 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { Interval } from 'luxon';
+import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
@@ -7,8 +6,7 @@ import { VisualSchedulerService } from '../visual-scheduler.service';
 @Component({
   selector: 'cc-timeline',
   templateUrl: './timeline.component.html',
-  styleUrls: ['./timeline.component.scss'],
-  providers: [VisualSchedulerService]
+  styleUrls: ['./timeline.component.scss']
 })
 export class TimelineComponent implements OnInit, OnDestroy {
 
@@ -25,24 +23,25 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
+      console.log(`timescale changed`, timescale);
       this._timescale = timescale;
       this.draw();
     });
   }
 
   ngOnDestroy(): void {
-      if (this._timescaleSubscription) {
-        this._timescaleSubscription.unsubscribe();
-        this._timescaleSubscription = undefined;
-      }
+    if (this._timescaleSubscription) {
+      this._timescaleSubscription.unsubscribe();
+      this._timescaleSubscription = undefined;
+    }
   }
 
   /**
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
-     private get timeDivisionWidth(): string {
-      return ((100.0 / this._timescale.visibleHours) / this.timeDivisionsPerHour) + '%';
-    }
+  private get timeDivisionWidth(): string {
+    return ((100.0 / this._timescale.visibleHours) / this.timeDivisionsPerHour) + '%';
+  }
 
   /**
    * The number of time units to display between hours.
@@ -58,15 +57,22 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * The first hour visible in the timeline
+   */
   private get startHour(): number {
     return this._timescale.boundsInterval.start.hour + this._timescale.offsetHours;
   }
 
+  /**
+   * The last hour visible in the timeline
+   */
   private get endHour(): number {
     return this.startHour + this._timescale.visibleHours;
   }
 
   private draw(): void {
+    console.log('draw!', this._timescale);
     const tempDiv: HTMLDivElement = this.renderer.createElement('div');
     if (this.timelineElement !== undefined) {
       // 
