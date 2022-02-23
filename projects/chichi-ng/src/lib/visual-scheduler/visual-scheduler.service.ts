@@ -42,8 +42,8 @@ export class VisualSchedulerService {
   public setTimeScaleOffsetHours(offsetHours: number) {
     if (offsetHours >= 0) {
       offsetHours = Math.round(offsetHours);
-      if (offsetHours > this._timescale.boundsInterval.end.hour - this._timescale.visibleHours) {
-        offsetHours = this._timescale.boundsInterval.end.hour - this._timescale.visibleHours;
+      if (offsetHours > this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleHours) {
+        offsetHours = this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleHours;
       }
       this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleHours, offsetHours);
       this.timescaleSubject.next(this._timescale);  

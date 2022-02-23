@@ -5,20 +5,25 @@
   align-items: flex-end;
   height: 100%;
   width: 100%;
+  
+  .subHour {
+    border-left: 1px solid #ccc;
+    height: 33%;
+  }
+
+  .hour {
+    border-left: 1px solid #ccc;
+    height: 66%;
+  }
+
+  .labeled-hour {
+    border-left: 1px solid #777;
+    height: 100%;
+  }
 
   .day {
     border-left: 2px solid #000;
     height: 100%;
-  }
-
-  .hour {
-    border-left: 2px solid #ccc;
-    height: 100%;
-  }
-
-  .subHour {
-    border-left: 1px solid #ccc;
-    height: 33%;
   }
 }
 
@@ -27,4 +32,11 @@ div.hour-label {
   font-size: .75rem;
   top: 0.25rem;
   padding-left: 0.10rem;
+}
+
+div.hour-label-tight {
+  position: absolute;
+  font-size: .60rem;
+  top: 0.25rem;
+  padding-left: 0.07rem;
 }
