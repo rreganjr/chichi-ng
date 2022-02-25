@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Duration } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
@@ -35,31 +36,31 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public zoomIn(): void {
-    if (this._timescale.visibleHours === TimescaleComponent.WEEK_IN_HOURS) {
+    if (this._timescale.visibleDuration.hours === TimescaleComponent.WEEK_IN_HOURS) {
       this.visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.FOUR_DAYS_IN_HOURS);
     } else {
-      this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours / 2); 
+      this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours / 2); 
     }
   }
 
   public zoomOut(): void {
-    if (this._timescale.visibleHours === TimescaleComponent.FOUR_DAYS_IN_HOURS) {
+    if (this._timescale.visibleDuration.hours === TimescaleComponent.FOUR_DAYS_IN_HOURS) {
       this.visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.WEEK_IN_HOURS);
     } else {
-      this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleHours * 2);
+      this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours * 2);
     }
   }
 
   public scanToStart(): void {
-    console.log(`scanToStart: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleHours}`)
+    console.log(`scanToStart: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
     this.visualSchedulerService.setTimeScaleOffsetHours(0);
   }
 
   public scanBack(): void {
-    console.log(`scanBack: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleHours}`)
-    if (this._timescale.offsetHours > 0) {
-      if (this._timescale.offsetHours - this._timescale.visibleHours > 0) {
-        this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetHours - this._timescale.visibleHours);
+    console.log(`scanBack: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
+    if (this._timescale.offsetDuration.hours > 0) {
+      if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours > 0) {
+        this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours);
       } else {
         this.scanToStart();
       }
@@ -67,29 +68,29 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public scanForward(): void {
-    console.log(`scanForward: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleHours}`)
-    if (this._timescale.offsetHours > (this._timescale.boundsInterval.toDuration("hours").hours + this._timescale.visibleHours )) {
+    console.log(`scanForward: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
+    if (this._timescale.offsetDuration > (this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration))) {
         this.scanToEnd();
     } else {
-      this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetHours + this._timescale.visibleHours);
+      this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.hours + this._timescale.visibleDuration.hours);
     }
   }
 
   public scanToEnd(): void {
-    console.log(`scanToEnd: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleHours}`)
-    this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleHours);
+    console.log(`scanToEnd: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
+    this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleDuration.hours);
   }
 
-  public get visibleHours(): number {
-    return this._timescale.visibleHours;
+  public get visibleHours(): Duration {
+    return this._timescale.visibleDuration;
   }
   
   public setVisibleHours(visibleHours: number): void {
     this.visualSchedulerService.setTimeScaleVisibleHours(visibleHours);
   }
 
-  public get offsetHours(): number {
-    return this._timescale.offsetHours;
+  public get offsetHours(): Duration {
+    return this._timescale.offsetDuration;
   }
 
   public setOffsetHours(offsetHours: number): void {

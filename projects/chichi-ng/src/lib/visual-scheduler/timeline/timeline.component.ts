@@ -1,4 +1,5 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { DateTime, DateTimeFormatOptions, Duration } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
@@ -13,7 +14,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private _timescaleSubscription?: Subscription;
   private _timescale!: Timescale;
 
-  @Input() showHourLabel: boolean = false;
+  @Input() showLabels: boolean = false;
+  private _dateFormatOptions: DateTimeFormatOptions | undefined = undefined;
+  private _timeFormatOptions: DateTimeFormatOptions | undefined = undefined;
  
   constructor(
     private visualSchedulerService: VisualSchedulerService,
@@ -40,110 +43,72 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
   private get timeDivisionWidth(): string {
-    return ((100.0 / this._timescale.visibleHours) / this.timeDivisionsPerHour) + '%';
+    return ((100.0 / this._timescale.visibleDuration.hours) / this.timeDivisionDuration.hours) + '%';
   }
 
-  /**
-   * The number of time units to display between hours.
-   */
-  private get timeDivisionsPerHour(): number {
-    const timeSpanHours = this._timescale.visibleHours;
-    if (timeSpanHours < 24) {
-      return 4;
-    } else if (timeSpanHours <= 3*24) {
-      return 2;
-    } else if (timeSpanHours <= 4*24) {
-      return 1;
+  private get timeDivisionDuration(): Duration {
+    const visibleHours = this._timescale.visibleDuration.hours;
+    if (visibleHours < 24) {
+      return Duration.fromDurationLike({minutes: 15});
+    } else if (visibleHours <= 3*24) {
+      return Duration.fromDurationLike({minutes: 30});
+    } else if (visibleHours <= 4*24) {
+      return Duration.fromDurationLike({hours: 1});
+    } else if (visibleHours <= 7*24) {
+      return Duration.fromDurationLike({hours: 6});
     } else {
-      return 0.5;
+      return Duration.fromDurationLike({days: 1});
     }
   }
 
-  /**
-   * The first hour visible in the timeline
-   */
-  private get startHour(): number {
-    return this._timescale.boundsInterval.start.hour + this._timescale.offsetHours;
-  }
-
-  /**
-   * The last hour visible in the timeline
-   */
-  private get endHour(): number {
-    return this.startHour + this._timescale.visibleHours;
-  }
-
   private draw(): void {
-    console.log('draw!', this._timescale);
     const tempDiv: HTMLDivElement = this.renderer.createElement('div');
+
     if (this.timelineElement !== undefined) {
+      // clean-up previous elements
       for (const child of this.timelineElement.nativeElement.children) {
         this.renderer.removeChild(this.timelineElement.nativeElement, child);
       }
 
-      // first hour
-      this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(this.timeDivisionsPerHour, this.startHour, this.showHourLabel));
+      const startTick: DateTime = this._timescale.boundsInterval.start.startOf('hour').plus(this._timescale.offsetDuration);
+      const lastTick: DateTime = startTick.plus(this._timescale.visibleDuration);
+      const tickDuration: Duration = this.timeDivisionDuration;
 
       // drawing the time lines
-      for (let hour = this.startHour + 1; hour <= this.endHour; hour++) {
-        if (this.timeDivisionsPerHour < 1) {
-          if (hour * this.timeDivisionsPerHour === Math.floor(hour * this.timeDivisionsPerHour)) {
-            this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(1, hour, (this.showHourLabel && hour !== this.endHour)));
-          }
-        } else {
-          for (let timeDivision = 1; timeDivision <= this.timeDivisionsPerHour; timeDivision++) {
-            this.renderer.appendChild(this.timelineElement.nativeElement, this.makeRulerElement(timeDivision, hour, (this.showHourLabel && hour !== this.endHour)));
-          }
-        }
+      for (let tick: DateTime = startTick; tick <= lastTick; tick = tick.plus(tickDuration) ) {
+        this.renderer.appendChild(this.timelineElement.nativeElement, (tick.minute === 0 ? this.makeHourElement(tick) : this.makeSubHourElement(tick)));
       }
     }
   }
 
-  /*
-   * @param timeDivision : number - the nth time division for this hour, if it equals {@link #timeDivisionsPerHour} then this is an hour line
-   * @param hour : number - the nth hour since the time bounds start.
-   * @param includeHourLabel : boolean - when true a label for the hour is add to the div in its own div when appropriate
-   * @returns an hour/subHour div element for the supplied hour and timeDivision
-   */
-  private makeRulerElement(timeDivision: number, hour: number, includeHourLabel: boolean): HTMLDivElement {
-    const tempDiv: HTMLDivElement = this.renderer.createElement('div');
-    tempDiv.style.width = this.timeDivisionWidth;
-    tempDiv.className = ((timeDivision === this.timeDivisionsPerHour) || this.timeDivisionsPerHour < 1.0) ? ((hour % 24 === 0) ? 'day' : 'hour') : 'subHour';
-
-    if (includeHourLabel && this.timeDivisionsPerHour < 1.0) {
-      if ((hour % 24 === 0) || hour / 6 === Math.floor(hour / 6)) {
-        tempDiv.className += ' labeled-hour';
-      }
-
-    } else if (includeHourLabel && tempDiv.className !== 'subHour') {
-      if (hour % (4 / this.timeDivisionsPerHour) === (this.startHour % (4 / this.timeDivisionsPerHour))) {
-        tempDiv.className += ' labeled-hour';
-      }  
-    }
-    if (timeDivision === this.timeDivisionsPerHour || this.timeDivisionsPerHour < 1.0 ) { // the hour
-      if (includeHourLabel && (
-        (this.timeDivisionsPerHour < 1.0 && ((hour % 24 === 0) || hour / 6 === Math.floor(hour / 6))) ||
-        (this.timeDivisionsPerHour >= 1.0 && (hour % (4 / this.timeDivisionsPerHour)) === (this.startHour % (4 / this.timeDivisionsPerHour))))) {
-        const labelDiv: HTMLDivElement = this.renderer.createElement('div');
-        labelDiv.textContent = this.get12HourTime(hour);  // Label the hour
-        labelDiv.className = 'hour-label';
-        if (this.timeDivisionsPerHour < 1.0) {
-          labelDiv.className += '-tight';
-        }
-        this.renderer.appendChild(tempDiv, labelDiv);
-      }
-    }
-    return tempDiv;
+  private makeSubHourElement(dateTime: DateTime): HTMLDivElement {
+    const element: HTMLDivElement = this.renderer.createElement('div');
+    element.style.width = this.timeDivisionWidth;
+    element.className = 'subHour';
+    return element;
   }
 
-  // Returns 12H hour instead of 24H
-  private get12HourTime(hour: number) {
-    let hr, pm = false;
-    for (hr = hour; hr >= 12; hr -= 12) {
-      pm = !pm;
+  private makeHourElement(dateTime: DateTime): HTMLDivElement {
+    const element: HTMLDivElement = this.renderer.createElement('div');
+    element.style.width = this.timeDivisionWidth;
+    element.className = (dateTime.hour === 0) ? 'day' : 'hour';
+    if (this.showLabels) {
+      this.renderer.appendChild(element, (dateTime.hour === 0) ? this.makeDayLabel(dateTime) : this.makeHourLabel(dateTime));
     }
-    return (hr === 0 ? '12' : hr) + ':00' + (pm ? 'pm' : 'am');
+    return element;
   }
 
+  private makeHourLabel(dateTime: DateTime): HTMLDivElement {
+    const element: HTMLDivElement = this.renderer.createElement('div');
+    element.textContent = dateTime.toLocaleString(this._timeFormatOptions);
+    element.className = 'hour-label';
+    return element;
+  }
 
+  private makeDayLabel(dateTime: DateTime): HTMLDivElement {
+    const element: HTMLDivElement = this.renderer.createElement('div');
+    element.textContent = dateTime.toLocaleString(this._dateFormatOptions);
+    element.className = 'day-label';
+    return element;
+  }
 }

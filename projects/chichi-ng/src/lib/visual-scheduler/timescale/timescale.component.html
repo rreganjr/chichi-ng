@@ -2,13 +2,13 @@
     <div class="scale">
         <div class="ends"><div class="material-icons  md-48">schedule</div><div>ZOOM</div></div>
         <div (click)="zoomIn()" class="button"><span class="material-icons md-48">zoom_in</span></div>
-        <div (click)="setVisibleHours(3)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 3}">3 Hours</div>
-        <div (click)="setVisibleHours(6)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 6}">6 Hours</div>
-        <div (click)="setVisibleHours(12)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 12}">12 Hours</div>
-        <div (click)="setVisibleHours(24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 24}">1 Day</div>
-        <div (click)="setVisibleHours(2*24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 2*24}">2 Days</div>
-        <div (click)="setVisibleHours(4*24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 4*24}">4 Days</div>
-        <div (click)="setVisibleHours(7*24)" class="button" [ngClass]="{'selected': _timescale.visibleHours === 7*24}">1 Week</div>
+        <div (click)="setVisibleHours(3)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 3}">3 Hours</div>
+        <div (click)="setVisibleHours(6)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 6}">6 Hours</div>
+        <div (click)="setVisibleHours(12)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 12}">12 Hours</div>
+        <div (click)="setVisibleHours(24)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 24}">1 Day</div>
+        <div (click)="setVisibleHours(2*24)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 2*24}">2 Days</div>
+        <div (click)="setVisibleHours(4*24)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 4*24}">4 Days</div>
+        <div (click)="setVisibleHours(7*24)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.hours === 7*24}">1 Week</div>
         <div (click)="zoomOut()" class="button"><span class="material-icons md-48">zoom_out</span></div>
         <div class="ends">&nbsp;</div>
     </div>

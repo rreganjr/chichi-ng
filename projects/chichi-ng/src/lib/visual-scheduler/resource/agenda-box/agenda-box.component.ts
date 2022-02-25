@@ -7,7 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class AgendaBoxComponent implements OnInit {
 
-  @Input() showHourLabel: boolean = false;
+  @Input() showLabels: boolean = false;
 
   constructor() { }
 

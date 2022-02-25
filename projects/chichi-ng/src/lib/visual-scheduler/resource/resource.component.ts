@@ -8,7 +8,7 @@ import { AgendaBoxComponent } from './agenda-box/agenda-box.component';
 })
 export class ResourceComponent implements OnInit, AfterContentInit {
   
-  public showHourLabel: boolean = false;
+  public showLabels: boolean = false;
 
   constructor(private elementRef: ElementRef) { }
 
@@ -17,7 +17,7 @@ export class ResourceComponent implements OnInit, AfterContentInit {
 
   ngAfterContentInit(): void {
     if (this.elementRef.nativeElement.children.length === 1) {
-      this.showHourLabel = true;
+      this.showLabels = true;
     }
   }
 }

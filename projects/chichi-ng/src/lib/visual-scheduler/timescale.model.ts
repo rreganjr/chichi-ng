@@ -1,11 +1,11 @@
-import { Interval } from "luxon";
+import { Duration, Interval } from "luxon";
 
 export class Timescale {
  
     constructor(
         private _boundsInterval: Interval, // The min and max date range in the visual scheduler
-        private _visibleHours: number = 0, // The number of hours visible in the scheduler
-        private _offsetHours: number = 0 // The number of hours from the start of the bounds to what is visible, i.e. the point of time at the start of the visible hours
+        private _visibleDuration: Duration = Duration.fromDurationLike({hours: 12}), // The duration visible in the scheduler
+        private _offsetDuration:  Duration = Duration.fromDurationLike({hours: 0}) // The duration from the start of the bounds to what is visible, i.e. the point of time at the start of the visible hours
     ) {
         // TODO: validate
     }
@@ -14,11 +14,11 @@ export class Timescale {
         return this._boundsInterval;
     }
 
-    public get visibleHours(): number {
-        return this._visibleHours;
+    public get visibleDuration(): Duration {
+        return this._visibleDuration;
     }
 
-    public get offsetHours(): number {
-        return this._offsetHours;
+    public get offsetDuration(): Duration {
+        return this._offsetDuration;
     }
 }

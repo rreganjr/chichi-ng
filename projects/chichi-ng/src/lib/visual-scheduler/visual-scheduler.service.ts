@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
-import { Interval } from 'luxon';
+import { Duration, Interval } from 'luxon';
 import { Timescale } from './timescale.model';
 
 @Injectable({
@@ -10,8 +10,6 @@ export class VisualSchedulerService {
 
   private _timescale = new Timescale(
     Interval.fromDateTimes(new Date(), new Date(new Date().getTime() + 24 * 60 * 60 * 1000)),
-    12,
-    0
   );
 
   private timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
@@ -29,7 +27,7 @@ export class VisualSchedulerService {
    * @param interval the start date and time to the end date and time
    */
   public setBoundsInterval(interval: Interval) {
-    this._timescale = new Timescale(interval, this._timescale.visibleHours, this._timescale.offsetHours);
+    this._timescale = new Timescale(interval, this._timescale.visibleDuration, this._timescale.offsetDuration);
     this.timescaleSubject.next(this._timescale);
   }
 
@@ -42,10 +40,13 @@ export class VisualSchedulerService {
   public setTimeScaleOffsetHours(offsetHours: number) {
     if (offsetHours >= 0) {
       offsetHours = Math.round(offsetHours);
-      if (offsetHours > this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleHours) {
-        offsetHours = this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleHours;
+      let newDuration: Duration;
+      if (offsetHours > this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration).hours) {
+        newDuration = this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration);
+      } else {
+        newDuration = this._timescale.boundsInterval.toDuration("hours").plus({hours: offsetHours});
       }
-      this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleHours, offsetHours);
+      this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, newDuration);
       this.timescaleSubject.next(this._timescale);  
     }
   }
@@ -62,7 +63,7 @@ export class VisualSchedulerService {
       visibleHours = 7 * 24;
     }
     if (visibleHours > 0 && visibleHours <= 7 * 24) {
-      this._timescale = new Timescale(this._timescale.boundsInterval, visibleHours, this._timescale.offsetHours);
+      this._timescale = new Timescale(this._timescale.boundsInterval, Duration.fromDurationLike({hours: visibleHours}), this._timescale.offsetDuration);
       this.timescaleSubject.next(this._timescale);
     }
   }
