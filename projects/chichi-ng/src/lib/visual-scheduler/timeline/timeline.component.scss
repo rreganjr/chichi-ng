@@ -27,16 +27,9 @@
   }
 }
 
-div.hour-label {
+div.hour-label, div.day-label {
   position: absolute;
   font-size: .75rem;
   top: 0.25rem;
   padding-left: 0.10rem;
-}
-
-div.hour-label-tight {
-  position: absolute;
-  font-size: .60rem;
-  top: 0.25rem;
-  padding-left: 0.07rem;
 }
