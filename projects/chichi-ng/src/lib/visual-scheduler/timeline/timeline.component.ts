@@ -43,8 +43,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
   private get timeDivisionWidth(): string {
-    console.log(`visible duration: ${this._timescale.visibleDuration} hours: ${this._timescale.visibleDuration.hours}  days+1: ${(this._timescale.visibleDuration.as('days') + 1)}: size: ${(100.0 / this._timescale.visibleDuration.hours * (this._timescale.visibleDuration.as('days') + 1))  + '%'}`)
-    return (100.0 / this._timescale.visibleDuration.hours * (this._timescale.visibleDuration.as('days') + 1))  + '%';
+    return (this._timescale.visibleDuration.as('minutes') / this.timeDivisionDuration.as('minutes')) * 100  + '%';
   }
 
   private get timeDivisionDuration(): Duration {
