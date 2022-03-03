@@ -26,7 +26,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
-      console.log(`timescale changed`, timescale);
       this._timescale = timescale;
       this.draw();
     });
@@ -100,7 +99,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       const betweenTicksDuration: Duration = this.betweenTicksDuration;
 
       // drawing the tick marks
-      for (let primaryTick: DateTime = startTick; primaryTick <= lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
+      for (let primaryTick: DateTime = startTick; primaryTick < lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
         this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(primaryTick));
         const nextPrimaryTick:DateTime = primaryTick.plus(primaryTicksDuration);
         for (let betweenTick: DateTime = primaryTick.plus(betweenTicksDuration); betweenTick < nextPrimaryTick; betweenTick = betweenTick.plus(betweenTicksDuration)) {
@@ -116,7 +115,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   private makeBetweenTickElement(dateTime: DateTime): HTMLDivElement {
-    console.log(`makeBetweenTickElement: ${dateTime}`);
     const element: HTMLDivElement = this.renderer.createElement('div');
     element.style.width = this.timeDivisionWidth;
     element.className = 'subHour';
@@ -124,7 +122,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   private makePrimaryTickElement(dateTime: DateTime): HTMLDivElement {
-    console.log(`makePrimaryTickElement: ${dateTime}`);
     const element: HTMLDivElement = this.renderer.createElement('div');
     element.style.width = this.timeDivisionWidth;
     element.className = (dateTime.hour === 0) ? 'day' : 'hour';

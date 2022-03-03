@@ -23,7 +23,7 @@ export class TimescaleComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
-      console.log(`timescale changed`, timescale);
+      console.log(`timescale changed: start=${timescale.boundsInterval.start} end=${timescale.boundsInterval.end} visible=${timescale.visibleDuration.as('hours')}-hours offset=${timescale.offsetDuration.as('hours')}-hours`, timescale);
       this._timescale = timescale;
     });
   }
@@ -52,12 +52,10 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public scanToStart(): void {
-    console.log(`scanToStart: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
     this.visualSchedulerService.setTimeScaleOffsetHours(0);
   }
 
   public scanBack(): void {
-    console.log(`scanBack: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
     if (this._timescale.offsetDuration.hours > 0) {
       if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours > 0) {
         this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours);
@@ -68,7 +66,6 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public scanForward(): void {
-    console.log(`scanForward: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
     if (this._timescale.offsetDuration > (this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration))) {
         this.scanToEnd();
     } else {
@@ -77,7 +74,6 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public scanToEnd(): void {
-    console.log(`scanToEnd: this._timescale.boundsInterval.toDuration("hours").hours = ${this._timescale.boundsInterval.toDuration("hours").hours}  this._timescale.visibleHours=${this._timescale.visibleDuration}`)
     this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleDuration.hours);
   }
 

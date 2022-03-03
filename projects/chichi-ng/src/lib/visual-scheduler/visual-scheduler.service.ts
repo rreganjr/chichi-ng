@@ -38,13 +38,14 @@ export class VisualSchedulerService {
    * @param offsetHours - the hours from the bounds start time to the start of the visible hours
    */
   public setTimeScaleOffsetHours(offsetHours: number) {
+    console.log(`setTimeScaleOffsetHours(offsetHours = ${offsetHours})`);
     if (offsetHours >= 0) {
       offsetHours = Math.round(offsetHours);
       let newDuration: Duration;
       if (offsetHours > this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration).hours) {
         newDuration = this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration);
       } else {
-        newDuration = this._timescale.boundsInterval.toDuration("hours").plus({hours: offsetHours});
+        newDuration = Duration.fromDurationLike({hours: offsetHours});
       }
       this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, newDuration);
       this.timescaleSubject.next(this._timescale);  
