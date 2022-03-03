@@ -17,7 +17,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private _timeFormatOptions: DateTimeFormatOptions | undefined = {timeStyle: 'short'};
 
   @Input() showLabels: boolean = false;
- 
+
   constructor(
     private visualSchedulerService: VisualSchedulerService,
     private renderer: Renderer2,
@@ -30,7 +30,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       this.draw();
     });
   }
-
+  
   ngOnDestroy(): void {
     if (this._timescaleSubscription) {
       this._timescaleSubscription.unsubscribe();
@@ -42,9 +42,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
   private get timeDivisionWidth(): string {
-    return (this._timescale.visibleDuration.as('minutes') / this.betweenTicksDuration.as('minutes')) * 100  + '%';
+    return (this.betweenTicksDuration.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
   }
 
+  /**
+   * @returns the {@link Duration} between the primary or labeled tick marks in the timeline.
+   */
   private get primaryTicksDuration(): Duration {
     const visibleHours = this._timescale.visibleDuration.hours;
     if (visibleHours < 24) {
@@ -60,6 +63,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * @returns the {@link Duration} between the previous primary or subordinate tick marks in the timeline.
+   */
   private get betweenTicksDuration(): Duration {
     const visibleHours = this._timescale.visibleDuration.hours;
     if (visibleHours < 12) {
@@ -75,6 +81,13 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * The timeline should start at the beginning of a unit to make it easier to read, for example if the start of
+   * the bounds is 1:15 PM and the view size is 7 days, having the timelines show 1:15 PM 7 times is harder to read
+   * than if the time line starts at the beginning of the day and shows the dates marked for each day.
+   * 
+   * @returns a {@link DateTimeUnit} indicating when the timeline starts, for example start of day or hour
+   */
   private get startAt(): DateTimeUnit {
     const visibleHours = this._timescale.visibleDuration.hours;
     if (visibleHours < 3*24) {
@@ -84,6 +97,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Adds a div element to the timeline containing the tick elements indicating times and days.
+   */
   private draw(): void {
     const element: HTMLDivElement = this.renderer.createElement('div');
 
@@ -98,7 +114,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       const primaryTicksDuration: Duration = this.primaryTicksDuration;
       const betweenTicksDuration: Duration = this.betweenTicksDuration;
 
-      // drawing the tick marks
+      // add the tick marks that are visible
       for (let primaryTick: DateTime = startTick; primaryTick < lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
         this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(primaryTick));
         const nextPrimaryTick:DateTime = primaryTick.plus(primaryTicksDuration);
@@ -114,30 +130,50 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * 
+   * @param dateTime the {@link DateTime} represented by this tick mark
+   * @returns an {@link HTMLDivElement} representing the tick mark via its width and css class smallTick or mediumTick for hours
+   */
   private makeBetweenTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
     element.style.width = this.timeDivisionWidth;
-    element.className = 'subHour';
+    element.className = (dateTime.minute === 0) ? 'mediumTick' : 'smallTick';
     return element;
   }
 
+  /**
+   * 
+   * @param dateTime the {@link DateTime} represented by this tick mark used for labeling
+   * @returns an {@link HTMLDivElement} representing the tick mark via its width and css class day or primaryTick, and may contain a label
+   */
   private makePrimaryTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
     element.style.width = this.timeDivisionWidth;
-    element.className = (dateTime.hour === 0) ? 'day' : 'hour';
+    element.className = (dateTime.hour === 0) ? 'day' : 'primaryTick';
     if (this.showLabels) {
-      this.renderer.appendChild(element, (dateTime.hour === 0) ? this.makeDayLabel(dateTime) : this.makeHourLabel(dateTime));
+      this.renderer.appendChild(element, (dateTime.hour === 0) ? this.makeDayLabel(dateTime) : this.makeTimeLabel(dateTime));
     }
     return element;
   }
 
-  private makeHourLabel(dateTime: DateTime): HTMLDivElement {
+  /**
+   * 
+   * @param dateTime the {@link DateTime} used to generate the label for the time
+   * @returns an {@link HTMLDivElement} div element containing the time label
+   */
+  private makeTimeLabel(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
     element.textContent = dateTime.toLocaleString(this._timeFormatOptions);
-    element.className = 'hour-label';
+    element.className = 'time-label';
     return element;
   }
 
+  /**
+   * 
+   * @param dateTime the {@link DateTime} used to generate the label for the day
+   * @returns an {@link HTMLDivElement} div element containing the date label
+   */
   private makeDayLabel(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
     element.textContent = dateTime.toLocaleString(this._dateFormatOptions);

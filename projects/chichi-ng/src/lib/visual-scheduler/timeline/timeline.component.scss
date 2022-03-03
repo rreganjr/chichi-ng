@@ -6,17 +6,17 @@
   height: 100%;
   width: 100%;
   
-  .subHour {
+  .smallTick {
     border-left: 1px solid #ccc;
     height: 33%;
   }
 
-  .hour {
+  .mediumTick {
     border-left: 1px solid #ccc;
-    height: 66%;
+    height: 50%;
   }
 
-  .labeled-hour {
+  .primaryTick {
     border-left: 1px solid #777;
     height: 100%;
   }
@@ -27,7 +27,14 @@
   }
 }
 
-div.hour-label, div.day-label {
+div.time-label {
+  position: absolute;
+  font-size: .75rem;
+  top: 0.25rem;
+  padding-left: 0.10rem;
+}
+
+div.day-label {
   position: absolute;
   font-size: .75rem;
   top: 0.25rem;
