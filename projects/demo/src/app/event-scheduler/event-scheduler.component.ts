@@ -9,7 +9,7 @@ export class EventSchedulerComponent implements OnInit {
 
   public startDate: Date = new Date();
   public endDate: Date = new Date(this.startDate.getTime() + 14 * 24 * 60 * 60 * 1000);
-
+  public channels: string[] = ['chat', 'video'];
   constructor() { }
 
   ngOnInit(): void {

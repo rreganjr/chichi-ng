@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { DateTime, DateTimeFormatOptions, DateTimeUnit, Duration } from 'luxon';
 import { Subscription } from 'rxjs';
-import { Timescale } from '../timescale.model';
-import { VisualSchedulerService } from '../visual-scheduler.service';
+import { Timescale } from '../../../timescale.model';
+import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
 @Component({
   selector: 'cc-timeline',

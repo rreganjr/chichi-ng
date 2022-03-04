@@ -8,6 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 export class AgendaBoxComponent implements OnInit {
 
   @Input() showLabels: boolean = false;
+  @Input() channels: string[] = [];
 
   constructor() { }
 

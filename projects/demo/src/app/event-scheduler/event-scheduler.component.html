@@ -5,7 +5,7 @@
         <cc-tool class="hovertext red" data-hover="Video"><span class="material-icons md-48">local_movies</span></cc-tool>
         <cc-tool class="hovertext green" data-hover="News"><span class="material-icons md-48">newspaper</span></cc-tool>
     </cc-toolbox>
-    <cc-resource><div class="label">Room 1</div></cc-resource>
-    <cc-resource><div class="label">Room 2</div></cc-resource>
-    <cc-resource><div class="label">Room 3</div></cc-resource>
+    <cc-resource [channels]="channels"><div class="label">Room 1</div></cc-resource>
+    <cc-resource [channels]="channels"><div class="label">Room 2</div></cc-resource>
+    <cc-resource [channels]="channels"><div class="label">Room 3</div></cc-resource>
 </cc-visual-scheduler>

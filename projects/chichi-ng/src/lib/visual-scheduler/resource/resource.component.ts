@@ -1,5 +1,4 @@
-import { AfterContentInit, Component, ContentChild, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AgendaBoxComponent } from './agenda-box/agenda-box.component';
+import { AfterContentInit, Component, ContentChild, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'cc-resource',
@@ -8,7 +7,9 @@ import { AgendaBoxComponent } from './agenda-box/agenda-box.component';
 })
 export class ResourceComponent implements OnInit, AfterContentInit {
   
-  public showLabels: boolean = false;
+  @Input() channels: string[] = [];
+
+  private _showLabels: boolean = false;
 
   constructor(private elementRef: ElementRef) { }
 
@@ -17,7 +18,11 @@ export class ResourceComponent implements OnInit, AfterContentInit {
 
   ngAfterContentInit(): void {
     if (this.elementRef.nativeElement.children.length === 1) {
-      this.showLabels = true;
+      this._showLabels = true;
     }
+  }
+
+  public get showLabels(): boolean {
+    return this._showLabels;
   }
 }

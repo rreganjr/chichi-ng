@@ -171,6 +171,8 @@ ng g class visual-scheduler/timescale --type=model --project=chichi-ng
 ng g component visual-scheduler/timeline --project=chichi-ng
 ng g component visual-scheduler/resource --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box --project=chichi-ng
+ng g component visual-scheduler/resource/agenda-box/channel --project=chichi-ng
+ng g component visual-scheduler/resource/agenda-box/timeline --project=chichi-ng
 ng g component visual-scheduler/toolbox --project=chichi-ng
 ng g component visual-scheduler/toolbox/tool --project=chichi-ng
 ng g service visual-scheduler/visual-scheduler --project=chichi-ng
