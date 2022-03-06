@@ -10,6 +10,7 @@ import { AgendaBoxComponent } from './resource/agenda-box/agenda-box.component';
 import { ToolboxComponent } from './toolbox/toolbox.component';
 import { ToolComponent } from './toolbox/tool/tool.component';
 import { ChannelComponent } from './resource/agenda-box/channel/channel.component';
+import { AgendaItemComponent } from './resource/agenda-box/agenda-item/agenda-item.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { ChannelComponent } from './resource/agenda-box/channel/channel.componen
     AgendaBoxComponent,
     ToolboxComponent,
     ToolComponent,
-    ChannelComponent
+    ChannelComponent,
+    AgendaItemComponent
   ],
   imports: [
     CommonModule,

@@ -5,8 +5,7 @@ import { VisualSchedulerService } from './visual-scheduler.service';
 @Component({
   selector: 'cc-visual-scheduler',
   templateUrl: './visual-scheduler.component.html',
-  styleUrls: ['./visual-scheduler.component.scss'],
-  providers: [VisualSchedulerService]
+  styleUrls: ['./visual-scheduler.component.scss']
 })
 export class VisualSchedulerComponent implements OnInit, OnChanges {
 

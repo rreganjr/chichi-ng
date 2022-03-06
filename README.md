@@ -173,6 +173,7 @@ ng g component visual-scheduler/resource --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box/channel --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box/timeline --project=chichi-ng
+ng g component visual-scheduler/resource/agenda-box/agenda-item --project=chichi-ng
 ng g class visual-scheduler/resource/agenda-box/agenda-item --type=model --project=chichi-ng
 
 ng g component visual-scheduler/toolbox --project=chichi-ng

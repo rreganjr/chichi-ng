@@ -12,4 +12,5 @@ export * from './lib/visual-scheduler/visual-scheduler.component';
 export * from './lib/visual-scheduler/toolbox/toolbox.component';
 export * from './lib/visual-scheduler/toolbox/tool/tool.component';
 export * from './lib/visual-scheduler/resource/resource.component';
+export * from './lib/visual-scheduler/visual-scheduler.service';
 

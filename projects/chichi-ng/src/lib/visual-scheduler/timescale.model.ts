@@ -1,4 +1,4 @@
-import { Duration, Interval } from "luxon";
+import { DateTime, Duration, Interval } from "luxon";
 
 export class Timescale {
  
@@ -20,5 +20,10 @@ export class Timescale {
 
     public get offsetDuration(): Duration {
         return this._offsetDuration;
+    }
+
+    public get visibleBounds(): Interval {
+        const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration);
+        return Interval.fromDateTimes(start, start.plus(this._visibleDuration));
     }
 }

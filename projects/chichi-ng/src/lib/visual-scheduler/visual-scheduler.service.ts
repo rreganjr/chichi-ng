@@ -4,7 +4,7 @@ import { Duration, Interval } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 
-type ResourceChannelMapKey = {resourceName: string, channelName: string};
+type ResourceChannelMapKey = string;
 type ResourceChannelMapValue = {agendaItems: AgendaItem[], replaySubject: ReplaySubject<AgendaItem[]>};
 
 @Injectable({
@@ -91,24 +91,37 @@ export class VisualSchedulerService {
    * @returns The {@link AgendaItem}s in that channel of the resource
    */
   public getAgendaItemsByResourceChannel$(resourceName: string, channelName: string): Observable<AgendaItem[]> {
-    const key = {resourceName: resourceName, channelName: channelName};
+    const key = this.getResourceChannelMapKey(resourceName, channelName);
+    console.log(`getAgendaItemsByResourceChannel$ resourceName=${resourceName} channelName=${channelName}`);
     if (this._agendaItemsByResourceChannelMap.get(key) == undefined) {
+      console.log(`getAgendaItemsByResourceChannel$ resourceName=${resourceName} channelName=${channelName} new`);
       this._agendaItemsByResourceChannelMap.set(key, {agendaItems: [], replaySubject: new ReplaySubject<AgendaItem[]>(1)});
     }
     const mapValue = this._agendaItemsByResourceChannelMap.get(key);
     return mapValue!.replaySubject.asObservable();
   }
 
-  public addAgendaItem(resourceName: string, channelName: string, bounds: Interval, data: object, labeler: AgendaItemLabeler): void {
-    const agendaItem = new AgendaItem(resourceName, channelName, bounds, data, labeler)
+  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler): void {
+    const agendaItem = new AgendaItem(resourceName, channelName, Interval.fromDateTimes(startDate, endDate), data, labeler);
     this._agendaItems.push(agendaItem);
-    const key = {resourceName: resourceName, channelName: channelName};
+    this._agendaItemsSubject.next(this._agendaItems);
+    console.log(`addAgendaItem`, this._agendaItems);
+
+    const key = this.getResourceChannelMapKey(resourceName, channelName);
     if (this._agendaItemsByResourceChannelMap.get(key) == undefined) {
+      console.log(`adding RCM for key`, key)
       this._agendaItemsByResourceChannelMap.set(key, {agendaItems: [], replaySubject: new ReplaySubject<AgendaItem[]>(1)});
     }
     const mapValue = this._agendaItemsByResourceChannelMap.get(key);
+    console.log(`mapValue`, mapValue);
     mapValue!.agendaItems.push(agendaItem);
+    if (mapValue && mapValue.replaySubject) {
+    }
     mapValue!.replaySubject.next(mapValue!.agendaItems);
-    this._agendaItemsSubject.next(this._agendaItems);
+    console.log(`addAgendaItem: key = ${key} value=`, mapValue);
+  }
+
+  private getResourceChannelMapKey(resourceName: string, channelName: string): string {
+    return `resourceName: ${resourceName}, channelName: ${channelName}`;
   }
 }

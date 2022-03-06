@@ -11,6 +11,14 @@ export class AgendaItem {
         private _labeler: AgendaItemLabeler) {
     }
 
+    public get resourceName(): string {
+        return this._resource;
+    }
+
+    public get channelName(): string {
+        return this._channel;
+    }
+
     public get label(): string {
         if (this._labeler instanceof Function) {
             return this._labeler(this._data);
@@ -30,4 +38,7 @@ export class AgendaItem {
         return this._bounds.toDuration(units);
     }
 
+    public get bounds(): Interval {
+        return this._bounds;
+    }
 }
