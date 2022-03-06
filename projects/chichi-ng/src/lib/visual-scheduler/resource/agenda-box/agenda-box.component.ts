@@ -9,6 +9,7 @@ export class AgendaBoxComponent implements OnInit {
 
   @Input() showLabels: boolean = false;
   @Input() channels: string[] = [];
+  @Input() resourceName!: string;
 
   constructor() { }
 

@@ -7,6 +7,7 @@ import { AfterContentInit, Component, ContentChild, ElementRef, Input, OnInit, V
 })
 export class ResourceComponent implements OnInit, AfterContentInit {
   
+  @Input() resourceName!: string;
   @Input() channels: string[] = [];
 
   private _showLabels: boolean = false;

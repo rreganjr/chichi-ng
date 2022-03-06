@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit } from '@angular/core';
+import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
 @Component({
   selector: 'cc-channel',
@@ -7,9 +8,11 @@ import { AfterViewInit, Component, ElementRef, Input, OnInit } from '@angular/co
 })
 export class ChannelComponent implements OnInit, AfterViewInit {
 
+  @Input() resourceName!: string;
   @Input() channelName!: string;
 
   constructor(
+    private visualSchedulerService: VisualSchedulerService,
     private channelElement: ElementRef
   ) { }
 
