@@ -22,12 +22,10 @@ export class ChannelComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    console.log(`resource: ${this.resourceName} channel: ${this.channelName} subscribing`);
     this._agendaItemsSubscription = this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName).subscribe((agendaItems: AgendaItem[]) => {
       this._agendaItems = agendaItems;
       console.log(`resource: ${this.resourceName} channel: ${this.channelName} agendaItems: `, this._agendaItems);
     });
-    console.log(`observable: `, this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName));
   }
   
   ngAfterViewInit(): void {

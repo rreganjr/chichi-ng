@@ -19,7 +19,9 @@ export class AgendaItemComponent implements OnInit {
   constructor(
     private visualSchedulerService: VisualSchedulerService,
     private channelElement: ElementRef
-  ) { }
+  ) {
+    console.log(`AgendaItemComponent`, this.agendaItem);
+   }
 
   ngOnInit(): void {
     this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
@@ -32,7 +34,8 @@ export class AgendaItemComponent implements OnInit {
           const duration: Duration = intersectingInterval.toDuration();
           const el = this.channelElement.nativeElement;
           el.style.left = (offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';
-          el.style.width = (duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';
+          // TODO: the width needs to account for the border, how can I do this if it is user defined css?
+          el.style.width = `${(duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
         }
       }
     });

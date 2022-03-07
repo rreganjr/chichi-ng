@@ -1,6 +1,1 @@
-<ng-template *ngIf="visualSchedulerService.getAgendaItemsByResourceChannel$(resourceName, channelName) | async as agendaItems; else empty">
-    <ng-template ngFor let-agendaItem [ngForOf]="agendaItems" let-i="index">
-        <cc-agenda-item [agendaItem]="agendaItem"></cc-agenda-item>
-    </ng-template>
-</ng-template>
-<ng-template #empty><span>{{resourceName}}-{{channelName}}</span></ng-template>
+<cc-agenda-item *ngFor="let agendaItem of visualSchedulerService.getAgendaItemsByResourceChannel$(resourceName, channelName) | async as agendaItems; index as i" [agendaItem]="agendaItem"></cc-agenda-item>

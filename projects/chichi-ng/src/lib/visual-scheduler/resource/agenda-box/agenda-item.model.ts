@@ -1,6 +1,6 @@
 import { DateTime, Duration, DurationUnit, Interval } from "luxon";
 
-export type AgendaItemLabeler = (data:object) => string;
+export type AgendaItemLabeler<T> = (data: T) => string;
 
 export class AgendaItem {
     constructor(
@@ -8,7 +8,7 @@ export class AgendaItem {
         private _channel: string, 
         private _bounds: Interval, 
         private _data: object, 
-        private _labeler: AgendaItemLabeler) {
+        private _labeler: AgendaItemLabeler<any>) {
     }
 
     public get resourceName(): string {

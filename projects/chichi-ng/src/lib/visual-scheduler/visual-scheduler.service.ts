@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { Duration, Interval } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 
 type ResourceChannelMapKey = string;
-type ResourceChannelMapValue = {agendaItems: AgendaItem[], replaySubject: ReplaySubject<AgendaItem[]>};
+
+class ResourceChannelMapData {
+  public readonly agendaItems: AgendaItem[] = [];
+  public readonly subject: Subject<AgendaItem[]> = new ReplaySubject<AgendaItem[]>(1);
+}
 
 @Injectable({
   providedIn: null
@@ -19,7 +23,7 @@ export class VisualSchedulerService {
 
   private _agendaItems: AgendaItem[] = [];
   private _agendaItemsSubject: ReplaySubject<AgendaItem[]> = new ReplaySubject(1);
-  private _agendaItemsByResourceChannelMap: Map<ResourceChannelMapKey,ResourceChannelMapValue> = new Map<ResourceChannelMapKey, ResourceChannelMapValue>();
+  private _agendaItemsByResourceChannelMap: Map<ResourceChannelMapKey,ResourceChannelMapData> = new Map<ResourceChannelMapKey, ResourceChannelMapData>();
 
   constructor() {
     this._timescaleSubject.next(this._timescale);
@@ -92,33 +96,28 @@ export class VisualSchedulerService {
    */
   public getAgendaItemsByResourceChannel$(resourceName: string, channelName: string): Observable<AgendaItem[]> {
     const key = this.getResourceChannelMapKey(resourceName, channelName);
-    console.log(`getAgendaItemsByResourceChannel$ resourceName=${resourceName} channelName=${channelName}`);
-    if (this._agendaItemsByResourceChannelMap.get(key) == undefined) {
-      console.log(`getAgendaItemsByResourceChannel$ resourceName=${resourceName} channelName=${channelName} new`);
-      this._agendaItemsByResourceChannelMap.set(key, {agendaItems: [], replaySubject: new ReplaySubject<AgendaItem[]>(1)});
-    }
-    const mapValue = this._agendaItemsByResourceChannelMap.get(key);
-    return mapValue!.replaySubject.asObservable();
+    const mapData = this.getResourceChannelMapData(key);
+    return mapData.subject.asObservable();
   }
 
-  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler): void {
+  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler<any>): void {
     const agendaItem = new AgendaItem(resourceName, channelName, Interval.fromDateTimes(startDate, endDate), data, labeler);
     this._agendaItems.push(agendaItem);
     this._agendaItemsSubject.next(this._agendaItems);
-    console.log(`addAgendaItem`, this._agendaItems);
 
     const key = this.getResourceChannelMapKey(resourceName, channelName);
-    if (this._agendaItemsByResourceChannelMap.get(key) == undefined) {
-      console.log(`adding RCM for key`, key)
-      this._agendaItemsByResourceChannelMap.set(key, {agendaItems: [], replaySubject: new ReplaySubject<AgendaItem[]>(1)});
+    const mapData = this.getResourceChannelMapData(key);
+    mapData.agendaItems.push(agendaItem);
+    mapData.subject.next(mapData.agendaItems);
+  }
+
+  private getResourceChannelMapData(key: ResourceChannelMapKey): ResourceChannelMapData {
+    let mapData = this._agendaItemsByResourceChannelMap.get(key);
+    if (mapData == undefined) {
+      mapData = new ResourceChannelMapData();
+      this._agendaItemsByResourceChannelMap.set(key, mapData);
     }
-    const mapValue = this._agendaItemsByResourceChannelMap.get(key);
-    console.log(`mapValue`, mapValue);
-    mapValue!.agendaItems.push(agendaItem);
-    if (mapValue && mapValue.replaySubject) {
-    }
-    mapValue!.replaySubject.next(mapValue!.agendaItems);
-    console.log(`addAgendaItem: key = ${key} value=`, mapValue);
+    return mapData;
   }
 
   private getResourceChannelMapKey(resourceName: string, channelName: string): string {
