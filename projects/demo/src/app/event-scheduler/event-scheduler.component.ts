@@ -34,10 +34,14 @@ export class EventSchedulerComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    const startDate: Date = new Date(this.startDate.getTime() + 1 * 60 * 60 * 1000);
-    this.vsServ.addAgendaItem('room-1', 'chat', startDate, new Date(startDate.getTime() + 1 * 60 * 60 * 1000), new ChatData('my chat'), chatLabeler);
-    this.vsServ.addAgendaItem('room-1', 'video', startDate, new Date(startDate.getTime() + 2 * 60 * 60 * 1000), new VideoData('my awesome video'), videoLabeler);
-    this.vsServ.addAgendaItem('room-2', 'chat', startDate, new Date(startDate.getTime() + 3 * 60 * 60 * 1000), new ChatData('my other chat'), chatLabeler);
+    const date: Date = new Date(this.startDate.getTime() + 1 * 60 * 60 * 1000);
+
+    let i = 0;
+    for (let date = this.startDate; date.getTime() < this.endDate.getTime() + 60*60*1000; date = new Date(date.getTime() + 60*60*1000)) {
+      i++;
+      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'chat', date, new Date(date.getTime() + 1 * 60 * 60 * 1000), new ChatData(`chat ${i}`), chatLabeler);
+      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'video', date, new Date(date.getTime() + 1 * 60 * 60 * 1000), new VideoData(`video ${i}`), videoLabeler);
+    }
   }
 
 }
