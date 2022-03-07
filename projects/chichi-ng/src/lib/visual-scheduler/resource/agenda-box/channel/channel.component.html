@@ -1,1 +1,4 @@
-<cc-agenda-item *ngFor="let agendaItem of visualSchedulerService.getAgendaItemsByResourceChannel$(resourceName, channelName) | async as agendaItems; index as i" [agendaItem]="agendaItem"></cc-agenda-item>
+<ng-template ngFor let-agendaItem [ngForOf]="visibleAgendaItems$ | async" let-i="index">
+    <cc-agenda-item *ngIf="!agendaItem.hasOwnProperty('isDropZone')" [agendaItem]="agendaItem"></cc-agenda-item>
+    <cc-drop-zone *ngIf="agendaItem.hasOwnProperty('isDropZone')" [agendaItem]="agendaItem"></cc-drop-zone>
+</ng-template>

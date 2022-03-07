@@ -11,6 +11,7 @@ import { ToolboxComponent } from './toolbox/toolbox.component';
 import { ToolComponent } from './toolbox/tool/tool.component';
 import { ChannelComponent } from './resource/agenda-box/channel/channel.component';
 import { AgendaItemComponent } from './resource/agenda-box/agenda-item/agenda-item.component';
+import { DropZoneComponent } from './resource/agenda-box/drop-zone/drop-zone.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { AgendaItemComponent } from './resource/agenda-box/agenda-item/agenda-it
     ToolboxComponent,
     ToolComponent,
     ChannelComponent,
-    AgendaItemComponent
+    AgendaItemComponent,
+    DropZoneComponent
   ],
   imports: [
     CommonModule,

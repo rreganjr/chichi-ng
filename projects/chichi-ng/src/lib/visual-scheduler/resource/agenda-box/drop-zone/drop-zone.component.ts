@@ -1,18 +1,19 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
-import { Timescale } from '../../../timescale.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
+import { Timescale } from '../../../timescale.model';
 
 @Component({
-  selector: 'cc-agenda-item',
-  templateUrl: './agenda-item.component.html',
-  styleUrls: ['./agenda-item.component.scss']
+  selector: 'cc-drop-zone',
+  templateUrl: './drop-zone.component.html',
+  styleUrls: ['./drop-zone.component.scss']
 })
-export class AgendaItemComponent implements OnInit, OnDestroy {
+export class DropZoneComponent implements OnInit {
 
-  @Input() agendaItem!: AgendaItem;
+
+  @Input() agendaItem!: AgendaItem; // this is a faked up agendaItem representing an unscheduled area
 
   private _timescaleSubscription?: Subscription;
 
@@ -20,11 +21,11 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
     private visualSchedulerService: VisualSchedulerService,
     private channelElement: ElementRef
   ) {
-    console.log(`AgendaItemComponent`, this.agendaItem);
+    console.log(`DropZoneComponent`, this.agendaItem);
   }
 
   ngOnInit(): void {
-    this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
+    this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
       console.log(`agenda-item: timescale change: ${timescale}`);
       if (this.channelElement && this.channelElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;

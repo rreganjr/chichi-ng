@@ -1,0 +1,12 @@
+:host {
+  box-sizing: border-box;
+  position: absolute;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // TODO: this should be cusomizable for library users
+  border: dotted 1px blue;
+  border-radius: 0.5rem;
+  padding-left: 0.1rem;
+}
