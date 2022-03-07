@@ -29,13 +29,16 @@ export class AgendaItemComponent implements OnInit {
       if (this.channelElement && this.channelElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
+        const el = this.channelElement.nativeElement;
         if (intersectingInterval !== null) {
           const offset: Duration = intersectingInterval.start.diff(visibleBounds.start);
           const duration: Duration = intersectingInterval.toDuration();
-          const el = this.channelElement.nativeElement;
+          el.style.display = 'block';
           el.style.left = (offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';
           // TODO: the width needs to account for the border, how can I do this if it is user defined css?
           el.style.width = `${(duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
+        } else {
+          el.style.display = 'none';
         }
       }
     });

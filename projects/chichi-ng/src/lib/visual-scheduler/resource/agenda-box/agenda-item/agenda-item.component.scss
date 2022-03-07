@@ -1,6 +1,11 @@
 :host {
   box-sizing: border-box;
   position: absolute;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // TODO: this should be cusomizable for library users
   border: solid 1px red;
   border-radius: 0.5rem;
   padding-left: 0.1rem;
