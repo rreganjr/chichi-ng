@@ -179,6 +179,7 @@ ng g class visual-scheduler/resource/agenda-box/agenda-item --type=model --proje
 
 ng g component visual-scheduler/toolbox --project=chichi-ng
 ng g component visual-scheduler/toolbox/tool --project=chichi-ng
+ng g class visual-scheduler/toolbox/tool/tool-event --type=model --project=chichi-ng
 ng g service visual-scheduler/visual-scheduler --project=chichi-ng
 
 npm install ngx-drag-drop --save

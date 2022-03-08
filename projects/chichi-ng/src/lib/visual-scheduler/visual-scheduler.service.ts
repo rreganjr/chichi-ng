@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { Duration, Interval } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
+import { ToolEvent } from './toolbox/tool/tool-event.model';
 
 type ResourceChannelMapKey = string;
 
@@ -21,7 +22,7 @@ export class VisualSchedulerService {
   );
   private _timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
 
-  private _dragAndDropSubject: Subject<any> = new BehaviorSubject(null);
+  private _dragAndDropSubject: Subject<ToolEvent> = new BehaviorSubject(ToolEvent.CLEAR);
   
   private _agendaItems: AgendaItem[] = [];
   private _agendaItemsSubject: ReplaySubject<AgendaItem[]> = new ReplaySubject(1);
@@ -33,10 +34,16 @@ export class VisualSchedulerService {
 
   public dragStart($event: Event, toolType: string): void {
     console.log(`dragStart: ${toolType}`, $event);
+    this._dragAndDropSubject.next(new ToolEvent(toolType, $event));
   }
 
   public dragEnd($event: Event, toolType: string): void {
     console.log(`dragEnd: ${toolType}`, $event);
+    this._dragAndDropSubject.next(new ToolEvent(toolType, $event));
+  }
+
+  public getToolEvents$(): Observable<ToolEvent> {
+    return this._dragAndDropSubject.asObservable();
   }
 
   public getTimescale$(): Observable<Timescale> {

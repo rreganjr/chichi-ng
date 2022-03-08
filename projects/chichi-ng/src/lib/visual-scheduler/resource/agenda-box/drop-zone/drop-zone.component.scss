@@ -4,9 +4,19 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  opacity: .5;
 
   // TODO: this should be cusomizable for library users
-  border: dotted 1px blue;
-  border-radius: 0.5rem;
-  padding-left: 0.1rem;
+  &.is-dragging {
+    border: dotted 1px blue;
+    border-radius: 0.5rem;
+    padding-left: 0.1rem;
+    background-color: lightblue;
+    opacity: .7;
+    &.drag-over {
+      border: solid 1px blue;
+      opacity: .9;
+    }
+  }
+
 }

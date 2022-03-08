@@ -64,6 +64,14 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`onAgendaItemClick ${index}`)
   }
 
+  onDragOver($event:Event): void {
+    console.log(`${this.resourceName} ${this.channelName} dragOver`, $event);
+  }
+
+  onDrop($event:Event, agendaItem: AgendaItem): void {
+    console.log(`${this.resourceName} ${this.channelName} drop`, $event, agendaItem);
+  }
+  
   public get visibleAgendaItems$(): Observable<AgendaItem[]> {
     return this._visibleAgendaItemsSubject.asObservable();
   }

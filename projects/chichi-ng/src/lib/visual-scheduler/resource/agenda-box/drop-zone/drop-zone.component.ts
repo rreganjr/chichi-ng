@@ -1,9 +1,10 @@
 import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { Duration, Interval } from 'luxon';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
 import { Timescale } from '../../../timescale.model';
+import { ToolEvent } from '../../../toolbox/tool/tool-event.model';
 
 @Component({
   selector: 'cc-drop-zone',
@@ -19,18 +20,16 @@ export class DropZoneComponent implements OnInit {
 
   constructor(
     private visualSchedulerService: VisualSchedulerService,
-    private channelElement: ElementRef
-  ) {
-    console.log(`DropZoneComponent`, this.agendaItem);
-  }
+    private dropZoneElement: ElementRef
+  ) {}
 
   ngOnInit(): void {
     this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
-      console.log(`agenda-item: timescale change: ${timescale}`);
-      if (this.channelElement && this.channelElement.nativeElement) {
+      console.log(`DropZoneComponent`, this.agendaItem, `timescale change`, timescale);
+      if (this.dropZoneElement && this.dropZoneElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
-        const el = this.channelElement.nativeElement;
+        const el = this.dropZoneElement.nativeElement;
         if (intersectingInterval !== null) {
           const offset: Duration = intersectingInterval.start.diff(visibleBounds.start);
           const duration: Duration = intersectingInterval.toDuration();
@@ -43,6 +42,14 @@ export class DropZoneComponent implements OnInit {
         }
       }
     });
+    this.visualSchedulerService.getToolEvents$().pipe(
+      filter((toolEvent:ToolEvent, index:number) => toolEvent.toolType === this.agendaItem.channelName)
+      ).subscribe( (toolEvent: ToolEvent) => {
+      console.log(`DropZone toolEvent:`, toolEvent);
+      if (this.dropZoneElement && this.dropZoneElement.nativeElement) {
+        // TODO: based on the event drag/drop update the css, if this zone is dropped on open an editor.
+      }
+    })
   }
 
   ngOnDestroy(): void {
