@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { EffectAllowed } from 'ngx-drag-drop';
+import { VisualSchedulerService } from '../../visual-scheduler.service';
 
 @Component({
   selector: 'cc-tool',
@@ -14,17 +15,19 @@ export class ToolComponent implements OnInit {
   @Input() disabled: boolean = false;
   @Input() handle: boolean = false;
 
-  constructor() { }
+  constructor(
+    private _visualSchedulerService: VisualSchedulerService
+  ) { }
 
   ngOnInit(): void {
   }
 
-  public onDragStart($event: Event, type: string) : void {
-
+  public onDragStart($event: Event, toolType: string) : void {
+    this._visualSchedulerService.dragStart($event, toolType);
   }
 
-  public onDragEnd($event: Event, type: string) : void {
-
+  public onDragEnd($event: Event, toolType: string) : void {
+    this._visualSchedulerService.dragEnd($event, toolType);
   }
 
 }

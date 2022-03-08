@@ -1,8 +1,8 @@
 <h1>Event Scheduler</h1>
 <cc-visual-scheduler [startDate]="startDate" [endDate]="endDate">
     <cc-toolbox>
-        <cc-tool class="hovertext blue" data-hover="Chat"><span class="material-icons md-48">chat</span></cc-tool>
-        <cc-tool class="hovertext red" data-hover="Video"><span class="material-icons md-48">local_movies</span></cc-tool>
+        <cc-tool [toolType]="'chat'" class="hovertext blue" data-hover="Chat"><span class="material-icons md-48">chat</span></cc-tool>
+        <cc-tool [toolType]="'video'" class="hovertext red" data-hover="Video"><span class="material-icons md-48">local_movies</span></cc-tool>
         <cc-tool class="hovertext green" data-hover="News"><span class="material-icons md-48">newspaper</span></cc-tool>
     </cc-toolbox>
     <cc-resource [resourceName]="'room-1'" [channels]="channels"><div class="label">Room 1</div></cc-resource>

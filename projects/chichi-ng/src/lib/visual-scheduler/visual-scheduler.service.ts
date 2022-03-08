@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { Duration, Interval } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
@@ -21,12 +21,22 @@ export class VisualSchedulerService {
   );
   private _timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
 
+  private _dragAndDropSubject: Subject<any> = new BehaviorSubject(null);
+  
   private _agendaItems: AgendaItem[] = [];
   private _agendaItemsSubject: ReplaySubject<AgendaItem[]> = new ReplaySubject(1);
   private _agendaItemsByResourceChannelMap: Map<ResourceChannelMapKey,ResourceChannelMapData> = new Map<ResourceChannelMapKey, ResourceChannelMapData>();
 
   constructor() {
     this._timescaleSubject.next(this._timescale);
+  }
+
+  public dragStart($event: Event, toolType: string): void {
+    console.log(`dragStart: ${toolType}`, $event);
+  }
+
+  public dragEnd($event: Event, toolType: string): void {
+    console.log(`dragEnd: ${toolType}`, $event);
   }
 
   public getTimescale$(): Observable<Timescale> {
