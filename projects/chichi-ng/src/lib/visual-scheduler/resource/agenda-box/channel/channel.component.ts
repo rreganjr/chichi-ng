@@ -4,6 +4,7 @@ import { DateTime, Interval } from 'luxon';
 import { combineLatest, flatMap, map, mergeMap, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
+import { DndDropEvent } from 'ngx-drag-drop';
 
 class DropZoneAgendaItem extends AgendaItem {
   public readonly isDropZone: boolean = true;
@@ -65,12 +66,9 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`onAgendaItemClick ${index}`)
   }
 
-  onDragOver($event:Event): void {
-    console.log(`${this.resourceName} ${this.channelName} dragOver`, $event);
-  }
-
-  onDrop($event:Event, agendaItem: AgendaItem): void {
+  public onDrop($event:DndDropEvent, agendaItem: AgendaItem): void {
     console.log(`${this.resourceName} ${this.channelName} drop`, $event, agendaItem);
+    this.visualSchedulerService.addAgendaItem(this.resourceName, this.channelName, agendaItem.bounds.start.toJSDate(), agendaItem.bounds.end.toJSDate(), {label: 'new item'}, (data:any)=>data.label);
   }
   
   public get visibleAgendaItems$(): Observable<AgendaItem[]> {

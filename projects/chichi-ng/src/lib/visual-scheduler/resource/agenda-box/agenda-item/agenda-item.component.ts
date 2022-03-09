@@ -24,8 +24,10 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // watch for changes to the timescale and adjust the position and size of the agenda-item
     this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
-      console.log(`agenda-item: timescale change: ${timescale}`);
+      // TODO: I may be able remove the intersection part as I think the channel may rebuild the
+      // TODO: agendaItems when the timescale or agendaItems change
       if (this.channelElement && this.channelElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);

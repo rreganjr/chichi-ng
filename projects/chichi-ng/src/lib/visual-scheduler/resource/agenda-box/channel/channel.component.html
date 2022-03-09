@@ -3,7 +3,6 @@
     <cc-drop-zone *ngIf="agendaItem.hasOwnProperty('isDropZone')" 
         [agendaItem]="agendaItem" 
         [dndDropzone]="[channelName]"
-        (dndDragover)="onDragOver($event)"
         (dndDrop)="onDrop($event, agendaItem)">
  </cc-drop-zone>
 </ng-template>

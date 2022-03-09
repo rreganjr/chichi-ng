@@ -16,6 +16,8 @@ export class DropZoneComponent implements OnInit {
 
   @Input() agendaItem!: AgendaItem; // this is a faked up agendaItem representing an unscheduled area
 
+  // When a tool is dragged that is appropriate to drop on this zone, 
+  // indicate this is an appropriate target via the is-dragging css class
   @HostBinding('class.is-dragging') isDragging: boolean = false;
 
   private _timescaleSubscription?: Subscription;
@@ -26,8 +28,10 @@ export class DropZoneComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
-      console.log(`DropZoneComponent`, this.agendaItem, `timescale change`, timescale);
+      // watch for changes to the timescale and adjust the position and size of the timezone
+      this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
+      // TODO: I may be able remove the intersection part as I think the channel may rebuild the
+      // TODO: agendaItems when the timescale or agendaItems change
       if (this.dropZoneElement && this.dropZoneElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
@@ -48,8 +52,6 @@ export class DropZoneComponent implements OnInit {
     this.visualSchedulerService.getToolEvents$().pipe(
       filter((toolEvent:ToolEvent, index:number) => toolEvent.toolType === this.agendaItem.channelName)
       ).subscribe( (toolEvent: ToolEvent) => {
-      //console.log(`DropZone toolEvent:`, toolEvent);
-      // TODO: based on the event drag/drop update the css, if this zone is dropped on open an editor.
       if (toolEvent.isStart()) {
         this.isDragging = true;
       } else {
