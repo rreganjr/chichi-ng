@@ -32,14 +32,14 @@ export class VisualSchedulerService {
     this._timescaleSubject.next(this._timescale);
   }
 
-  public dragStart($event: Event, toolType: string): void {
+  public dragStart($event: DragEvent, toolType: string): void {
     console.log(`dragStart: ${toolType}`, $event);
-    this._dragAndDropSubject.next(new ToolEvent(toolType, $event));
+    this._dragAndDropSubject.next(new ToolEvent('START', toolType, $event));
   }
 
-  public dragEnd($event: Event, toolType: string): void {
+  public dragEnd($event: DragEvent, toolType: string): void {
     console.log(`dragEnd: ${toolType}`, $event);
-    this._dragAndDropSubject.next(new ToolEvent(toolType, $event));
+    this._dragAndDropSubject.next(new ToolEvent('END', toolType, $event));
   }
 
   public getToolEvents$(): Observable<ToolEvent> {

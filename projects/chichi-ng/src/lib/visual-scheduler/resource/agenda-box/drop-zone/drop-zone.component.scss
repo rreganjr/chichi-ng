@@ -13,10 +13,14 @@
     padding-left: 0.1rem;
     background-color: lightblue;
     opacity: .7;
-    &.drag-over {
-      border: solid 1px blue;
-      opacity: .9;
-    }
+  }
+  &.dndDragover {
+    border: solid 1px blue;
+    opacity: .9;
   }
 
+
 }
+
+
+

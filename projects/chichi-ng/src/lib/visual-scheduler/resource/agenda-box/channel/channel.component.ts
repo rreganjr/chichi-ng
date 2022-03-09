@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { AgendaItemLabeler } from '../agenda-item.model';
 import { DateTime, Interval } from 'luxon';
-import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { combineLatest, flatMap, map, mergeMap, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
 
@@ -37,6 +37,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // TODO: can I move the filter and sort from the array inside subscribe to before the subscribe?
     this._combinedSubscription = combineLatest([
       this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName),
       this.visualSchedulerService.getTimescale$()

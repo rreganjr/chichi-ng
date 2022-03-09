@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, HostBinding, Input, OnInit } from '@angular/core';
 import { Duration, Interval } from 'luxon';
 import { filter, Subscription } from 'rxjs';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
@@ -15,6 +15,8 @@ export class DropZoneComponent implements OnInit {
 
 
   @Input() agendaItem!: AgendaItem; // this is a faked up agendaItem representing an unscheduled area
+
+  @HostBinding('class.is-dragging') isDragging: boolean = false;
 
   private _timescaleSubscription?: Subscription;
 
@@ -42,12 +44,16 @@ export class DropZoneComponent implements OnInit {
         }
       }
     });
+
     this.visualSchedulerService.getToolEvents$().pipe(
       filter((toolEvent:ToolEvent, index:number) => toolEvent.toolType === this.agendaItem.channelName)
       ).subscribe( (toolEvent: ToolEvent) => {
-      console.log(`DropZone toolEvent:`, toolEvent);
-      if (this.dropZoneElement && this.dropZoneElement.nativeElement) {
-        // TODO: based on the event drag/drop update the css, if this zone is dropped on open an editor.
+      //console.log(`DropZone toolEvent:`, toolEvent);
+      // TODO: based on the event drag/drop update the css, if this zone is dropped on open an editor.
+      if (toolEvent.isStart()) {
+        this.isDragging = true;
+      } else {
+        this.isDragging = false;
       }
     })
   }

@@ -16,8 +16,6 @@ class VideoData {
 }
 const videoLabeler: AgendaItemLabeler<VideoData> = (data: VideoData) => data.label;
 
-
-
 @Component({
   selector: 'event-scheduler',
   templateUrl: './event-scheduler.component.html',

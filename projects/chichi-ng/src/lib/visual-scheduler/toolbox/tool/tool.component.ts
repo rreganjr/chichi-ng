@@ -22,11 +22,11 @@ export class ToolComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  public onDragStart($event: Event, toolType: string) : void {
+  public onDragStart($event: DragEvent, toolType: string) : void {
     this._visualSchedulerService.dragStart($event, toolType);
   }
 
-  public onDragEnd($event: Event, toolType: string) : void {
+  public onDragEnd($event: DragEvent, toolType: string) : void {
     this._visualSchedulerService.dragEnd($event, toolType);
   }
 
