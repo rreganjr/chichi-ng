@@ -5,6 +5,6 @@ ARG VARIANT="14"
 FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 
 # install the latest angular CLI globally
-RUN npm install -g @angular/cli@13.2.5
+RUN npm install -g @angular/cli@13.2.6
 
 EXPOSE 4200
