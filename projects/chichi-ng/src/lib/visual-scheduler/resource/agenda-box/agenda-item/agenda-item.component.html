@@ -1,1 +1,7 @@
-<span>{{agendaItem.label}}</span><span class="agenda-item-delete-button material-icons" (click)="onDelete()" data-hover="delete">delete</span>
+<div class="agenda-item-container">
+    <div class="label">{{agendaItem.label}}</div>
+    <div class="agenda-item-delete-button" (click)="onDelete()">
+        <span class="material-icons">delete</span>
+        <span class="agenda-item-delete-help">delete</span>
+    </div>
+</div>
