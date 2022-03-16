@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style> 
+.container {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: right;
+  width: 500px;
+  border: 1px solid red;
+}
+.label {
+	width: auto;
+    margin: 5px;
+    border: 1px dotted blue;
+    margin-right: auto;
+   
+}
+.delete-button, .delete-help {
+	display: inline-block;
+	visibility: hidden;
+    width: 0px;
+    opacity: 0;
+  transition: opacity 1s ease, width 1s ease;
+  background-color: red;
+}
+.container:hover > .delete-container {
+
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: right;
+  border: 1px dotted green;
+}
+.container:hover > .delete-container > .delete-button {
+	visibility: visible;
+    opacity: 90%;
+  width: auto;
+}
+
+.delete-container:hover > .delete-help {
+	visibility: visible;
+    opacity: 90%;
+ 	width: auto;
+ }
+</style>
+</head>
+<body>
+
+<h1>Agenda Item Animated Delete Button and Help</h1>
+
+<p>Hover over red element to show "D", over "D" to expand help</p>
+<div class="container">
+<div class="label">the thing</div>
+<div class="delete-container">
+<div class="delete-button">D</div>
+<div class="delete-help">delete</div>
+</div>
+</div>
+<note>why doesn't the width transition nicely?</note>
+</body>
+</html>
