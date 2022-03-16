@@ -4,9 +4,55 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 
   // TODO: this should be cusomizable for library users
   border: solid 1px red;
   border-radius: 0.5rem;
   padding-left: 0.1rem;
+}
+
+:host > .agenda-item-delete-button {
+  display: none;
+}  
+
+:host(:hover) > .agenda-item-delete-button {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    font-size: 0.95rem;
+    line-height: 1.2rem;
+    color: black;
+    background-color: red;
+    white-space: nowrap;
+    overflow: hidden;  
+}
+:host(:hover) > .agenda-item-delete-button:hover {
+  &.hovertext {
+    position: relative;
+  }
+  
+  &.hovertext:before {
+    content: attr(data-hover);
+    visibility: hidden;
+    opacity: 0;
+
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: .25em;
+    padding: .5em .5em;
+    transition: opacity 1s ease-in-out;
+  
+    position: absolute;
+    z-index: 1;
+    bottom: -15%;
+    right: -15%
+  }
+  
+  &.hovertext:hover:before {
+    opacity: 70%;
+    visibility: visible;
+  }  
 }

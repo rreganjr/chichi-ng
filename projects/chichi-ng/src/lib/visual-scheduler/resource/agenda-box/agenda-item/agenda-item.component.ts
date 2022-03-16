@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostBinding, Input, OnDestroy, OnInit } from '@angular/core';
 import { Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
@@ -17,33 +17,37 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
   private _timescaleSubscription?: Subscription;
 
   constructor(
-    private visualSchedulerService: VisualSchedulerService,
-    private channelElement: ElementRef
+    private _visualSchedulerService: VisualSchedulerService,
+    private _channelElement: ElementRef
   ) {
-    console.log(`AgendaItemComponent`, this.agendaItem);
   }
 
   ngOnInit(): void {
     // watch for changes to the timescale and adjust the position and size of the agenda-item
-    this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
+    this._timescaleSubscription = this._visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
       // TODO: I may be able remove the intersection part as I think the channel may rebuild the
       // TODO: agendaItems when the timescale or agendaItems change
-      if (this.channelElement && this.channelElement.nativeElement) {
+      if (this._channelElement && this._channelElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
-        const el = this.channelElement.nativeElement;
+        const el = this._channelElement.nativeElement;
         if (intersectingInterval !== null) {
           const offset: Duration = intersectingInterval.start.diff(visibleBounds.start);
           const duration: Duration = intersectingInterval.toDuration();
           el.style.display = 'block';
           el.style.left = (offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';
-          // TODO: the width needs to account for the border, how can I do this if it is user defined css?
           el.style.width = `${(duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
         } else {
           el.style.display = 'none';
         }
       }
     });
+  }
+
+  onDelete(): void {
+    if (this.agendaItem) {
+      this._visualSchedulerService.removeAgendaItem(this.agendaItem);
+    }
   }
 
   ngOnDestroy(): void {

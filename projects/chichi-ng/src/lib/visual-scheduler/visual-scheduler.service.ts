@@ -128,6 +128,32 @@ export class VisualSchedulerService {
     mapData.subject.next(mapData.agendaItems);
   }
 
+  public removeAgendaItem(agendaItem: AgendaItem) {
+    if (agendaItem) {
+      const index = this._agendaItems.findIndex((item:AgendaItem) => {
+        return item.resourceName === agendaItem.resourceName &&
+          item.channelName === agendaItem.channelName &&
+          item.bounds == agendaItem.bounds
+      })
+      if (index > -1) {
+        this._agendaItems.splice(index, 1);
+        this._agendaItemsSubject.next(this._agendaItems);
+        // if the item is in the _agendaItems array, it will also be in the mapped data
+        const key = this.getResourceChannelMapKey(agendaItem.resourceName, agendaItem.channelName);
+        const mapData = this.getResourceChannelMapData(key);
+        const mapDataIndex = mapData.agendaItems.findIndex((item:AgendaItem) => {
+          return item.resourceName === agendaItem.resourceName &&
+            item.channelName === agendaItem.channelName &&
+            item.bounds == agendaItem.bounds
+        })
+        if (mapDataIndex > -1) {
+          mapData.agendaItems.splice(mapDataIndex, 1);
+          mapData.subject.next(mapData.agendaItems);    
+        }
+      }
+    }
+  }
+
   private getResourceChannelMapData(key: ResourceChannelMapKey): ResourceChannelMapData {
     let mapData = this._agendaItemsByResourceChannelMap.get(key);
     if (mapData == undefined) {
