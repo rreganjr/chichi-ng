@@ -30,12 +30,23 @@
   position: absolute;
   opacity: 0%;
   top: 0;
-  right: -25%;
-  width: 45%;
+  right: 0;
   white-space: nowrap;
   overflow: hidden;
   transition: all 500ms ease-in, all 250ms ease-out;
   background-color: red;
+}
+
+// I borrowed this style from https://www.sarasoueidan.com/blog/accessible-icon-buttons/
+// see Technique #1: Accessible Visually Hidden Text
+.agenda-item-delete-button:not(:hover):not(:focus):not(:active) > .agenda-item-delete-help {
+  clip: rect(0 0 0 0); 
+  clip-path: inset(100%); 
+  height: 1px; 
+  overflow: hidden; 
+  position: absolute; 
+  white-space: nowrap; 
+  width: 1px;   
 }
 
 .agenda-item-delete-button > .agenda-item-delete-help {
@@ -56,6 +67,3 @@
   opacity: 100%;
 }
 
-.agenda-item-container:hover > .agenda-item-delete-button:hover {
-  width: 100%;
-}
