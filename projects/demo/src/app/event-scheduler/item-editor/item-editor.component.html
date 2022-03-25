@@ -1,0 +1,28 @@
+<div class="edit-form">
+    <div class="fields">
+        <div class="field">
+            <div class="label">Resource Name</div>
+            <div class="input">{{agendaItem?.resourceName}}</div>
+        </div>
+        <div class="field">
+            <div class="label">Channel Name</div>
+            <div class="input">{{agendaItem?.channelName}}</div>
+        </div>
+        <div class="field">
+            <div class="label">Label</div>
+            <div class="input">{{agendaItem?.label}}</div>
+        </div>
+        <div class="field">
+            <div class="label">Start Date</div>
+            <div class="input">{{agendaItem?.startDate?.toFormat("'yyyy MMM dd HH:mm:ss.S'")}}</div>
+        </div>
+        <div class="field">
+            <div class="label">End Date</div>
+            <div class="input">{{agendaItem?.endDate?.toFormat("'yyyy MMM dd HH:mm:ss.S'")}}</div>
+        </div>
+    </div>
+    <div class="actions">
+        <button (click)="onSave()">Save</button>
+        <button (click)="onCancel()">Cancel</button>
+    </div>
+</div>

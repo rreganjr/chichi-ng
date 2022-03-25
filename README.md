@@ -193,6 +193,8 @@ npm install @types/luxon --save-dev
 
 ```
 ng g component event-scheduler --project=demo
+ng g component event-scheduler/modal --project=demo
+ng g component event-scheduler/item-editor --project=demo
 
 ```
 # Interactive Development of Library and Demo

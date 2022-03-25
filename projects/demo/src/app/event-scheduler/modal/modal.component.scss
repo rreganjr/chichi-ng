@@ -1,0 +1,47 @@
+:host {
+  display: none;
+  z-index: 600;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0,0,0,0.4);
+  opacity: 0;
+
+  &.show {
+    display: flex;
+    opacity: 75%;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.dialog-container {
+  position: relative;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: .5rem;
+  z-index: 601;
+  display: flex;
+  flex-direction: column
+}
+
+.dialog-title {
+  background-color: gray;
+  color: white;
+  height: 2rem;
+  border-bottom: 1px solid black;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.dialog-body {
+  overflow-y: scroll;
+  min-width: 120px;
+  min-height: 70px;                     /*  title bar is 50 so we need the extra 70 here  */
+  max-height: calc(75vh - 50px);        /*  compensate for title bar                      */
+  max-width: 75vw;
+  flex:1;
+  padding: 5px;
+}

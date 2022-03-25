@@ -1,6 +1,6 @@
-<div class="agenda-item-container">
+<div class="agenda-item-container" (click)="onOpen($event)">
     <div class="label">{{agendaItem.label}}</div>
-    <div class="agenda-item-delete-button" (click)="onDelete()">
+    <div class="agenda-item-delete-button" (click)="onDelete($event)">
         <span class="material-icons">delete</span>
         <span class="agenda-item-delete-help">delete</span>
     </div>

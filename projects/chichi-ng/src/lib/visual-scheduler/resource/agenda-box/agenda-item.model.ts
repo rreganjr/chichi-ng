@@ -2,14 +2,20 @@ import { DateTime, Duration, DurationUnit, Interval } from "luxon";
 
 export type AgendaItemLabeler<T> = (data: T) => string;
 
-export class AgendaItem {        
+export class AgendaItem {
+    // internal id generator seed
+    private static nextId: number = 1;
+    public readonly id: number;
+
     constructor(
         private _resource: string, 
         private _channel: string, 
         private _bounds: Interval, 
         private _data: object, 
         private _labeler: AgendaItemLabeler<any>
-    ) {}
+    ) {
+        this.id = AgendaItem.nextId++;
+    }
 
     public get resourceName(): string {
         return this._resource;
@@ -21,9 +27,9 @@ export class AgendaItem {
 
     public get label(): string {
         if (this._labeler instanceof Function) {
-            return this._labeler(this._data);
+            return `[${this.id}]: ${this._labeler(this._data)}`;
         }
-        return '';
+        return `${this.resourceName}.${this.channelName}[${this.id}]`;
     }
 
     public get startDate(): DateTime {
