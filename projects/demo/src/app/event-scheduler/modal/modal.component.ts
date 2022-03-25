@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input, HostListener } from '@angular/core';
+import { Component, HostBinding, Input, HostListener, Output, EventEmitter } from '@angular/core';
 
 /**
  * Quick and Dirty Modal window
@@ -16,11 +16,18 @@ import { Component, HostBinding, Input, HostListener } from '@angular/core';
 export class ModalComponent {
 
   @HostBinding('class.show') @Input() showModal: boolean = false;
+  @Output() clickToCancel: EventEmitter<void> = new EventEmitter();
 
   constructor() { }
 
   @HostListener('click')
   public onClickBackground(): void {
-    this.showModal = false;
+    console.log(`click on modal background, emit cancel`);
+    this.clickToCancel.emit();
+  }
+
+  public onClickDialogContainer($event:Event): void {
+    console.log(`stopping click in dialog container`);
+    $event.stopPropagation();
   }
 }

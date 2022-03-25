@@ -9,7 +9,7 @@
     <cc-resource [resourceName]="'room-2'" [channels]="channels"><div class="label">Room 2</div></cc-resource>
     <cc-resource [resourceName]="'room-3'" [channels]="channels"><div class="label">Room 3</div></cc-resource>
 </cc-visual-scheduler>
-<demo-modal [showModal]="showEditor">
+<demo-modal [showModal]="showEditor" (clickToCancel)="onEditEvent('cancel')">
   <div class="dialog-title">Edit Item</div>
   <demo-item-editor class="dialog-body" [agendaItem]="agendaItemToEdit" (output)="onEditEvent($event)"></demo-item-editor>
 </demo-modal>

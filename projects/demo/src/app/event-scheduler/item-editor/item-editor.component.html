@@ -14,15 +14,15 @@
         </div>
         <div class="field">
             <div class="label">Start Date</div>
-            <div class="input">{{agendaItem?.startDate?.toFormat("'yyyy MMM dd HH:mm:ss.S'")}}</div>
+            <div class="input">{{agendaItem?.startDate?.toFormat('yyyy MMM dd HH:mm:ss.S')}}</div>
         </div>
         <div class="field">
             <div class="label">End Date</div>
-            <div class="input">{{agendaItem?.endDate?.toFormat("'yyyy MMM dd HH:mm:ss.S'")}}</div>
+            <div class="input">{{agendaItem?.endDate?.toFormat('yyyy MMM dd HH:mm:ss.S')}}</div>
         </div>
     </div>
     <div class="actions">
-        <button (click)="onSave()">Save</button>
+        <button (click)="onSave()" class="primary">Save</button>
         <button (click)="onCancel()">Cancel</button>
     </div>
 </div>

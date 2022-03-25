@@ -41,12 +41,12 @@ export class EventSchedulerComponent implements OnInit {
       i++;
       this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'chat', date, new Date(date.getTime() + 1 * 60 * 60 * 1000), new ChatData(`chat ${i}`), chatLabeler);
       this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'video', date, new Date(date.getTime() + 1 * 60 * 60 * 1000), new VideoData(`video ${i}`), videoLabeler);
-      this.vsServ.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
-        console.log(`got Tool Event: `, event);
-        this.agendaItemToEdit = event.agendaItem;
-        this.showEditor = true;
-      })
     }
+    this.vsServ.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
+      console.log(`got Tool Event: `, event);
+      this.agendaItemToEdit = event.agendaItem;
+      this.showEditor = true;
+    });
   }
 
   onEditEvent(event: 'save'|'cancel'): void {

@@ -7,11 +7,9 @@
   height: 100vh;
   width: 100vw;
   background-color: rgba(0,0,0,0.4);
-  opacity: 0;
 
   &.show {
     display: flex;
-    opacity: 75%;
     justify-content: center;
     align-items: center;
   }
@@ -21,6 +19,7 @@
   position: relative;
   background-color: white;
   border: 1px solid black;
+  overflow: hidden;
   border-radius: .5rem;
   z-index: 601;
   display: flex;
@@ -37,7 +36,8 @@
 }
 
 .dialog-body {
-  overflow-y: scroll;
+  background-color: aliceblue;
+  overflow: auto;
   min-width: 120px;
   min-height: 70px;                     /*  title bar is 50 so we need the extra 70 here  */
   max-height: calc(75vh - 50px);        /*  compensate for title bar                      */
