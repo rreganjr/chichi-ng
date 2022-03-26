@@ -13,7 +13,7 @@
   grid-template-columns: 1fr 1fr;
 }
 
-.field {
+.field-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column-end: span 2;
@@ -26,19 +26,18 @@
     padding: .5rem;
     text-align: left;
     font-weight: bold;
-  
-    > .input {
-      background-color: rgba(255,255,255,0.3);
-      border: 1px solid rgba(0,0,0,0.5);
-      border-radius: .5rem;
-      margin: .1rem
-    }
-  
-    > .label::after {
-      content: ":";
-      text-align: left;
-      font-weight: bold;
-    }
+  }
+  & input {
+    background-color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(0,0,0,0.5);
+    border-radius: .5rem;
+    margin: .1rem
+  }
+
+  & label::after {
+    content: ":";
+    text-align: left;
+    font-weight: bold;
   }
 }
 

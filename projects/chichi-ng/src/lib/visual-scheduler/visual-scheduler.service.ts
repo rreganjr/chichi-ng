@@ -17,9 +17,7 @@ class ResourceChannelMapData {
 })
 export class VisualSchedulerService {
 
-  private _timescale = new Timescale(
-    Interval.fromDateTimes(new Date(), new Date(new Date().getTime() + 24 * 60 * 60 * 1000)),
-  );
+  private _timescale!: Timescale;
   private _timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
 
   private _toolEventsSubject: Subject<ToolEvent> = new BehaviorSubject(ToolEvent.CLEAR);
@@ -30,6 +28,12 @@ export class VisualSchedulerService {
   private _agendaItemsByResourceChannelMap: Map<ResourceChannelMapKey,ResourceChannelMapData> = new Map<ResourceChannelMapKey, ResourceChannelMapData>();
 
   constructor() {
+    const startDate = new Date();
+    startDate.setMilliseconds(0);
+    startDate.setSeconds(0);
+    startDate.setMinutes(0);
+    const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+    this._timescale = new Timescale(Interval.fromDateTimes(startDate, endDate));
     this._timescaleSubject.next(this._timescale);
   }
 

@@ -7,6 +7,10 @@ import { AgendaItem, VisualSchedulerService } from 'chichi-ng';
   styleUrls: ['./item-editor.component.scss']
 })
 export class ItemEditorComponent implements OnInit {
+
+  // interesting note: suppressMilliseconds only works if the value is zero
+  // see https://stackoverflow.com/questions/49171431/luxon-set-milliseconds-for-toiso
+  public readonly ISO8601_datetime_local_opts = {suppressMilliseconds: false, includeOffset: false};
   @Input() public agendaItem: AgendaItem|null = null;
   @Output() public output: EventEmitter<'save'|'cancel'> = new EventEmitter();
 

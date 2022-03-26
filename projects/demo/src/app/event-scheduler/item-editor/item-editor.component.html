@@ -1,24 +1,28 @@
 <div class="edit-form">
     <div class="fields">
-        <div class="field">
-            <div class="label">Resource Name</div>
-            <div class="input">{{agendaItem?.resourceName}}</div>
+        <div class="field-group">
+            <label for="agendaItemId"><span>Agenda Item Id</span></label>
+            <input id="agendaItemId" type="number" name="agendaItemId" value="{{agendaItem?.id}}" disabled>
         </div>
-        <div class="field">
-            <div class="label">Channel Name</div>
-            <div class="input">{{agendaItem?.channelName}}</div>
+        <div class="field-group">
+            <label for="resourceName"><span>Resource Name</span></label>
+            <input id="resourceName" type="text" name="resourceName" value="{{agendaItem?.resourceName}}">
         </div>
-        <div class="field">
-            <div class="label">Label</div>
-            <div class="input">{{agendaItem?.label}}</div>
+        <div class="field-group">
+            <label for="channelName">Channel Name</label>
+            <input id="channelName" type="text" name="channelName" value="{{agendaItem?.channelName}}">
         </div>
-        <div class="field">
-            <div class="label">Start Date</div>
-            <div class="input">{{agendaItem?.startDate?.toFormat('yyyy MMM dd HH:mm:ss.S')}}</div>
+        <div class="field-group">
+            <label for="label">Label</label>
+            <input id="label" type="text" name="label" value="{{agendaItem?.label}}">
         </div>
-        <div class="field">
-            <div class="label">End Date</div>
-            <div class="input">{{agendaItem?.endDate?.toFormat('yyyy MMM dd HH:mm:ss.S')}}</div>
+        <div class="field-group">
+            <label for="startDate">Start Date</label>
+            <input id="startDate" type="datetime-local" name="startDate" value="{{agendaItem?.startDate?.toISO(ISO8601_datetime_local_opts)}}">
+        </div>
+        <div class="field-group">
+            <label for="endDate">End Date</label>
+            <input id="endDate" type="datetime-local" name="endDate" value="{{agendaItem?.endDate?.toISO(ISO8601_datetime_local_opts)}}">
         </div>
     </div>
     <div class="actions">
