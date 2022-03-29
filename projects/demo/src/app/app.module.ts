@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 import { ChichiNgModule } from 'chichi-ng';
 
@@ -21,6 +22,7 @@ import { ItemEditorComponent } from './event-scheduler/item-editor/item-editor.c
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     ChichiNgModule
   ],
   providers: [],

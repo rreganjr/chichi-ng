@@ -1,4 +1,17 @@
 <h1>Event Scheduler</h1>
+<div class="bounds-form">
+  <div class="fields">
+      <div class="field-group">
+          <label for="startDate">Start Date</label>
+          <input id="startDate" type="datetime-local" name="startDate" [(ngModel)]="startDate">
+      </div>
+      <div class="field-group">
+          <label for="endDate">End Date</label>
+          <input id="endDate" type="datetime-local" name="endDate" [(ngModel)]="endDate">
+      </div>
+  </div>
+</div>
+
 <cc-visual-scheduler [startDate]="startDate" [endDate]="endDate">
     <cc-toolbox>
         <cc-tool [toolType]="'chat'" class="hovertext blue" data-hover="Chat"><span class="material-icons md-48">chat</span></cc-tool>

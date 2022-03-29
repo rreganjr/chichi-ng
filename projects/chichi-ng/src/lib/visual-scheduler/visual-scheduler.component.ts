@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Interval } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import { VisualSchedulerService } from './visual-scheduler.service';
 
 @Component({
@@ -9,8 +9,11 @@ import { VisualSchedulerService } from './visual-scheduler.service';
 })
 export class VisualSchedulerComponent implements OnInit, OnChanges {
 
-  @Input() startDate!: Date;
-  @Input() endDate!: Date;
+  /**
+   * The Date in ISO8601 Format
+   */
+  @Input() startDate!: string;
+  @Input() endDate!: string;
 
   constructor(
     private visualSchedulerService: VisualSchedulerService
@@ -20,8 +23,9 @@ export class VisualSchedulerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.startDate && this.endDate && (changes['startDate'].currentValue || changes['endDate'].currentValue)) {
-      this.visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(this.startDate, this.endDate));
+    if (this.startDate && this.endDate && (changes['startDate']?.currentValue || changes['endDate']?.currentValue)) {
+      console.log(`dates changed: startDate=${this.startDate} endDate=${this.endDate}`)
+      this.visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(DateTime.fromISO(this.startDate), DateTime.fromISO(this.endDate)));
     }
   }
 }

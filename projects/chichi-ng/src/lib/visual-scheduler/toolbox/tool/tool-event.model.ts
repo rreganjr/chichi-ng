@@ -4,10 +4,22 @@ export class ToolEvent {
     private static nextId: number = 1;
     public static readonly CLEAR = new ToolEvent('CLEAR');
 
+    public static newDragStartEvent(toolType: string, event: DragEvent): ToolEvent {
+        return new ToolEvent('START', toolType, event);
+    }
+
+    public static newDragEndEvent(toolType: string, event: DragEvent): ToolEvent {
+        return new ToolEvent('END', toolType, event);
+    }
+
+    public static newEditEvent(agendaItem: AgendaItem, event: Event): ToolEvent {
+        return new ToolEvent('EDIT', agendaItem.channelName, event, agendaItem);
+    }
+
     public readonly id: number;
 
-    constructor(
-        public readonly action: 'CLEAR'|'START'|'END'|'DROP'|'EDIT',
+    protected constructor(
+        public readonly action: 'CLEAR'|'START'|'END'|'EDIT',
         public readonly toolType: string = '',
         public readonly event: DragEvent|Event|null = null,
         public readonly agendaItem: AgendaItem|null = null
@@ -25,10 +37,6 @@ export class ToolEvent {
 
     public isClear(): boolean {
         return this.action === 'CLEAR';
-    }
-
-    public isDrop(): boolean {
-        return this.action === 'DROP';
     }
 
     public isEdit(): boolean {

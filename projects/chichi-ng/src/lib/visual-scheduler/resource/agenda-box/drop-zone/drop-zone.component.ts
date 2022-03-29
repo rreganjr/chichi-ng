@@ -49,6 +49,8 @@ export class DropZoneComponent implements OnInit {
       }
     });
 
+    // this listens for {@link ToolEvent} START and STOP to indicate starting/stopping dragging
+    // so the drop zone can activate/highlight if the toolType of the event matches the channel
     this.visualSchedulerService.getToolEvents$().pipe(
       filter((toolEvent:ToolEvent, index:number) => toolEvent.toolType === this.agendaItem.channelName)
       ).subscribe( (toolEvent: ToolEvent) => {

@@ -82,22 +82,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The timeline should start at the beginning of a unit to make it easier to read, for example if the start of
-   * the bounds is 1:15 PM and the view size is 7 days, having the timelines show 1:15 PM 7 times is harder to read
-   * than if the time line starts at the beginning of the day and shows the dates marked for each day.
-   * 
-   * @returns a {@link DateTimeUnit} indicating when the timeline starts, for example start of day or hour
-   */
-  private get startAt(): DateTimeUnit {
-    const visibleHours = this._timescale.visibleDuration.hours;
-    if (visibleHours < 3*24) {
-      return 'hour';
-    } else {
-      return 'day';
-    }
-  }
-
-  /**
    * Adds a div element to the timeline containing the tick elements indicating times and days.
    */
   private draw(): void {
@@ -109,7 +93,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.renderer.removeChild(this.timelineElement.nativeElement, child);
       }
 
-      const startTick: DateTime = this._timescale.boundsInterval.start.startOf(this.startAt).plus(this._timescale.offsetDuration);
+      const startTick: DateTime = this._timescale.startOfVisibleDateTime;
       const lastTick: DateTime = startTick.plus(this._timescale.visibleDuration);
       const primaryTicksDuration: Duration = this.primaryTicksDuration;
       const betweenTicksDuration: Duration = this.betweenTicksDuration;

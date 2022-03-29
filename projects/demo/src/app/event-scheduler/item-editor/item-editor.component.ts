@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AgendaItem, VisualSchedulerService } from 'chichi-ng';
 
+import { ISO8601_datetime_local_opts } from '../event-scheduler.component';
+
 @Component({
   selector: 'demo-item-editor',
   templateUrl: './item-editor.component.html',
@@ -8,9 +10,8 @@ import { AgendaItem, VisualSchedulerService } from 'chichi-ng';
 })
 export class ItemEditorComponent implements OnInit {
 
-  // interesting note: suppressMilliseconds only works if the value is zero
-  // see https://stackoverflow.com/questions/49171431/luxon-set-milliseconds-for-toiso
-  public readonly ISO8601_datetime_local_opts = {suppressMilliseconds: false, includeOffset: false};
+  public readonly ISO8601_datetime_local_opts = ISO8601_datetime_local_opts;
+
   @Input() public agendaItem: AgendaItem|null = null;
   @Output() public output: EventEmitter<'save'|'cancel'> = new EventEmitter();
 
@@ -22,7 +23,21 @@ export class ItemEditorComponent implements OnInit {
   }
 
   public onSave(): void {
-    this.output.emit('save');
+    // TODO: form needs to be bound etc.
+    if (
+      this.agendaItem?.resourceName &&
+      this.agendaItem?.channelName &&
+      this.agendaItem?.bounds &&
+      this._visualSchedulerService.isIntervalAvailable(
+        this.agendaItem?.resourceName, 
+        this.agendaItem?.channelName, 
+        this.agendaItem?.bounds.start.toJSDate(), 
+        this.agendaItem?.bounds.start.toJSDate())) {
+          // item bounds are valid
+          this.output.emit('save');
+        } else {
+          console.log(`agendaItem bounds conflict`);
+        }
   }
 
   public onCancel(): void {

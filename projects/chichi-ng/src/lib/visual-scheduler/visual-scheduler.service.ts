@@ -39,12 +39,12 @@ export class VisualSchedulerService {
 
   public dragStart($event: DragEvent, toolType: string): void {
     console.log(`dragStart: ${toolType}`, $event);
-    this._toolEventsSubject.next(new ToolEvent('START', toolType, $event));
+    this._toolEventsSubject.next(ToolEvent.newDragStartEvent(toolType, $event));
   }
 
   public dragEnd($event: DragEvent, toolType: string): void {
     console.log(`dragEnd: ${toolType}`, $event);
-    this._toolEventsSubject.next(new ToolEvent('END', toolType, $event));
+    this._toolEventsSubject.next(ToolEvent.newDragEndEvent(toolType, $event));
   }
   
   /**
@@ -55,7 +55,7 @@ export class VisualSchedulerService {
    public openAgendaItemDetail(agendaItemOrId: AgendaItem|number, $event: Event): boolean {
     const agendaItem: AgendaItem|undefined = this.toAgendaItem(agendaItemOrId);
     if (agendaItem !== undefined) {
-      this._toolEventsSubject.next(new ToolEvent('EDIT', agendaItem.channelName, $event, agendaItem));
+      this._toolEventsSubject.next(ToolEvent.newEditEvent(agendaItem, $event));
         console.log(`open agenda item: ${agendaItem.label} in resource ${agendaItem.resourceName} channel ${agendaItem.channelName}`);
     }
     return false;
@@ -99,6 +99,7 @@ export class VisualSchedulerService {
    * @param interval the start date and time to the end date and time
    */
   public setBoundsInterval(interval: Interval): void {
+    // TODO: adjust the visibleDuration and offsetDuration if needed when the bounds change
     this._timescale = new Timescale(interval, this._timescale.visibleDuration, this._timescale.offsetDuration);
     this._timescaleSubject.next(this._timescale);
     // TODO: remove AgendaItems out of the bounds?
@@ -111,7 +112,6 @@ export class VisualSchedulerService {
    * @param offsetHours - the hours from the bounds start time to the start of the visible hours
    */
   public setTimeScaleOffsetHours(offsetHours: number): void {
-    console.log(`setTimeScaleOffsetHours(offsetHours = ${offsetHours})`);
     if (offsetHours >= 0) {
       offsetHours = Math.round(offsetHours);
       let newDuration: Duration;
@@ -120,8 +120,11 @@ export class VisualSchedulerService {
       } else {
         newDuration = Duration.fromDurationLike({hours: offsetHours});
       }
-      this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, newDuration);
-      this._timescaleSubject.next(this._timescale);  
+      if (!this._timescale.offsetDuration.equals(newDuration)) {
+        console.log(`setTimeScaleOffsetHours(offsetHours = ${offsetHours})`);
+        this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, newDuration);
+        this._timescaleSubject.next(this._timescale);  
+      }
     }
   }
 
