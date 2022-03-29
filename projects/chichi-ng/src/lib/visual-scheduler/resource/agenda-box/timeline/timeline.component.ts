@@ -98,6 +98,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
       const primaryTicksDuration: Duration = this.primaryTicksDuration;
       const betweenTicksDuration: Duration = this.betweenTicksDuration;
 
+      this.renderer.appendChild(this.timelineElement.nativeElement, this.makeOutOfBoundsElement('start'));
+
+
       // add the tick marks that are visible
       for (let primaryTick: DateTime = startTick; primaryTick < lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
         this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(primaryTick));
@@ -138,6 +141,17 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (this.showLabels) {
       this.renderer.appendChild(element, (dateTime.hour === 0) ? this.makeDayLabel(dateTime) : this.makeTimeLabel(dateTime));
     }
+    return element;
+  }
+
+  /**
+   * 
+   */
+  private makeOutOfBoundsElement(location: 'start'|'end'): HTMLDivElement {
+    const element: HTMLDivElement = this.renderer.createElement('div');
+    element.style.width = (this._timescale.startAtDurationInSeconds.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
+    console.log(`this._timescale.startAtDuration.as('seconds')=${this._timescale.startAtDurationInSeconds.as('seconds')} this._timescale.visibleDuration.as('seconds')=${this._timescale.visibleDuration.as('seconds')} makeOutOfBoundsElement = ${element.style.width}`);
+    element.className =  'outOfBounds';
     return element;
   }
 

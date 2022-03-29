@@ -68,12 +68,12 @@ export class Timescale {
      *   timeline starts at 1/1/2020 12:00 am
      *   startAtDuration 44,040 seconds (12 hours and 14 minutes in seconds)
      */
-    public get startAtDuration(): Duration {
-        return this._boundsInterval.start.startOf(this.startAtDateTimeUnit).diff(this._boundsInterval.start, 'seconds');
+    public get startAtDurationInSeconds(): Duration {
+        return this._boundsInterval.start.diff(this._boundsInterval.start.startOf(this.startAtDateTimeUnit), 'seconds');
     }
 
     public get visibleBounds(): Interval {
-        const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration).plus(this.startAtDuration);
+        const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration).plus(this.startAtDurationInSeconds);
         return Interval.fromDateTimes(start, start.plus(this._visibleDuration));
     }
 }

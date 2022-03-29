@@ -8,17 +8,23 @@
 }
 
 .smallTick {
-  border-left: 1px solid #ccc;
+  border-left: 1px solid #aaa;
   height: 33%;
 }
 
 .mediumTick {
-  border-left: 1px solid #ccc;
+  border-left: 1px solid #aaa;
   height: 50%;
 }
 
 .primaryTick {
   border-left: 1px solid #777;
+  height: 100%;
+}
+
+.outOfBounds {
+  position: absolute;
+  background-color: rgba(0,0,0,0.1);
   height: 100%;
 }
 
