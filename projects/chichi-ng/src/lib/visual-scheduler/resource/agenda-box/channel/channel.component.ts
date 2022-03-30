@@ -5,6 +5,7 @@ import { combineLatest, flatMap, map, mergeMap, Observable, ReplaySubject, Subje
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
 import { DndDropEvent } from 'ngx-drag-drop';
+import { Timescale } from '../../../timescale.model';
 
 class DropZoneAgendaItem extends AgendaItem {
   public readonly isDropZone: boolean = true;
@@ -43,7 +44,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
       this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName),
       this.visualSchedulerService.getTimescale$()
     ]).subscribe(([agendaItems, timeScale]) => {
-        this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale.visibleBounds, agendaItems
+        this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale, agendaItems
           .filter((agendaItem:AgendaItem) => timeScale.visibleBounds.intersection(agendaItem.bounds) !== null)
           .sort((a:AgendaItem, b:AgendaItem)=> a.startDate.toMillis() - b.startDate.toMillis())));
     });
@@ -75,10 +76,10 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
     return this._visibleAgendaItemsSubject.asObservable();
   }
 
-  private injectDropZones(visibleInterval: Interval, agendaItems: AgendaItem[]): AgendaItem[] {
+  private injectDropZones(timeScale: Timescale, agendaItems: AgendaItem[]): AgendaItem[] {
     const results: AgendaItem[] = [];
-    if (agendaItems && agendaItems.length > 0) {
-      let previousEnd: DateTime = visibleInterval.start;
+    if (agendaItems?.length > 0) {
+      let previousEnd: DateTime = timeScale.visibleBounds.start;
       for (let index = 0; index < agendaItems.length; index++) {
         const agendaItem: AgendaItem = agendaItems[index];
         const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, agendaItem.bounds.start);
@@ -88,14 +89,14 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
         results.push(agendaItem);
         previousEnd = agendaItem.bounds.end;
       }
-      if (previousEnd < visibleInterval.end) {
+      if (previousEnd < timeScale.visibleBounds.end) {
         // add a trailing drop zone
-        const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, visibleInterval.end);
+        const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, timeScale.visibleBounds.end);
         results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween, {label: 'drop zone'}, (data)=> data.label));
       }
     } else {
       // fill the whole visible part of the channel with a drop zone
-      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, visibleInterval, {label: 'drop zone'}, (data)=> data.label));
+      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, timeScale.visibleBounds, {label: 'drop zone'}, (data)=> data.label));
     }
     return results;
  }

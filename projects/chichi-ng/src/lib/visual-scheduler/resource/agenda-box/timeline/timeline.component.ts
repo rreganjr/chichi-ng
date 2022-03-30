@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
-import { DateTime, DateTimeFormatOptions, DateTimeUnit, Duration } from 'luxon';
+import { DateTime, DateTimeFormatOptions, DateTimeUnit, Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
@@ -95,11 +95,14 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
       const startTick: DateTime = this._timescale.startOfVisibleDateTime;
       const lastTick: DateTime = startTick.plus(this._timescale.visibleDuration);
+      console.log(`lastTick = ${lastTick} endAtDurationInSeconds = ${this._timescale.endAtDurationInSeconds}`);
       const primaryTicksDuration: Duration = this.primaryTicksDuration;
       const betweenTicksDuration: Duration = this.betweenTicksDuration;
 
-      this.renderer.appendChild(this.timelineElement.nativeElement, this.makeOutOfBoundsElement('start'));
-
+      const outOfBoundsStart: HTMLDivElement|undefined = this.makeOutOfBoundsElement('start');
+      if (outOfBoundsStart) {
+        this.renderer.appendChild(this.timelineElement.nativeElement, outOfBoundsStart);
+      }
 
       // add the tick marks that are visible
       for (let primaryTick: DateTime = startTick; primaryTick < lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
@@ -113,6 +116,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
             this.renderer.appendChild(this.timelineElement.nativeElement, this.makeBetweenTickElement(betweenTick));
           }
         }
+      }
+      const outOfBoundsEnd: HTMLDivElement|undefined = this.makeOutOfBoundsElement('end');
+      if (outOfBoundsEnd) {
+        this.renderer.appendChild(this.timelineElement.nativeElement, outOfBoundsEnd);
       }
     }
   }
@@ -145,14 +152,28 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 
+   * A timeline start on the hour or day creating an area at the start and end of the time line that are not in the timescale bounds.
+   * This element demarks the time durations that aren't schedulable.
+   * @param location - which end of the timeline being marked
+   * @returns an {@link HTMLDivElement} representing the area at the start or end of the timeline that isn't part of the time bounds
    */
-  private makeOutOfBoundsElement(location: 'start'|'end'): HTMLDivElement {
-    const element: HTMLDivElement = this.renderer.createElement('div');
-    element.style.width = (this._timescale.startAtDurationInSeconds.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
-    console.log(`this._timescale.startAtDuration.as('seconds')=${this._timescale.startAtDurationInSeconds.as('seconds')} this._timescale.visibleDuration.as('seconds')=${this._timescale.visibleDuration.as('seconds')} makeOutOfBoundsElement = ${element.style.width}`);
-    element.className =  'outOfBounds';
-    return element;
+  private makeOutOfBoundsElement(location: 'start'|'end'): HTMLDivElement|undefined {
+    const outOfBoundsInterval = (location === 'start' ? this._timescale.outOfBoundsStartInterval : this._timescale.outOfBoundsEndInterval);
+    console.log(`outOfBoundsInterval start = ${outOfBoundsInterval.start} end = ${outOfBoundsInterval.end}`);
+    // calculate the intersection of the out of bounds interval to the visible duration interval
+    const visibleOutOfBounds: Interval|null = this._timescale.visibleBounds.intersection(outOfBoundsInterval);
+    if (visibleOutOfBounds?.toDuration('second')?.as('seconds') || 0 > 0) {
+      const element: HTMLDivElement = this.renderer.createElement('div');
+      if (location === 'start') {
+        element.style.left = '0';
+      } else {
+        element.style.right = '0';
+      }
+      element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
+      element.className =  'outOfBounds';    
+      return element;
+    }
+    return;
   }
 
   /**

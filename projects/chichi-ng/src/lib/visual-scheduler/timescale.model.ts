@@ -72,8 +72,35 @@ export class Timescale {
         return this._boundsInterval.start.diff(this._boundsInterval.start.startOf(this.startAtDateTimeUnit), 'seconds');
     }
 
+    /**
+     * The duration from where the timescale bounds end and the time line ends
+     */
+    public get endAtDurationInSeconds(): Duration {
+        return this._boundsInterval.end.endOf(this.startAtDateTimeUnit).diff(this._boundsInterval.end, 'seconds');
+    }
+
+    /**
+     * @returns The {@link Interval} visible in the scheduler
+     */
     public get visibleBounds(): Interval {
-        const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration).plus(this.startAtDurationInSeconds);
+        const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration);
         return Interval.fromDateTimes(start, start.plus(this._visibleDuration));
+    }
+
+    /**
+     * The timeline starts at the hour or day before the schedule bounds, this demarks the start and end of that area.
+     * @returns the Interval at the beginning of the timeline between the timeline start and the bounds start
+     */
+    public get outOfBoundsStartInterval(): Interval {
+        return Interval.fromDateTimes(this.boundsInterval.start, this.boundsInterval.start.plus(this.startAtDurationInSeconds));
+    }
+
+    /**
+     * The timeline ends at the hour or day after the schedule bounds, this demarks the start and end of that area.
+     * @returns the Interval at the beginning of the timeline between the timeline start and the bounds start
+     */
+    public get outOfBoundsEndInterval(): Interval {
+        console.log(`this.boundsInterval.end = ${this.boundsInterval.end} this.endAtDurationInSeconds=${this.endAtDurationInSeconds}`);
+        return Interval.fromDateTimes(this.boundsInterval.end, this.boundsInterval.end.plus(this.endAtDurationInSeconds));
     }
 }
