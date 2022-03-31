@@ -1,16 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AgendaItem, VisualSchedulerService } from 'chichi-ng';
 
-import { ISO8601_datetime_local_opts } from '../event-scheduler.component';
-
 @Component({
   selector: 'demo-item-editor',
   templateUrl: './item-editor.component.html',
   styleUrls: ['./item-editor.component.scss']
 })
 export class ItemEditorComponent implements OnInit {
-
-  public readonly ISO8601_datetime_local_opts = ISO8601_datetime_local_opts;
 
   @Input() public agendaItem: AgendaItem|null = null;
   @Output() public output: EventEmitter<'save'|'cancel'> = new EventEmitter();

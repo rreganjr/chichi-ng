@@ -93,9 +93,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.renderer.removeChild(this.timelineElement.nativeElement, child);
       }
 
-      const startTick: DateTime = this._timescale.startOfVisibleDateTime;
-      const lastTick: DateTime = startTick.plus(this._timescale.visibleDuration);
-      console.log(`lastTick = ${lastTick} endAtDurationInSeconds = ${this._timescale.endAtDurationInSeconds}`);
+      const startTick: DateTime = this._timescale.startOfVisibleTimeline;
+      const lastTick: DateTime = this._timescale.endOfVisibleTimeline;
       const primaryTicksDuration: Duration = this.primaryTicksDuration;
       const betweenTicksDuration: Duration = this.betweenTicksDuration;
 

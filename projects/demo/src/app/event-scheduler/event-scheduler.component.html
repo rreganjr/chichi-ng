@@ -22,6 +22,36 @@
     <cc-resource [resourceName]="'room-2'" [channels]="channels"><div class="label">Room 2</div></cc-resource>
     <cc-resource [resourceName]="'room-3'" [channels]="channels"><div class="label">Room 3</div></cc-resource>
 </cc-visual-scheduler>
+<section>
+    <h2>Time Scale</h2>
+    <div>
+        <div>primaryDateTimeUnit = {{timeScale?.primaryDateTimeUnit?.toString()}}</div>
+
+        <h3>Fixed by start and end date</h3>
+        <div>timelineBounds start = {{timeScale?.timelineBounds?.start}}</div>
+        <div>startOfTimeline = {{timeScale?.startOfTimeline}}</div>
+        <div>outOfBoundsStartInterval start = {{timeScale?.outOfBoundsStartInterval?.start}}</div>
+        <div>outOfBoundsStartDuration = {{timeScale?.outOfBoundsStartDuration}}</div>
+        <div>outOfBoundsStartInterval end = {{timeScale?.outOfBoundsStartInterval?.end}}</div>
+        <div>bounds start = {{timeScale?.boundsInterval?.start}}</div>
+        <div>bounds end = {{timeScale?.boundsInterval?.end}}</div>
+        <div>outOfBoundsEndInterval start = {{timeScale?.outOfBoundsEndInterval?.start}}</div>
+        <div>outOfBoundsEndDuration = {{timeScale?.outOfBoundsEndDuration}}</div>
+        <div>outOfBoundsEndInterval end = {{timeScale?.outOfBoundsEndInterval?.end}}</div>
+        <div>endOfTimeline = {{timeScale?.endOfTimeline}}</div>
+        <div>timelineBounds end = {{timeScale?.timelineBounds?.end}}</div>
+
+        <h3>Time Scale Adjustments</h3>
+        <div>offsetDuration = {{timeScale?.offsetDuration}}</div>
+
+        <div>startOfVisibleTimeline = {{timeScale?.startOfVisibleTimeline}}</div>
+        <div>visibleBounds start = {{timeScale?.visibleBounds?.start}}</div>
+        <div>visibleDuration = {{timeScale?.visibleDuration}}</div>
+        <div>visibleBounds end = {{timeScale?.visibleBounds?.end}}</div>
+        <div>endOfVisibleTimeline = {{timeScale?.endOfVisibleTimeline}}</div>
+
+    </div>
+</section>
 <demo-modal [showModal]="showEditor" (clickToCancel)="onEditEvent('cancel')">
   <div class="dialog-title">Edit Item</div>
   <demo-item-editor class="dialog-body" [agendaItem]="agendaItemToEdit" (output)="onEditEvent($event)"></demo-item-editor>

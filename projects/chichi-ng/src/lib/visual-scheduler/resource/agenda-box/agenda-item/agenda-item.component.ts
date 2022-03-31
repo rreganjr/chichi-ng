@@ -32,9 +32,9 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
         const el = this._channelElement.nativeElement;
         if (intersectingInterval !== null) {
-          // add the timescale.startAtDurationInSeconds to account for the timeline starting on an hour or day before
+          // add the {@link Timescale.outOfBoundsStartDuration} to account for the timeline starting on an hour or day before
           // the actual start boundary, which requires the items to shift by that amount to line up properly
-          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start).plus(timescale.startAtDurationInSeconds);
+          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start).plus(timescale.outOfBoundsStartDuration);
           const duration: Duration = intersectingInterval.toDuration();
           el.style.display = 'block';
           el.style.left = (offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';

@@ -18,11 +18,11 @@
         </div>
         <div class="field-group">
             <label for="startDate">Start Date</label>
-            <input id="startDate" type="datetime-local" name="startDate" value="{{agendaItem?.startDate?.toISO(ISO8601_datetime_local_opts)}}">
+            <input id="startDate" type="datetime-local" name="startDate" value="{{agendaItem?.startDateAsHtmlDateTimeLocalString}}">
         </div>
         <div class="field-group">
             <label for="endDate">End Date</label>
-            <input id="endDate" type="datetime-local" name="endDate" value="{{agendaItem?.endDate?.toISO(ISO8601_datetime_local_opts)}}">
+            <input id="endDate" type="datetime-local" name="endDate" value="{{agendaItem?.endDateAsHtmlDateTimeLocalString}}">
         </div>
     </div>
     <div class="actions">

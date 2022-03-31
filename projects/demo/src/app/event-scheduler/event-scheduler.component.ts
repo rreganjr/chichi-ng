@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent } from 'chichi-ng';
-import { DateTime } from 'luxon';
+import { Timescale } from 'dist/chichi-ng/lib/visual-scheduler/timescale.model';
 import { filter } from 'rxjs';
-
-// interesting note: suppressMilliseconds only works if the value is zero
-// see https://stackoverflow.com/questions/49171431/luxon-set-milliseconds-for-toiso
-
-export const ISO8601_datetime_local_opts = {suppressMilliseconds: false, includeOffset: false};
 
 class ChatData {
   constructor(
@@ -35,23 +30,15 @@ export class EventSchedulerComponent implements OnInit {
   public channels: string[] = ['chat', 'video'];
   public showEditor: boolean = false;
   public agendaItemToEdit: AgendaItem|null = null;
+  public timeScale: Timescale|null = null;
 
   constructor(private vsServ: VisualSchedulerService) {
     const start: Date = new Date();
     //start.setMinutes(0);
     start.setSeconds(0);
     start.setMilliseconds(0);
-    const end: Date = new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000);
-    this.startDate = DateTime.fromJSDate(start).toISO(ISO8601_datetime_local_opts);
-    this.endDate = DateTime.fromJSDate(end).toISO(ISO8601_datetime_local_opts);
-
-    console.log(`startDate = ${this.startDate} endDate = ${this.endDate}`);
-    // TODO: clear the minute because there is a bug where the item rendering is relative to the timeline
-    // but the timeline shows the whole hour even though the start may be x minutes into the hour
-    // The fix is to shift the rendered items and/or timeline, note if the timeline uses whole hours then
-    // there is a gap at the start and end from the bounds start and end which may not be on the hour
-    //this.startDate.setMinutes(0); 
-//    this.vsServ.setBoundsInterval(Interval.fromDateTimes(this.startDate, this.endDate));
+    this.startDate = VisualSchedulerService.toHtmlDateTimeLocalString(start);
+    this.endDate =  VisualSchedulerService.toHtmlDateTimeLocalString(new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000));
   }
 
   ngOnInit(): void {
@@ -70,6 +57,10 @@ export class EventSchedulerComponent implements OnInit {
     this.vsServ.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
       this.agendaItemToEdit = event.agendaItem;
       this.showEditor = true;
+    });
+
+    this.vsServ.getTimescale$().subscribe((timeScale: Timescale) => {
+      this.timeScale = timeScale;
     });
   }
 

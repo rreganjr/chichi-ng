@@ -13,7 +13,6 @@ import { ToolEvent } from '../../../toolbox/tool/tool-event.model';
 })
 export class DropZoneComponent implements OnInit {
 
-
   @Input() agendaItem!: AgendaItem; // this is a faked up agendaItem representing an unscheduled area
 
   // When a tool is dragged that is appropriate to drop on this zone, 
@@ -34,16 +33,13 @@ export class DropZoneComponent implements OnInit {
       // TODO: agendaItems when the timescale or agendaItems change
       if (this.dropZoneElement && this.dropZoneElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
-        const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
+        const intersectingIntervalOfVisibleBounds: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
         const el = this.dropZoneElement.nativeElement;
-        if (intersectingInterval !== null) {
-          // add the timescale.startAtDurationInSeconds to account for the timeline starting on an hour or day before
-          // the actual start boundary, which requires the items to shift by that amount to line up properly
-          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start).plus(timescale.startAtDurationInSeconds);
-          const duration: Duration = intersectingInterval.toDuration();
+        if (intersectingIntervalOfVisibleBounds !== null) {
+          const offset: Duration = intersectingIntervalOfVisibleBounds.start.diff(visibleBounds.start);
+          const duration: Duration = intersectingIntervalOfVisibleBounds.toDuration();
           el.style.display = 'block';
-          el.style.left = (offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';
-          // TODO: the width needs to account for the border, how can I do this if it is user defined css?
+          el.style.left = `${(offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
           el.style.width = `${(duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
         } else {
           el.style.display = 'none';

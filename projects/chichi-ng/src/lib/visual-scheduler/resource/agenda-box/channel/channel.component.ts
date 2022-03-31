@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { AgendaItemLabeler } from '../agenda-item.model';
 import { DateTime, Interval } from 'luxon';
-import { combineLatest, flatMap, map, mergeMap, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
 import { DndDropEvent } from 'ngx-drag-drop';
@@ -76,10 +76,11 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
     return this._visibleAgendaItemsSubject.asObservable();
   }
 
-  private injectDropZones(timeScale: Timescale, agendaItems: AgendaItem[]): AgendaItem[] {
+  private injectDropZones(timescale: Timescale, agendaItems: AgendaItem[]): AgendaItem[] {
     const results: AgendaItem[] = [];
+    const adjustedVisibleBounds: Interval = this.getAdjustedVisibleBounds(timescale);
     if (agendaItems?.length > 0) {
-      let previousEnd: DateTime = timeScale.visibleBounds.start;
+      let previousEnd: DateTime = adjustedVisibleBounds.start;
       for (let index = 0; index < agendaItems.length; index++) {
         const agendaItem: AgendaItem = agendaItems[index];
         const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, agendaItem.bounds.start);
@@ -89,16 +90,28 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
         results.push(agendaItem);
         previousEnd = agendaItem.bounds.end;
       }
-      if (previousEnd < timeScale.visibleBounds.end) {
+      if (previousEnd < adjustedVisibleBounds.end) {
         // add a trailing drop zone
-        const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, timeScale.visibleBounds.end);
+        const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, adjustedVisibleBounds.end);
         results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween, {label: 'drop zone'}, (data)=> data.label));
       }
     } else {
       // fill the whole visible part of the channel with a drop zone
-      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, timeScale.visibleBounds, {label: 'drop zone'}, (data)=> data.label));
+      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, adjustedVisibleBounds, {label: 'drop zone'}, (data)=> data.label));
     }
     return results;
+ }
+
+ /**
+  * if the visual bounds intersect with the start or end of the out of bounds intervals
+  * then adjust the bounds drop zones can be added.
+  */
+ private getAdjustedVisibleBounds(timescale: Timescale): Interval {
+  const intersectingIntervalOfOutOfBoundsStart: Interval|null = timescale.visibleBounds.intersection(timescale.outOfBoundsStartInterval);
+  const intersectingIntervalOfOutOfBoundsEnd: Interval|null = timescale.visibleBounds.intersection(timescale.outOfBoundsEndInterval);
+  const startBound: DateTime = (intersectingIntervalOfOutOfBoundsStart?intersectingIntervalOfOutOfBoundsStart.end:timescale.visibleBounds.start);
+  const endBound: DateTime = (intersectingIntervalOfOutOfBoundsEnd?intersectingIntervalOfOutOfBoundsEnd.start:timescale.visibleBounds.end);
+  return Interval.fromDateTimes(startBound, endBound);
  }
 
 }
