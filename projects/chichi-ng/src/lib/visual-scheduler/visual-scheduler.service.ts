@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
-import { Duration, Interval } from 'luxon';
+import { Duration, Interval, DateTime } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 import { ToolEvent } from './toolbox/tool/tool-event.model';
@@ -191,7 +191,14 @@ export class VisualSchedulerService {
       mapData.subject.next(mapData.agendaItems);
       return agendaItem.id;
     } else {
-      console.log(`conflict start=${startDate} end=${endDate} overlaps`, this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate));
+      console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
+      const overlappingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
+      console.log(overlappingItems.map((item) => {
+        return `item:${item.label} in ${item.resourceName} : ${item.channelName} start=${item.bounds.start} end=${item.bounds.end}`
+      }).reduce((collector: string, newVal: string) => `${collector} ${newVal}`), 
+      `Conflict. the new item start=${DateTime.fromJSDate(startDate)} end=${DateTime.fromJSDate(endDate)} overlaps `);
+      const x = Interval.fromDateTimes(startDate, endDate).intersection(overlappingItems[0].bounds);
+      console.log(`overlapping period: start=${x?.start} end=${x?.end} duration: ${x?.toDuration()}`);
     }
     return undefined;
   }

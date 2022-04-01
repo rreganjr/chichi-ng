@@ -55,7 +55,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
         let visibleAgendaItems: AgendaItem[] = [];
         let beforeAgendaItem: AgendaItem|undefined;
         let afterAgendaItem: AgendaItem|undefined;
-        for (let i:number = 1; i < agendaItems?.length||0; i++) {
+        for (let i:number = 0; i < agendaItems?.length||0; i++) {
           if (timeScale.visibleBounds.intersection(agendaItems[i].bounds) === null) {
             if (visibleAgendaItems.length === 0) {
               beforeAgendaItem = agendaItems[i];
