@@ -131,8 +131,13 @@ export class VisualSchedulerService {
     } else if (visibleHours > 7 * 24) {
       visibleHours = 7 * 24;
     }
+    // adjust the offset if we pan out near the end
+    let offset: Duration = this._timescale.offsetDuration;
+    if (offset.hours >= this._timescale.boundsInterval.toDuration("hours").minus({hours: visibleHours}).hours) {
+      offset = this._timescale.boundsInterval.toDuration("hours").minus({hours: visibleHours}).plus({hours: 1});
+    }
     if (visibleHours > 0 && visibleHours <= 7 * 24) {
-      this._timescale = new Timescale(this._timescale.boundsInterval, Duration.fromDurationLike({hours: visibleHours}), this._timescale.offsetDuration);
+      this._timescale = new Timescale(this._timescale.boundsInterval, Duration.fromDurationLike({hours: visibleHours}), offset);
       this._timescaleSubject.next(this._timescale);
     }
   }
