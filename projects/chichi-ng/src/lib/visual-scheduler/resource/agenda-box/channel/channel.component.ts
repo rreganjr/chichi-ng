@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { AgendaItemLabeler } from '../agenda-item.model';
 import { DateTime, Interval } from 'luxon';
-import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { combineLatest, delay, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { AgendaItem } from '../agenda-item.model';
 import { DndDropEvent } from 'ngx-drag-drop';
@@ -42,7 +42,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
     this._combinedSubscription = combineLatest([
       this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName),
       this.visualSchedulerService.getTimescale$()
-    ]).subscribe(([agendaItems, timeScale]) => {
+    ]).pipe(delay(0)).subscribe(([agendaItems, timeScale]) => {
       // TODO: if we just add drop zones for visible times dropping at either end doesn't fill to the
       // next agenda item, it stops at what is visible so I really want to include the agendaItem before
       // and after the visible bounds to calculate the drop zones at the end of the visible bounds.
@@ -76,7 +76,14 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
         agendaItems = visibleAgendaItems;
       }
 
-      this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale, agendaItems));
+      // the setTimeout() sucks, but because the above is async, the next() below happens between ticks
+      // causing the visibleAgendaItems$ in the template to be updated after it was checked resulting in
+      // the error "Expression has changed after it was checked"
+      // TODO: this is also causing multiple iterations such that the injectDropZones() is called over
+      // 100 times for each channel on startup.
+      setTimeout(()=> {
+        this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale, agendaItems));
+      })
     });
   }
   
@@ -106,7 +113,10 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
     return this._visibleAgendaItemsSubject.asObservable();
   }
 
+  private callCount: number = 0;
   private injectDropZones(timescale: Timescale, agendaItems: AgendaItem[]): AgendaItem[] {
+    console.log(`injectDropZones() called ${this.callCount} times`);
+    this.callCount++;
     const results: AgendaItem[] = [];
     const bounds: Interval = timescale.boundsInterval;
     if (agendaItems?.length > 0) {
