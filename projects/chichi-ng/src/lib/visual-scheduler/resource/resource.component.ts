@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, ContentChild, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, Component, ElementRef, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'cc-resource',

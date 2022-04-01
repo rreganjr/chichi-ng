@@ -158,7 +158,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    */
   private makeOutOfBoundsElement(location: 'start'|'end'): HTMLDivElement|undefined {
     const outOfBoundsInterval = (location === 'start' ? this._timescale.outOfBoundsStartInterval : this._timescale.outOfBoundsEndInterval);
-    console.log(`outOfBoundsInterval start = ${outOfBoundsInterval.start} end = ${outOfBoundsInterval.end}`);
+    console.log(`outOfBoundsInterval location=${location} start = ${outOfBoundsInterval.start} end = ${outOfBoundsInterval.end}`);
     // calculate the intersection of the out of bounds interval to the visible duration interval
     const visibleOutOfBounds: Interval|null = this._timescale.visibleBounds.intersection(outOfBoundsInterval);
     if (visibleOutOfBounds?.toDuration('second')?.as('seconds') || 0 > 0) {
