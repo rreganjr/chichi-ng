@@ -84,7 +84,11 @@ export class VisualSchedulerService {
    * @returns true if the supplied date interval doesn't contain any scheduled items
    */
   public isIntervalAvailable(resourceName: string, channelName: string, startDate: Date, endDate: Date): boolean {
-    return this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate).length===0;
+    console.log(`bound start = ${this._timescale?.boundsInterval.start}`);
+    console.log(`start       = ${DateTime.fromJSDate(startDate)} contains = ${this._timescale?.boundsInterval.contains(DateTime.fromJSDate(startDate))}`);
+    console.log(`end         = ${DateTime.fromJSDate(endDate)} contains = ${this._timescale?.boundsInterval.contains(DateTime.fromJSDate(endDate))}`);
+    console.log(`bound end   = ${this._timescale?.boundsInterval.end}`);
+    return this._timescale?.boundsInterval.contains(DateTime.fromJSDate(startDate)) && this._timescale?.boundsInterval.contains(DateTime.fromJSDate(endDate)) && this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate).length===0;
   }
 
   /**
@@ -190,12 +194,16 @@ export class VisualSchedulerService {
     } else {
       console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
       const overlappingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
-      console.log(overlappingItems.map((item) => {
-        return `item:${item.label} in ${item.resourceName} : ${item.channelName} start=${item.bounds.start} end=${item.bounds.end}`
-      }).reduce((collector: string, newVal: string) => `${collector} ${newVal}`), 
-      `Conflict. the new item start=${DateTime.fromJSDate(startDate)} end=${DateTime.fromJSDate(endDate)} overlaps `);
-      const x = Interval.fromDateTimes(startDate, endDate).intersection(overlappingItems[0].bounds);
-      console.log(`overlapping period: start=${x?.start} end=${x?.end} duration: ${x?.toDuration()}`);
+      if (overlappingItems.length > 0) {
+        console.log(overlappingItems.map((item) => {
+          return `item:${item.label} in ${item.resourceName} : ${item.channelName} start=${item.bounds.start} end=${item.bounds.end}`
+        }).reduce((collector: string, newVal: string) => `${collector} ${newVal}`, 
+          `Conflict. the new item start=${DateTime.fromJSDate(startDate)} end=${DateTime.fromJSDate(endDate)} overlaps `));
+        const x = Interval.fromDateTimes(startDate, endDate).intersection(overlappingItems[0].bounds);
+        console.log(`overlapping period: start=${x?.start} end=${x?.end} duration: ${x?.toDuration()}`);
+        } else {
+          console.log(`Item out of bounds.`);
+        }
     }
     return undefined;
   }

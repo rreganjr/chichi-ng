@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, OnInit } from '@angular/core';
 import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent, Timescale, Utils } from 'chichi-ng';
 import { filter } from 'rxjs';
 
@@ -22,7 +22,7 @@ const videoLabeler: AgendaItemLabeler<VideoData> = (data: VideoData) => data.lab
   styleUrls: ['./event-scheduler.component.scss'],
   providers: [VisualSchedulerService]
 })
-export class EventSchedulerComponent implements OnInit {
+export class EventSchedulerComponent implements OnInit, AfterViewInit {
 
   public startDate!: string;
   public endDate!: string;
@@ -33,7 +33,6 @@ export class EventSchedulerComponent implements OnInit {
 
   constructor(private vsServ: VisualSchedulerService) {
     const start: Date = new Date();
-    //start.setMinutes(0);
     start.setSeconds(0);
     start.setMilliseconds(0);
     this.startDate = Utils.toHtmlDateTimeLocalString(start);
@@ -41,16 +40,6 @@ export class EventSchedulerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const date: Date = new Date(new Date(this.startDate).getTime() + 1 * 60 * 60 * 1000);
-
-    let i = 0;
-    for (let startDate = date; startDate.getTime() < new Date(this.endDate).getTime() + 60*60*1000; startDate = new Date(startDate.getTime() + 60*60*1000)) {
-      i++;
-      let endDate = new Date(startDate.getTime() + 1 * 60 * 60 * 1000);
-      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
-      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
-    }
-
     // listen for an EDIT {@link ToolEvent} and show the {@link ModalComponent} with the
     // supplied {@link AgendaItem} in the {@link ItemEditorComponent}
     this.vsServ.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
@@ -60,7 +49,19 @@ export class EventSchedulerComponent implements OnInit {
 
     this.vsServ.getTimescale$().subscribe((timeScale: Timescale) => {
       this.timeScale = timeScale;    
-    });
+    });      
+  }
+
+  ngAfterViewInit(): void {      
+    const date: Date = new Date(new Date(this.startDate).getTime() + 1 * 60 * 60 * 1000);
+
+    let i = 0;
+    for (let startDate = date; startDate.getTime() < new Date(this.endDate).getTime() + 60*60*1000; startDate = new Date(startDate.getTime() + 60*60*1000)) {
+      i++;
+      let endDate = new Date(startDate.getTime() + 1 * 60 * 60 * 1000);
+      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
+      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
+    }
   }
 
   /**
