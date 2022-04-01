@@ -18,7 +18,7 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
 
   constructor(
     private _visualSchedulerService: VisualSchedulerService,
-    private _channelElement: ElementRef
+    private _agendaItemElement: ElementRef
   ) {
   }
 
@@ -27,19 +27,20 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
     this._timescaleSubscription = this._visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
       // TODO: I may be able remove the intersection part as I think the channel may rebuild the
       // TODO: agendaItems when the timescale or agendaItems change
-      if (this._channelElement && this._channelElement.nativeElement) {
+      if (this._agendaItemElement && this._agendaItemElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
-        const el = this._channelElement.nativeElement;
+        const el = this._agendaItemElement.nativeElement;
         if (intersectingInterval !== null) {
           // add the {@link Timescale.outOfBoundsStartDuration} to account for the timeline starting on an hour or day before
           // the actual start boundary, which requires the items to shift by that amount to line up properly
-          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start).plus(timescale.outOfBoundsStartDuration);
+          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start); //.plus(timescale.outOfBoundsStartDuration);
           const duration: Duration = intersectingInterval.toDuration();
           el.style.display = 'block';
-          el.style.left = (offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100  + '%';
+          el.style.left = `${(offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
           el.style.width = `${(duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
         } else {
+          console.log(`hidden agenda-item component for ${this.agendaItem.id}`);
           el.style.display = 'none';
         }
       }
@@ -61,6 +62,7 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log(`destroying agenda-item component for ${this.agendaItem.id}`);
     if (this._timescaleSubscription) {
       this._timescaleSubscription.unsubscribe();
       this._timescaleSubscription = undefined;

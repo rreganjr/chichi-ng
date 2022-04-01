@@ -28,7 +28,7 @@ import { ResourceComponent } from './visual-scheduler/resource/resource.componen
     VisualSchedulerComponent,
     ToolboxComponent,
     ToolComponent,
-    ResourceComponent
+    ResourceComponent,
   ]
 })
 export class ChichiNgModule { }

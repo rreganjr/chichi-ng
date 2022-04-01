@@ -1,5 +1,5 @@
 import { DateTime, DateTimeUnit, Duration, Interval } from "luxon";
-import { VisualSchedulerService } from "./visual-scheduler.service";
+import { Utils } from "./utils";
 
 /**
  * The {@link Timescale} defines the boundaries of when items can be scheduled in the scheduler and
@@ -66,9 +66,9 @@ export class Timescale {
      */
     public get primaryDateTimeUnit(): DateTimeUnit {
         if (this._visibleDuration.hours < 3*24) {
-        return 'hour';
+            return 'hour';
         } else {
-        return 'day';
+            return 'day';
         }
     }
 
@@ -99,19 +99,21 @@ export class Timescale {
     }
 
     /**
-     * The duration from where the timeline starts versus the timescale bounds start 
+     * The duration from where the timeline starts versus the schedule bounds start 
      * given the {@link Timescale#primaryDateTimeUnit}.
      * 
-     * ex 1:
-     *   bounds start: 1/1/2020 12:14 pm
-     *   visible duration 1 day -> startAtDateTimeUnit = hour
-     *   timeline starts at 1/1/2020 12:00 pm
-     *   startAtDuration 840 seconds (14 minutes in seconds)
-     * 
-     *   bounds start: 1/1/2020 12:14 pm
-     *   visible duration 1 week -> startAtDateTimeUnit = day
-     *   timeline starts at 1/1/2020 12:00 am
-     *   startAtDuration 44,040 seconds (12 hours and 14 minutes in seconds)
+     * @example
+     *   // bounds start: 1/1/2020 12:14 pm
+     *   // visible duration 1 day -> startAtDateTimeUnit = hour
+     *   // timeline starts at 1/1/2020 12:00 pm
+     *   this.outOfBoundsStartDuration 
+     *   // returns 840 seconds (14 minutes in seconds)
+     * @example
+     *   // bounds start: 1/1/2020 12:14 pm
+     *   // visible duration 1 week -> startAtDateTimeUnit = day
+     *   // timeline starts at 1/1/2020 12:00 am
+     *   this.outOfBoundsStartDuration
+     *   // returns 44,040 seconds (12 hours and 14 minutes in seconds)
      */
     public get outOfBoundsStartDuration(): Duration {
         return this.outOfBoundsStartInterval.toDuration('seconds');
@@ -146,8 +148,7 @@ export class Timescale {
     }
 
     public get endOfTimeline(): DateTime {
-        return VisualSchedulerService.getStartOfNext(this._boundsInterval.end, this.primaryDateTimeUnit);
+        return Utils.getStartOfNext(this._boundsInterval.end, this.primaryDateTimeUnit);
     }
-
 
 }

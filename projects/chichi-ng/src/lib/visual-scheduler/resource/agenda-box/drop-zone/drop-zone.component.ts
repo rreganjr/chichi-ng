@@ -22,26 +22,29 @@ export class DropZoneComponent implements OnInit {
   private _timescaleSubscription?: Subscription;
 
   constructor(
-    private visualSchedulerService: VisualSchedulerService,
-    private dropZoneElement: ElementRef
+    private _visualSchedulerService: VisualSchedulerService,
+    private _dropZoneElement: ElementRef
   ) {}
 
   ngOnInit(): void {
-      // watch for changes to the timescale and adjust the position and size of the timezone
-      this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
+    // watch for changes to the timescale and adjust the position and size of the drop-zone
+    this._timescaleSubscription = this._visualSchedulerService.getTimescale$().subscribe((timescale: Timescale) => {
       // TODO: I may be able remove the intersection part as I think the channel may rebuild the
       // TODO: agendaItems when the timescale or agendaItems change
-      if (this.dropZoneElement && this.dropZoneElement.nativeElement) {
+      if (this._dropZoneElement && this._dropZoneElement.nativeElement) {
         const visibleBounds: Interval = timescale.visibleBounds;
-        const intersectingIntervalOfVisibleBounds: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
-        const el = this.dropZoneElement.nativeElement;
-        if (intersectingIntervalOfVisibleBounds !== null) {
-          const offset: Duration = intersectingIntervalOfVisibleBounds.start.diff(visibleBounds.start);
-          const duration: Duration = intersectingIntervalOfVisibleBounds.toDuration();
+        const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
+        const el = this._dropZoneElement.nativeElement;
+        if (intersectingInterval !== null) {
+        // add the {@link Timescale.outOfBoundsStartDuration} to account for the timeline starting on an hour or day before
+        // the actual start boundary, which requires the items to shift by that amount to line up properly
+        const offset: Duration = intersectingInterval.start.diff(visibleBounds.start); //.plus(timescale.outOfBoundsStartDuration);
+          const duration: Duration = intersectingInterval.toDuration();
           el.style.display = 'block';
           el.style.left = `${(offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
           el.style.width = `${(duration.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
         } else {
+          console.log(`hidden drop-zone component for ${this.agendaItem.id}`);
           el.style.display = 'none';
         }
       }
@@ -49,18 +52,19 @@ export class DropZoneComponent implements OnInit {
 
     // this listens for {@link ToolEvent} START and STOP to indicate starting/stopping dragging
     // so the drop zone can activate/highlight if the toolType of the event matches the channel
-    this.visualSchedulerService.getToolEvents$().pipe(
-      filter((toolEvent:ToolEvent, index:number) => toolEvent.toolType === this.agendaItem.channelName)
+    this._visualSchedulerService.getToolEvents$().pipe(
+      filter((toolEvent:ToolEvent) => toolEvent.toolType === this.agendaItem.channelName)
       ).subscribe( (toolEvent: ToolEvent) => {
       if (toolEvent.isStart()) {
         this.isDragging = true;
       } else {
         this.isDragging = false;
       }
-    })
+    });
   }
 
   ngOnDestroy(): void {
+    console.log(`destroying drop-zone component for ${this.agendaItem.id}`);
     if (this._timescaleSubscription) {
       this._timescaleSubscription.unsubscribe();
       this._timescaleSubscription = undefined;

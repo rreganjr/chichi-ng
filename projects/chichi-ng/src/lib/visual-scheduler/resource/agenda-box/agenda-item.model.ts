@@ -1,5 +1,5 @@
 import { DateTime, Duration, DurationUnit, Interval } from "luxon";
-import { VisualSchedulerService } from "../../visual-scheduler.service";
+import { Utils } from "../../utils";
 
 export type AgendaItemLabeler<T> = (data: T) => string;
 
@@ -38,7 +38,7 @@ export class AgendaItem {
     }
 
     public get startDateAsHtmlDateTimeLocalString(): string {
-        return this.startDate ? VisualSchedulerService.toHtmlDateTimeLocalString(this.startDate) : '';
+        return this.startDate ? Utils.toHtmlDateTimeLocalString(this.startDate) : '';
     }
 
     public get endDate(): DateTime {
@@ -46,7 +46,7 @@ export class AgendaItem {
     }
 
     public get endDateAsHtmlDateTimeLocalString(): string {
-        return this.endDate ? VisualSchedulerService.toHtmlDateTimeLocalString(this.endDate) : '';
+        return this.endDate ? Utils.toHtmlDateTimeLocalString(this.endDate) : '';
     }
 
     public durationAs(units: DurationUnit): Duration {

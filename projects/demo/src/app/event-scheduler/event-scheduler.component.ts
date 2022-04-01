@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent } from 'chichi-ng';
-import { Timescale } from 'dist/chichi-ng/lib/visual-scheduler/timescale.model';
+import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent, Timescale, Utils } from 'chichi-ng';
 import { filter } from 'rxjs';
 
 class ChatData {
@@ -37,8 +36,8 @@ export class EventSchedulerComponent implements OnInit {
     //start.setMinutes(0);
     start.setSeconds(0);
     start.setMilliseconds(0);
-    this.startDate = VisualSchedulerService.toHtmlDateTimeLocalString(start);
-    this.endDate =  VisualSchedulerService.toHtmlDateTimeLocalString(new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000));
+    this.startDate = Utils.toHtmlDateTimeLocalString(start);
+    this.endDate =  Utils.toHtmlDateTimeLocalString(new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000));
   }
 
   ngOnInit(): void {
@@ -60,7 +59,7 @@ export class EventSchedulerComponent implements OnInit {
     });
 
     this.vsServ.getTimescale$().subscribe((timeScale: Timescale) => {
-      this.timeScale = timeScale;
+      this.timeScale = timeScale;    
     });
   }
 

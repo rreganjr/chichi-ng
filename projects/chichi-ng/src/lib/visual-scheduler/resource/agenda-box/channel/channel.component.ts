@@ -39,14 +39,44 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // TODO: can I move the filter and sort from the array inside subscribe to before the subscribe?
     this._combinedSubscription = combineLatest([
       this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName),
       this.visualSchedulerService.getTimescale$()
     ]).subscribe(([agendaItems, timeScale]) => {
-        this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale, agendaItems
-          .filter((agendaItem:AgendaItem) => timeScale.visibleBounds.intersection(agendaItem.bounds) !== null)
-          .sort((a:AgendaItem, b:AgendaItem)=> a.startDate.toMillis() - b.startDate.toMillis())));
+      // TODO: if we just add drop zones for visible times dropping at either end doesn't fill to the
+      // next agenda item, it stops at what is visible so I really want to include the agendaItem before
+      // and after the visible bounds to calculate the drop zones at the end of the visible bounds.
+      // this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale, visibleAgendaItems
+      //   .filter((agendaItem:AgendaItem) => timeScale.visibleBounds.intersection(agendaItem.bounds) !== null)
+      //   .sort((a:AgendaItem, b:AgendaItem)=> a.startDate.toMillis() - b.startDate.toMillis())));
+
+      if (agendaItems && agendaItems.length > 0) {
+        agendaItems = agendaItems.sort((a:AgendaItem, b:AgendaItem)=> a.startDate.toMillis() - b.startDate.toMillis());
+        let visibleAgendaItems: AgendaItem[] = [];
+        let beforeAgendaItem: AgendaItem|undefined;
+        let afterAgendaItem: AgendaItem|undefined;
+        for (let i:number = 1; i < agendaItems?.length||0; i++) {
+          if (timeScale.visibleBounds.intersection(agendaItems[i].bounds) === null) {
+            if (visibleAgendaItems.length === 0) {
+              beforeAgendaItem = agendaItems[i];
+            } else {
+              afterAgendaItem = agendaItems[i];
+              break;
+            }
+          } else {
+            visibleAgendaItems.push(agendaItems[i]);
+          }
+        }
+        if (beforeAgendaItem) {
+          visibleAgendaItems.unshift(beforeAgendaItem);
+        }
+        if (afterAgendaItem) {
+          visibleAgendaItems.push(afterAgendaItem);
+        }
+        agendaItems = visibleAgendaItems;
+      }
+
+      this._visibleAgendaItemsSubject.next(this.injectDropZones(timeScale, agendaItems));
     });
   }
   
@@ -68,7 +98,7 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public onDrop($event:DndDropEvent, agendaItem: AgendaItem): void {
-    console.log(`${this.resourceName} ${this.channelName} drop`, $event, agendaItem);
+    console.log(`${this.resourceName} ${this.channelName} drop agendaItem.id=${agendaItem.id} starting ${agendaItem.startDateAsHtmlDateTimeLocalString} ending ${agendaItem.endDateAsHtmlDateTimeLocalString}`, agendaItem);
     this.visualSchedulerService.addAgendaItem(this.resourceName, this.channelName, agendaItem.bounds.start.toJSDate(), agendaItem.bounds.end.toJSDate(), {label: 'new item'}, (data:any)=>data.label);
   }
   
@@ -78,9 +108,9 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private injectDropZones(timescale: Timescale, agendaItems: AgendaItem[]): AgendaItem[] {
     const results: AgendaItem[] = [];
-    const adjustedVisibleBounds: Interval = this.getAdjustedVisibleBounds(timescale);
+    const bounds: Interval = timescale.boundsInterval;
     if (agendaItems?.length > 0) {
-      let previousEnd: DateTime = adjustedVisibleBounds.start;
+      let previousEnd: DateTime = bounds.start;
       for (let index = 0; index < agendaItems.length; index++) {
         const agendaItem: AgendaItem = agendaItems[index];
         const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, agendaItem.bounds.start);
@@ -90,14 +120,14 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
         results.push(agendaItem);
         previousEnd = agendaItem.bounds.end;
       }
-      if (previousEnd < adjustedVisibleBounds.end) {
+      if (previousEnd < bounds.end) {
         // add a trailing drop zone
-        const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, adjustedVisibleBounds.end);
+        const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, bounds.end);
         results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween, {label: 'drop zone'}, (data)=> data.label));
       }
     } else {
       // fill the whole visible part of the channel with a drop zone
-      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, adjustedVisibleBounds, {label: 'drop zone'}, (data)=> data.label));
+      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, bounds, {label: 'drop zone'}, (data)=> data.label));
     }
     return results;
  }
@@ -107,10 +137,10 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
   * then adjust the bounds drop zones can be added.
   */
  private getAdjustedVisibleBounds(timescale: Timescale): Interval {
-  const intersectingIntervalOfOutOfBoundsStart: Interval|null = timescale.visibleBounds.intersection(timescale.outOfBoundsStartInterval);
-  const intersectingIntervalOfOutOfBoundsEnd: Interval|null = timescale.visibleBounds.intersection(timescale.outOfBoundsEndInterval);
-  const startBound: DateTime = (intersectingIntervalOfOutOfBoundsStart?intersectingIntervalOfOutOfBoundsStart.end:timescale.visibleBounds.start);
-  const endBound: DateTime = (intersectingIntervalOfOutOfBoundsEnd?intersectingIntervalOfOutOfBoundsEnd.start:timescale.visibleBounds.end);
+  const intersectingIntervalOfOutOfBoundsStart: Interval|null = timescale.boundsInterval.intersection(timescale.outOfBoundsStartInterval);
+  const intersectingIntervalOfOutOfBoundsEnd: Interval|null = timescale.boundsInterval.intersection(timescale.outOfBoundsEndInterval);
+  const startBound: DateTime = (intersectingIntervalOfOutOfBoundsStart?intersectingIntervalOfOutOfBoundsStart.end:timescale.boundsInterval.start);
+  const endBound: DateTime = (intersectingIntervalOfOutOfBoundsEnd?intersectingIntervalOfOutOfBoundsEnd.start:timescale.boundsInterval.end);
   return Interval.fromDateTimes(startBound, endBound);
  }
 
