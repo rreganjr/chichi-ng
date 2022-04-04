@@ -39,10 +39,11 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // listen for changes to agendaItems for this resource + channel or changes to the displayed view
     this._combinedSubscription = combineLatest([
       this.visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName),
       this.visualSchedulerService.getTimescale$()
-    ]).pipe(delay(0)).subscribe(([agendaItems, timeScale]) => {
+    ]).subscribe(([agendaItems, timeScale]) => {
       // TODO: if we just add drop zones for visible times dropping at either end doesn't fill to the
       // next agenda item, it stops at what is visible so I really want to include the agendaItem before
       // and after the visible bounds to calculate the drop zones at the end of the visible bounds.

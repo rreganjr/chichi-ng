@@ -18,6 +18,8 @@ export class ResourceComponent implements OnInit, AfterContentInit {
   }
 
   ngAfterContentInit(): void {
+    // a resource should only have one element if it is the builtin resource that
+    // holds the labeled timeline, this turns on the labels. 
     if (this.elementRef.nativeElement.children.length === 1) {
       this._showLabels = true;
     }

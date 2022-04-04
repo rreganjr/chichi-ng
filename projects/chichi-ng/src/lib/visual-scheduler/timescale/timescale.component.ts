@@ -4,6 +4,10 @@ import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
 
+/**
+ * View controls for the scheduler, zoom in and out and pan forward and backward in time
+ * over the bounds.
+ */
 @Component({
   selector: 'cc-timescale',
   templateUrl: './timescale.component.html',
@@ -18,11 +22,11 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   public _timescale!: Timescale;
 
   constructor(
-    private visualSchedulerService: VisualSchedulerService
+    private _visualSchedulerService: VisualSchedulerService
     ) {}
 
   ngOnInit(): void {
-    this._timescaleSubscription = this.visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
+    this._timescaleSubscription = this._visualSchedulerService.getTimescale$().subscribe( (timescale: Timescale) => {
       console.log(`timescale changed: start=${timescale.boundsInterval.start} end=${timescale.boundsInterval.end} visible=${timescale.visibleDuration.as('hours')}-hours offset=${timescale.offsetDuration.as('hours')}-hours`, timescale);
       this._timescale = timescale;
     });
@@ -37,28 +41,28 @@ export class TimescaleComponent implements OnInit, OnDestroy {
 
   public zoomIn(): void {
     if (this._timescale.visibleDuration.hours === TimescaleComponent.WEEK_IN_HOURS) {
-      this.visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.FOUR_DAYS_IN_HOURS);
+      this._visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.FOUR_DAYS_IN_HOURS);
     } else {
-      this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours / 2); 
+      this._visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours / 2); 
     }
   }
 
   public zoomOut(): void {
     if (this._timescale.visibleDuration.hours === TimescaleComponent.FOUR_DAYS_IN_HOURS) {
-      this.visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.WEEK_IN_HOURS);
+      this._visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.WEEK_IN_HOURS);
     } else {
-      this.visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours * 2);
+      this._visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours * 2);
     }
   }
 
   public scanToStart(): void {
-    this.visualSchedulerService.setTimeScaleOffsetHours(0);
+    this._visualSchedulerService.setTimeScaleOffsetHours(0);
   }
 
   public scanBack(): void {
     if (this._timescale.offsetDuration.hours > 0) {
       if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours > 0) {
-        this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours);
+        this._visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours);
       } else {
         this.scanToStart();
       }
@@ -69,12 +73,12 @@ export class TimescaleComponent implements OnInit, OnDestroy {
     if (this._timescale.offsetDuration > (this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration))) {
         this.scanToEnd();
     } else {
-      this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.hours + this._timescale.visibleDuration.hours);
+      this._visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.hours + this._timescale.visibleDuration.hours);
     }
   }
 
   public scanToEnd(): void {
-    this.visualSchedulerService.setTimeScaleOffsetHours(this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleDuration.hours);
+    this._visualSchedulerService.setTimeScaleOffsetHours(this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleDuration.hours);
   }
 
   public get visibleHours(): Duration {
@@ -82,7 +86,7 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
   
   public setVisibleHours(visibleHours: number): void {
-    this.visualSchedulerService.setTimeScaleVisibleHours(visibleHours);
+    this._visualSchedulerService.setTimeScaleVisibleHours(visibleHours);
   }
 
   public get offsetHours(): Duration {
@@ -90,6 +94,6 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public setOffsetHours(offsetHours: number): void {
-    this.visualSchedulerService.setTimeScaleOffsetHours(offsetHours);
+    this._visualSchedulerService.setTimeScaleOffsetHours(offsetHours);
   }
 }

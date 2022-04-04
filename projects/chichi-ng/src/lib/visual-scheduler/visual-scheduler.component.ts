@@ -7,7 +7,7 @@ import { VisualSchedulerService } from './visual-scheduler.service';
   templateUrl: './visual-scheduler.component.html',
   styleUrls: ['./visual-scheduler.component.scss']
 })
-export class VisualSchedulerComponent implements OnInit, OnChanges {
+export class VisualSchedulerComponent implements OnChanges {
 
   /**
    * The Date in ISO8601 Format
@@ -16,16 +16,23 @@ export class VisualSchedulerComponent implements OnInit, OnChanges {
   @Input() endDate!: string;
 
   constructor(
-    private visualSchedulerService: VisualSchedulerService
+    private _visualSchedulerService: VisualSchedulerService
   ) { }
 
-  ngOnInit(): void {
-  }
-
+  /**
+   * Listen for changes to the start/end date triggered outside the component and update the bounds through
+   * the {@link VisualSchedulerService}
+   * 
+   * @param changes - start or end date changes
+   */
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.startDate && this.endDate && (changes['startDate']?.currentValue || changes['endDate']?.currentValue)) {
-      console.log(`dates changed: startDate=${this.startDate} endDate=${this.endDate}`)
-      this.visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(DateTime.fromISO(this.startDate), DateTime.fromISO(this.endDate)));
+    if (this.startDate && this.endDate && 
+        (changes['startDate']?.currentValue || changes['endDate']?.currentValue) &&
+        (changes['startDate']?.currentValue !== changes['startDate']?.previousValue ||
+        changes['endDate']?.currentValue !== changes['endDate']?.previousValue)
+      ) {
+      console.log(`date bounds changed: startDate=${this.startDate} endDate=${this.endDate}`)
+      this._visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(DateTime.fromISO(this.startDate), DateTime.fromISO(this.endDate)));
     }
   }
 }

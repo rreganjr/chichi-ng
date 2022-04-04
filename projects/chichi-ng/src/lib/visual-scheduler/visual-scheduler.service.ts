@@ -84,11 +84,12 @@ export class VisualSchedulerService {
    * @returns true if the supplied date interval doesn't contain any scheduled items
    */
   public isIntervalAvailable(resourceName: string, channelName: string, startDate: Date, endDate: Date): boolean {
-    console.log(`bound start = ${this._timescale?.boundsInterval.start}`);
-    console.log(`start       = ${DateTime.fromJSDate(startDate)} contains = ${this._timescale?.boundsInterval.contains(DateTime.fromJSDate(startDate))}`);
-    console.log(`end         = ${DateTime.fromJSDate(endDate)} contains = ${this._timescale?.boundsInterval.contains(DateTime.fromJSDate(endDate))}`);
-    console.log(`bound end   = ${this._timescale?.boundsInterval.end}`);
-    return this._timescale?.boundsInterval.contains(DateTime.fromJSDate(startDate)) && this._timescale?.boundsInterval.contains(DateTime.fromJSDate(endDate)) && this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate).length===0;
+    const start = DateTime.fromJSDate(startDate);
+    const end = DateTime.fromJSDate(endDate);
+    return this._timescale?.boundsInterval.contains(start) && (
+        this._timescale?.boundsInterval.contains(end) ||
+        this._timescale?.boundsInterval.end.equals(end)
+      ) && this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate).length===0;
   }
 
   /**
