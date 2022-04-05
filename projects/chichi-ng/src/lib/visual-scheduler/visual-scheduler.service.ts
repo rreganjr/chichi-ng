@@ -9,7 +9,8 @@ type ResourceChannelMapKey = string;
 
 class ResourceChannelMapData {
   public readonly agendaItems: AgendaItem[] = [];
-  public readonly subject: Subject<AgendaItem[]> = new ReplaySubject<AgendaItem[]>(1);
+  // Use a BehaviorSubject so that if no agenda items are added on startup the channel will be initialized to a big drop-zone
+  public readonly subject: Subject<AgendaItem[]> = new BehaviorSubject<AgendaItem[]>([]);
 }
 
 @Injectable({

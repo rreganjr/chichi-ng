@@ -40,6 +40,9 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Setup existing scheduled items here before rendering the agenda to minimize rebuilding drop zones around the items
+    this.makeTestData();
+
     // listen for an EDIT {@link ToolEvent} and show the {@link ModalComponent} with the
     // supplied {@link AgendaItem} in the {@link ItemEditorComponent}
     this.vsServ.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
@@ -52,7 +55,7 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
     });      
   }
 
-  ngAfterViewInit(): void {      
+  private makeTestData(): void {
     const date: Date = new Date(new Date(this.startDate).getTime() + 1 * 60 * 60 * 1000);
 
     let i = 0;
@@ -62,6 +65,11 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
       this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
       this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
     }
+  }
+  ngAfterViewInit(): void {      
+    console.log(`EventSchedulerComponent ngAfterViewInit()`);
+    // Don't initialize existing agenda items here, do it in ngOnInit()
+//    this.makeTestData();
   }
 
   /**
