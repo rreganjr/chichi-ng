@@ -56,6 +56,7 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
 
   onDelete($event: Event): void {
     console.log(`AgendaItem.onDelete`, $event);
+    $event.stopPropagation();
     if (this.agendaItem) {
       this._visualSchedulerService.removeAgendaItem(this.agendaItem);
     }

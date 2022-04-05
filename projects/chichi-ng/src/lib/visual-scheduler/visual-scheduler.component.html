@@ -1,9 +1,10 @@
 <div>
     <div class="top">
-        <ng-content select="cc-toolbox"></ng-content><cc-timescale></cc-timescale>
+        <ng-content select="cc-toolbox"></ng-content>
+        <cc-timescale></cc-timescale>
     </div>
     <div class="agenda">
-        <cc-resource></cc-resource>
+        <cc-resource></cc-resource><!-- empty resource for hosting the labeled timeline -->
         <ng-content select="cc-resource"></ng-content>
     </div>
 </div>
