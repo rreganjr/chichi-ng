@@ -87,6 +87,7 @@ export class VisualSchedulerService {
   public isIntervalAvailable(resourceName: string, channelName: string, startDate: Date, endDate: Date): boolean {
     const start = DateTime.fromJSDate(startDate);
     const end = DateTime.fromJSDate(endDate);
+    console.log(`boundsInterval.start=${this._timescale?.boundsInterval.start}\nitem start=${startDate}\nitem end=${endDate}\nboundsInterval.end=${this._timescale?.boundsInterval.end}`);
     return this._timescale?.boundsInterval.contains(start) && (
         this._timescale?.boundsInterval.contains(end) ||
         this._timescale?.boundsInterval.end.equals(end)
@@ -94,8 +95,19 @@ export class VisualSchedulerService {
   }
 
   /**
-   * The min and max date/time of schedules
-   * @param interval the start date and time to the end date and time
+   * Set the time bounds of the scheduler. adding an {@link AgendaItem} outside these
+   * bounds is not allowed. scaling and panning the view outside these bounds is not allowed.
+   * @param startDate the minimum date/time of scheduled agenda items as a {@link Date}.
+   * @param endDate the maximum date/time of scheduled agenda items as a {@link Date}.
+   */
+  public setBounds(startDate: Date, endDate: Date): void {
+    this.setBoundsInterval(Interval.fromDateTimes(startDate, endDate));
+  }
+  
+  /**
+   * Set the time bounds of the scheduler. adding an {@link AgendaItem} outside these
+   * bounds is not allowed. scaling and panning the view outside these bounds is not allowed.
+   * @param interval the start date and time to the end date and time as an {@link Interval}
    */
   public setBoundsInterval(interval: Interval): void {
     // TODO: adjust the visibleDuration and offsetDuration if needed when the bounds change
