@@ -31,45 +31,44 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
   public agendaItemToEdit: AgendaItem|null = null;
   public timeScale: Timescale|null = null;
 
-  constructor(private vsServ: VisualSchedulerService) {
+  constructor(private _visualSchedulerService: VisualSchedulerService) {
     const start: Date = new Date();
     start.setSeconds(0);
     start.setMilliseconds(0);
+    const end: Date = new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    // make the bounds friends to the datetime-local html input component
     this.startDate = Utils.toHtmlDateTimeLocalString(start);
-    this.endDate =  Utils.toHtmlDateTimeLocalString(new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000));
+    this.endDate =  Utils.toHtmlDateTimeLocalString(end);
+
+    // if you initialize pre-existing agenda items here, set the bounds on the visualSchedulerService first
+    this._visualSchedulerService.setBounds(start, end);
+    this.makeTestData();
   }
 
   ngOnInit(): void {
-    // Setup existing scheduled items here before rendering the agenda to minimize rebuilding drop zones around the items
+    console.log(`EventSchedulerComponent.ngOnInit()`);      
+    // if you initialize pre-existing agenda items here, set the bounds on the visualSchedulerService first
+    this._visualSchedulerService.setBounds(new Date(Date.parse(this.startDate)), new Date(Date.parse(this.endDate)));
     this.makeTestData();
 
     // listen for an EDIT {@link ToolEvent} and show the {@link ModalComponent} with the
     // supplied {@link AgendaItem} in the {@link ItemEditorComponent}
-    this.vsServ.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
+    this._visualSchedulerService.getToolEvents$().pipe(filter((event: ToolEvent) => event.isEdit())).subscribe((event: ToolEvent) => {
       this.agendaItemToEdit = event.agendaItem;
       this.showEditor = true;
     });
 
-    this.vsServ.getTimescale$().subscribe((timeScale: Timescale) => {
-      this.timeScale = timeScale;    
-    });      
+    // this._visualSchedulerService.getTimescale$().subscribe((timeScale: Timescale) => {
+    //   this.timeScale = timeScale;
+    // });
   }
 
-  private makeTestData(): void {
-    const date: Date = new Date(new Date(this.startDate).getTime() + 1 * 60 * 60 * 1000);
-
-    let i = 0;
-    for (let startDate = date; startDate.getTime() < new Date(this.endDate).getTime() + 60*60*1000; startDate = new Date(startDate.getTime() + 60*60*1000)) {
-      i++;
-      let endDate = new Date(startDate.getTime() + 1 * 60 * 60 * 1000);
-      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
-      this.vsServ.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
-    }
-  }
   ngAfterViewInit(): void {      
     console.log(`EventSchedulerComponent ngAfterViewInit()`);
-    // Don't initialize existing agenda items here, do it in ngOnInit()
-//    this.makeTestData();
+    // initialize pre-existing agenda items here, after the start/end date gets passed through
+    // the visual-schduler component
+    this.makeTestData();
   }
 
   /**
@@ -83,4 +82,33 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
     this.agendaItemToEdit = null;
     this.showEditor = false;
   }
+
+  /**
+   * Create a bunch of test agend items
+   * @throws Error if the items are out of bounds, confict with other items, or the bounds aren't set yet
+   */
+  private makeTestData(): void {
+    const date: Date = new Date(new Date(this.startDate).getTime() + 1 * 60 * 60 * 1000);
+
+    let i = 0;
+    for (let startDate = date; startDate.getTime() < new Date(this.endDate).getTime() + 60*60*1000; startDate = new Date(startDate.getTime() + 60*60*1000)) {
+      i++;
+      let endDate = new Date(startDate.getTime() + 1 * 60 * 60 * 1000);
+      try {
+        this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
+        this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
+      } catch (error: any) {
+        if (error.message.startsWith('TimescaleNotSet')) {
+          console.log(error.message, error);
+        } else if (error.message.startsWith('OutOfBounds')) {
+          console.log(error.message, error);
+        } else if (error.message.startsWith('Conflicts')) {
+          console.log(error.message, error);
+        } else {
+          console.log(`Oopsie something bad happened.`, error);
+        }
+      }
+    }
+  }
+
 }
