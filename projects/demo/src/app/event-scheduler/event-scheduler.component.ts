@@ -83,6 +83,10 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
     this.showEditor = false;
   }
 
+  /**
+   * Create a bunch of test agend items
+   * @throws Error if the items are out of bounds, confict with other items, or the bounds aren't set yet
+   */
   private makeTestData(): void {
     const date: Date = new Date(new Date(this.startDate).getTime() + 1 * 60 * 60 * 1000);
 
@@ -90,8 +94,20 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
     for (let startDate = date; startDate.getTime() < new Date(this.endDate).getTime() + 60*60*1000; startDate = new Date(startDate.getTime() + 60*60*1000)) {
       i++;
       let endDate = new Date(startDate.getTime() + 1 * 60 * 60 * 1000);
-      this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
-      this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
+      try {
+        this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
+        this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
+      } catch (error: any) {
+        if (error.message.startsWith('TimescaleNotSet')) {
+          console.log(error.message, error);
+        } else if (error.message.startsWith('OutOfBounds')) {
+          console.log(error.message, error);
+        } else if (error.message.startsWith('Conflicts')) {
+          console.log(error.message, error);
+        } else {
+          console.log(`Oopsie something bad happened.`, error);
+        }
+      }
     }
   }
 

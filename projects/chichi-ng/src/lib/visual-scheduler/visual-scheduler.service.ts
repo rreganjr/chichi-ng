@@ -18,7 +18,7 @@ class ResourceChannelMapData {
 })
 export class VisualSchedulerService {
 
-  private _timescale!: Timescale;
+  private _timescale: Timescale|undefined;
   private _timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
 
   private _toolEventsSubject: Subject<ToolEvent> = new BehaviorSubject(ToolEvent.CLEAR);
@@ -83,8 +83,11 @@ export class VisualSchedulerService {
    * @param startDate 
    * @param endDate 
    * @returns true if the supplied date interval doesn't contain any scheduled items
+   * @throws Error when the timescale is not defined yet
    */
   public isIntervalAvailable(resourceName: string, channelName: string, startDate: Date, endDate: Date): boolean {
+    if (this._timescale == undefined) throw this.timescaleNotSetError();
+
     const start = DateTime.fromJSDate(startDate);
     const end = DateTime.fromJSDate(endDate);
     console.log(`boundsInterval.start=${this._timescale?.boundsInterval.start}\nitem start=${startDate}\nitem end=${endDate}\nboundsInterval.end=${this._timescale?.boundsInterval.end}`);
@@ -120,8 +123,10 @@ export class VisualSchedulerService {
    * NOTE: this is the absolute position from the start, not adding to the current offset.
    * 
    * @param offsetHours - the hours from the bounds start time to the start of the visible hours
+   * @throws Error when the timescale is not defined yet
    */
   public setTimeScaleOffsetHours(offsetHours: number): void {
+    if (this._timescale == undefined) throw this.timescaleNotSetError();
     if (offsetHours >= 0) {
       offsetHours = Math.round(offsetHours);
       let newDuration: Duration;
@@ -141,8 +146,10 @@ export class VisualSchedulerService {
   /**
    * Set the viewport of the schedule to the specificed number of hours
    * @param visibleHours - The size of what is visible in hours, minimum = 1 hour maximum = 7 days
+   * @throws Error when the timescale is not defined yet
    */
   public setTimeScaleVisibleHours(visibleHours: number): void {
+    if (this._timescale == undefined) throw this.timescaleNotSetError();
     visibleHours = Math.round(visibleHours);
     if (visibleHours < 3) {
       visibleHours = 3;
@@ -193,10 +200,13 @@ export class VisualSchedulerService {
    * @param data - Data for the agenda item not specific to the agenda except that the labeler function will use it.
    * @param labeler - A function that takes the supplied data to generate a label to display in the agenda.
    * @returns The id of the agenda item added to the agenda or undefined if not added
+   * @throws Error when the timescale is not defined yet or the start/end is out of bounds or the start/end overlaps another agenda item
    */
-  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler<any>): number|undefined {
+  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler<any>): number {
+    if (this._timescale == undefined) throw this.timescaleNotSetError();
+    const newItemInterval = Interval.fromDateTimes(startDate, endDate);
     if (this.isIntervalAvailable(resourceName, channelName, startDate, endDate)) {
-      const agendaItem = new AgendaItem(resourceName, channelName, Interval.fromDateTimes(startDate, endDate), data, labeler);
+      const agendaItem = new AgendaItem(resourceName, channelName, newItemInterval, data, labeler);
       this._agendaItemsById.set(agendaItem.id, agendaItem);
       this._agendaItems.push(agendaItem);
       this._agendaItemsSubject.next(this._agendaItems);
@@ -207,19 +217,13 @@ export class VisualSchedulerService {
       return agendaItem.id;
     } else {
       console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
-      const overlappingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
-      if (overlappingItems.length > 0) {
-        console.log(overlappingItems.map((item) => {
-          return `item:${item.label} in ${item.resourceName} : ${item.channelName} start=${item.bounds.start} end=${item.bounds.end}`
-        }).reduce((collector: string, newVal: string) => `${collector} ${newVal}`, 
-          `Conflict. the new item start=${DateTime.fromJSDate(startDate)} end=${DateTime.fromJSDate(endDate)} overlaps `));
-        const x = Interval.fromDateTimes(startDate, endDate).intersection(overlappingItems[0].bounds);
-        console.log(`overlapping period: start=${x?.start} end=${x?.end} duration: ${x?.toDuration()}`);
-        } else {
-          console.log(`Item out of bounds.`);
-        }
+      const conflictingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
+      if (conflictingItems.length > 0) {
+        throw this.agendaItemConflicts(newItemInterval, conflictingItems);
+      } else {
+        throw this.agendaItemOutOfBounds(newItemInterval, this._timescale.boundsInterval);
+      }
     }
-    return undefined;
   }
 
   /**
@@ -285,5 +289,20 @@ export class VisualSchedulerService {
 
   private getResourceChannelMapKey(resourceName: string, channelName: string): string {
     return `resourceName: ${resourceName}, channelName: ${channelName}`;
+  }
+
+  private timescaleNotSetError(): Error {
+    return Error(`TimescaleNotSet. Did you call ${this.constructor.name}.${this.setBounds.name} yet?`);
+  }
+
+  private agendaItemOutOfBounds(newItemInterval: Interval, schedulerBounds: Interval): Error {
+    return Error(`OutOfBounds. The AgendaItem  start=${newItemInterval.start} end=${newItemInterval.end} is out of bounds start=${schedulerBounds.start} end=${schedulerBounds.end}`);
+  }
+
+  private agendaItemConflicts(newItemInterval: Interval, conflictingItems: AgendaItem[]): Error {
+    return Error(conflictingItems.map((item) => {
+      return `item:${item.label} in ${item.resourceName} : ${item.channelName} start=${item.bounds.start} end=${item.bounds.end}`
+    }).reduce((collector: string, newVal: string) => `${collector} ${newVal}`, 
+      `Conflicts. The AgendaItem start=${newItemInterval.start} end=${newItemInterval.end} conflicts with `));
   }
 }
