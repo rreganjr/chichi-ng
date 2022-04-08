@@ -90,7 +90,6 @@ export class VisualSchedulerService {
 
     const start = DateTime.fromJSDate(startDate);
     const end = DateTime.fromJSDate(endDate);
-    console.log(`boundsInterval.start=${this._timescale?.boundsInterval.start}\nitem start=${startDate}\nitem end=${endDate}\nboundsInterval.end=${this._timescale?.boundsInterval.end}`);
     return this._timescale?.boundsInterval.contains(start) && (
         this._timescale?.boundsInterval.contains(end) ||
         this._timescale?.boundsInterval.end.equals(end)

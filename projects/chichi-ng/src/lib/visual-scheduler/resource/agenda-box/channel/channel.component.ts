@@ -1,10 +1,9 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
-import { AgendaItemLabeler } from '../agenda-item.model';
-import { DateTime, Interval } from 'luxon';
+import { AfterViewInit, Component, ElementRef, Input, OnInit } from '@angular/core';
 import { combineLatest, debounceTime, map, Observable } from 'rxjs';
-import { VisualSchedulerService } from '../../../visual-scheduler.service';
-import { AgendaItem } from '../agenda-item.model';
 import { DndDropEvent } from 'ngx-drag-drop';
+import { DateTime, Interval } from 'luxon';
+import { AgendaItem, AgendaItemLabeler } from '../agenda-item.model';
+import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { Timescale } from '../../../timescale.model';
 
 class DropZoneAgendaItem extends AgendaItem {
@@ -25,22 +24,28 @@ class DropZoneAgendaItem extends AgendaItem {
   templateUrl: './channel.component.html',
   styleUrls: ['./channel.component.scss']
 })
-export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ChannelComponent implements OnInit, AfterViewInit {
 
   @Input() resourceName!: string;
   @Input() channelName!: string;
 
 /**
-  * observable of visible agendaItems for this resource + channel updated 
-  * when items are added or removed or the displayed view (zoom/panning)
-  * changes.
+  * observable of visible agendaItems for this resource + channel updated when
+  * items are added or removed or the displayed view (zoom/panning) changes.
   */
-  public readonly visibleAgendaItems$: Observable<AgendaItem[]>;
+  public visibleAgendaItems$: Observable<AgendaItem[]>|undefined;
 
   constructor(
     public _visualSchedulerService: VisualSchedulerService,
     private _channelElement: ElementRef
   ) { 
+  }
+
+  ngOnInit(): void {
+    console.log(`ChannelComponent[${this.resourceName}, ${this.channelName}] ngOnInit()`);
+
+    // visibleAgendaItems$ has to be defined here so that the resourceName and channelName are defined via the inputs
+    // otherwise no agenda items will ever be returned
     this.visibleAgendaItems$ = combineLatest([
       this._visualSchedulerService.getAgendaItemsByResourceChannel$(this.resourceName, this.channelName),
       this._visualSchedulerService.getTimescale$()
@@ -51,16 +56,14 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
       debounceTime(50),
       // get the visible agenda items in the current view, plus one on each end so drop-zones can straddle
       // the visible bounds
+      //tap((agendaItems):void => console.log(`ChannelComponent['${this.resourceName}', '${this.channelName}'].agendaItems: `, agendaItems)),
       map(([agendaItems, timeScale]):[AgendaItem[], Timescale] => [
         this.getVisibleAgendaItemsPlus(agendaItems, timeScale.visibleBounds), timeScale
       ]),
       // add drop zones around agenda items
-      map(([agendaItems, timeScale]):AgendaItem[] => this.injectDropZones(timeScale, agendaItems))
-    );
-  }
-
-  ngOnInit(): void {
-    console.log(`ChannelComponent[${this.resourceName}, ${this.channelName}] ngOnInit()`);
+      map(([agendaItems, timeScale]):AgendaItem[] => this.injectDropZones(agendaItems, timeScale.boundsInterval))
+      //tap(agendaItems => console.log(`ChannelComponent['${this.resourceName}', '${this.channelName}'].visibleAgendaItems$: `, agendaItems))
+    );    
   }
   
   ngAfterViewInit(): void {
@@ -69,24 +72,71 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
    }
   }
 
-  ngOnDestroy(): void {
-  }
-
-  onAgendaItemClick(agendaItem: AgendaItem, index: number): void {
-    console.log(`onAgendaItemClick ${index}`)
-  }
-
   public onDrop($event:DndDropEvent, agendaItem: AgendaItem): void {
     console.log(`${this.resourceName} ${this.channelName} drop agendaItem.id=${agendaItem.id} starting ${agendaItem.startDateAsHtmlDateTimeLocalString} ending ${agendaItem.endDateAsHtmlDateTimeLocalString}`, agendaItem);
-    this._visualSchedulerService.addAgendaItem(this.resourceName, this.channelName, agendaItem.bounds.start.toJSDate(), agendaItem.bounds.end.toJSDate(), {label: 'new item'}, (data:any)=>data.label);
+    try {
+      this._visualSchedulerService.addAgendaItem(this.resourceName, this.channelName, agendaItem.bounds.start.toJSDate(), agendaItem.bounds.end.toJSDate(), {label: 'new item'}, (data:any)=>data.label);
+    } catch (error: any) {
+      console.error(error.message, error);
+    }
   }
 
-  private static injectDropZonesCallCount: number = 1;
-  private injectDropZones(timescale: Timescale, agendaItems: AgendaItem[]): AgendaItem[] {
-    console.log(`injectDropZones() called ${ChannelComponent.injectDropZonesCallCount} times`);
-    ChannelComponent.injectDropZonesCallCount++;
+ 
+  /**
+    * Given a list of {@link AgendaItem}s find all the items that intersect with the supplied bounds plus
+    * the AgendaItem before the bounds and after the bounds when ordering by date, if they exist.
+    * 
+    * The AgendaItem before and after are needed so that when creating drop zones between the first and
+    * last AgendaItems in view, the drop zones fill completely between two AgendaItems and not just the 
+    * area visible, i.e. a drop zone straddles visible items up to the previous or next AgendaItem that
+    * is not visible.
+    * 
+    * @param agendaItems A list of agenda items
+    * @param bounds The bounds to match agenda items
+    * @returns [agendaItems: AgendaItem[], timeScale: Timescale]
+    */
+  private getVisibleAgendaItemsPlus(agendaItems: AgendaItem[], bounds: Interval): AgendaItem[] {
+    if (agendaItems && agendaItems.length > 0) {
+      agendaItems = agendaItems.sort((a:AgendaItem, b:AgendaItem)=> a.startDate.toMillis() - b.startDate.toMillis());
+      let visibleAgendaItems: AgendaItem[] = [];
+      let beforeAgendaItem: AgendaItem|undefined;
+      let afterAgendaItem: AgendaItem|undefined;
+      for (let i:number = 0; i < agendaItems?.length||0; i++) {
+        if (bounds.intersection(agendaItems[i].bounds) === null) {
+          // if the current item isn't visible
+          if (visibleAgendaItems.length === 0) {
+            // no visible items encountered assume this is the first item before the visible schedule              
+            beforeAgendaItem = agendaItems[i];
+          } else {
+            // this is the next item after the last visible
+            afterAgendaItem = agendaItems[i];
+            break;
+          }
+        } else {
+          visibleAgendaItems.push(agendaItems[i]);
+        }
+      }
+      if (beforeAgendaItem) {
+        visibleAgendaItems.unshift(beforeAgendaItem);
+      }
+      if (afterAgendaItem) {
+        visibleAgendaItems.push(afterAgendaItem);
+      }
+      agendaItems = visibleAgendaItems;
+    }
+    return agendaItems;
+  }
+
+  /**
+   * For the given {@link AgendaItem}s insert {@link DropZoneAgendaItem} in open time slots around them that
+   * fall within the given bounds interval.
+   * 
+   * @param agendaItems an array of {@link AgendaItem}s that may be empty or have gaps in time before, between, or after
+   * @param bounds the time bounds that constrain the results
+   * @returns an array of {@link AgendaItem}s and {@link DropZoneAgendaItem}s
+   */
+  private injectDropZones(agendaItems: AgendaItem[], bounds: Interval): AgendaItem[] {
     const results: AgendaItem[] = [];
-    const bounds: Interval = timescale.boundsInterval;
     if (agendaItems?.length > 0) {
       let previousEnd: DateTime = bounds.start;
       for (let index = 0; index < agendaItems.length; index++) {
@@ -108,63 +158,5 @@ export class ChannelComponent implements OnInit, AfterViewInit, OnDestroy {
       results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, bounds, {label: 'drop zone'}, (data)=> data.label));
     }
     return results;
- }
-
- /**
-  * Given a list of {@link AgendaItem}s find all the items that intersect with the supplied bounds plus
-  * the AgendaItem before the bounds and after the bounds when ordering by date, if they exist.
-  * 
-  * The AgendaItem before and after are needed so that when creating drop zones between the first and
-  * last AgendaItems in view, the drop zones fill completely between two AgendaItems and not just the 
-  * area visible, i.e. a drop zone straddles visible items up to the previous or next AgendaItem that
-  * is not visible.
-  * 
-  * @param agendaItems A list of agenda items
-  * @param bounds The bounds to match agenda items
-  * @returns [agendaItems: AgendaItem[], timeScale: Timescale]
-  */
- private getVisibleAgendaItemsPlus(agendaItems: AgendaItem[], bounds: Interval): AgendaItem[] {
-  if (agendaItems && agendaItems.length > 0) {
-    agendaItems = agendaItems.sort((a:AgendaItem, b:AgendaItem)=> a.startDate.toMillis() - b.startDate.toMillis());
-    let visibleAgendaItems: AgendaItem[] = [];
-    let beforeAgendaItem: AgendaItem|undefined;
-    let afterAgendaItem: AgendaItem|undefined;
-    for (let i:number = 0; i < agendaItems?.length||0; i++) {
-      if (bounds.intersection(agendaItems[i].bounds) === null) {
-        // if the current item isn't visible
-        if (visibleAgendaItems.length === 0) {
-          // no visible items encountered assume this is the first item before the visible schedule              
-          beforeAgendaItem = agendaItems[i];
-        } else {
-          // this is the next item after the last visible
-          afterAgendaItem = agendaItems[i];
-          break;
-        }
-      } else {
-        visibleAgendaItems.push(agendaItems[i]);
-      }
-    }
-    if (beforeAgendaItem) {
-      visibleAgendaItems.unshift(beforeAgendaItem);
-    }
-    if (afterAgendaItem) {
-      visibleAgendaItems.push(afterAgendaItem);
-    }
-    agendaItems = visibleAgendaItems;
   }
-  return agendaItems;
- }
-
- /**
-  * if the visual bounds intersect with the start or end of the out of bounds intervals
-  * then adjust the bounds drop zones can be added.
-  */
- private getAdjustedVisibleBounds(timescale: Timescale): Interval {
-  const intersectingIntervalOfOutOfBoundsStart: Interval|null = timescale.boundsInterval.intersection(timescale.outOfBoundsStartInterval);
-  const intersectingIntervalOfOutOfBoundsEnd: Interval|null = timescale.boundsInterval.intersection(timescale.outOfBoundsEndInterval);
-  const startBound: DateTime = (intersectingIntervalOfOutOfBoundsStart?intersectingIntervalOfOutOfBoundsStart.end:timescale.boundsInterval.start);
-  const endBound: DateTime = (intersectingIntervalOfOutOfBoundsEnd?intersectingIntervalOfOutOfBoundsEnd.start:timescale.boundsInterval.end);
-  return Interval.fromDateTimes(startBound, endBound);
- }
-
 }
