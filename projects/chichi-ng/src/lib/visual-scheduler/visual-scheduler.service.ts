@@ -4,6 +4,9 @@ import { Duration, Interval, DateTime } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 import { ToolEvent } from './toolbox/tool/tool-event.model';
+import { AgendaItemConflicts } from './agenda-item-conflicts.error';
+import { AgendaItemOutOfBounds } from './agenda-item-out-of-bounds.error';
+import { TimescaleNotSetError } from './timescale-not-set-error.error';
 
 type ResourceChannelMapKey = string;
 
@@ -218,9 +221,9 @@ export class VisualSchedulerService {
       console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
       const conflictingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
       if (conflictingItems.length > 0) {
-        throw this.agendaItemConflicts(newItemInterval, conflictingItems);
+        throw  new AgendaItemConflicts(newItemInterval, conflictingItems);
       } else {
-        throw this.agendaItemOutOfBounds(newItemInterval, this._timescale.boundsInterval);
+        throw new AgendaItemOutOfBounds(newItemInterval, this._timescale.boundsInterval);
       }
     }
   }
@@ -291,17 +294,7 @@ export class VisualSchedulerService {
   }
 
   private timescaleNotSetError(): Error {
-    return Error(`TimescaleNotSet. Did you call ${this.constructor.name}.${this.setBounds.name} yet?`);
+    return new TimescaleNotSetError(`${this.constructor.name}.${this.setBounds.name}`);
   }
 
-  private agendaItemOutOfBounds(newItemInterval: Interval, schedulerBounds: Interval): Error {
-    return Error(`OutOfBounds. The AgendaItem  start=${newItemInterval.start} end=${newItemInterval.end} is out of bounds start=${schedulerBounds.start} end=${schedulerBounds.end}`);
-  }
-
-  private agendaItemConflicts(newItemInterval: Interval, conflictingItems: AgendaItem[]): Error {
-    return Error(conflictingItems.map((item) => {
-      return `item:${item.label} in ${item.resourceName} : ${item.channelName} start=${item.bounds.start} end=${item.bounds.end}`
-    }).reduce((collector: string, newVal: string) => `${collector} ${newVal}`, 
-      `Conflicts. The AgendaItem start=${newItemInterval.start} end=${newItemInterval.end} conflicts with `));
-  }
 }

@@ -1,5 +1,8 @@
-import { AfterContentInit, AfterViewInit, Component, OnInit } from '@angular/core';
-import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent, Timescale, Utils } from 'chichi-ng';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent, Timescale, Utils,
+  TimescaleNotSetError, 
+  AgendaItemOutOfBounds,
+  AgendaItemConflicts} from 'chichi-ng';
 import { filter } from 'rxjs';
 
 class ChatData {
@@ -98,11 +101,11 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
         this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
         this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
       } catch (error: any) {
-        if (error.message.startsWith('TimescaleNotSet')) {
+        if (error instanceof TimescaleNotSetError) {
           console.log(error.message, error);
-        } else if (error.message.startsWith('OutOfBounds')) {
+        } else if (error instanceof AgendaItemOutOfBounds) {
           console.log(error.message, error);
-        } else if (error.message.startsWith('Conflicts')) {
+        } else if (error instanceof AgendaItemConflicts) {
           console.log(error.message, error);
         } else {
           console.log(`Oopsie something bad happened.`, error);
