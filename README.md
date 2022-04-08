@@ -182,6 +182,10 @@ ng g component visual-scheduler/toolbox/tool --project=chichi-ng
 ng g class visual-scheduler/toolbox/tool/tool-event --type=model --project=chichi-ng
 ng g service visual-scheduler/visual-scheduler --project=chichi-ng
 
+ng g class visual-scheduler/timescale-not-set-error --type=error --project=chichi-ng
+ng g class visual-scheduler/agenda-item-out-of-bounds --type=error --project=chichi-ng
+ng g class visual-scheduler/agenda-item-conflicts --type=error --project=chichi-ng
+
 npm install ngx-drag-drop --save
 
 npm install luxon --save
