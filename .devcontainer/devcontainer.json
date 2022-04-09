@@ -15,11 +15,13 @@
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"dbaeumer.vscode-eslint",
 		"k--kato.intellij-idea-keybindings",
+		"dbaeumer.vscode-eslint",
+		"lucono.karma-test-explorer",
 		"Angular.ng-template",
 		"esbenp.prettier-vscode",
-		"VisualStudioExptTeam.vscodeintellicode"
+		"VisualStudioExptTeam.vscodeintellicode",
+		"shardulm94.trailing-spaces"		
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
