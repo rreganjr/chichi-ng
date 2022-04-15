@@ -1,13 +1,13 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent, Timescale, Utils,
-  TimescaleNotSetError, 
+  TimescaleNotSetError,
   AgendaItemOutOfBounds,
   AgendaItemConflicts} from 'chichi-ng';
 import { filter } from 'rxjs';
 
 class ChatData {
   constructor(
-    public label: string = 'new chat'    
+    public label: string = 'new chat'
   ) {}
 }
 const chatLabeler: AgendaItemLabeler<ChatData> = (data: ChatData) => data.label;
