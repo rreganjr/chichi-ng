@@ -45,6 +45,8 @@ describe('BypassPanelComponent', () => {
   });
 
   it('the overlay-container should be positioned to the right', () => {
+    component.rightPanelActive = false;
+    fixture.detectChanges();
     const rightPanel: DebugElement = debugElement.query(By.css('div.container  div.right-panel'));
     const overlayContainer: DebugElement = debugElement.query(By.css('div.container  div.overlay-container'));
     expect(rightPanel.nativeElement.getBoundingClientRect().x).toEqual(overlayContainer.nativeElement.getBoundingClientRect().x);

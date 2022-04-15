@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
 import { ChannelComponent } from './channel.component';
 
@@ -8,7 +9,8 @@ describe('ChannelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ChannelComponent ]
+      declarations: [ ChannelComponent ],
+      providers: [VisualSchedulerService]
     })
     .compileComponents();
   });
@@ -16,6 +18,8 @@ describe('ChannelComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ChannelComponent);
     component = fixture.componentInstance;
+    component.resourceName = 'resource-name';
+    component.channelName = 'channel-name';
     fixture.detectChanges();
   });
 

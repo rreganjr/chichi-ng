@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import {CommonModule} from '@angular/common'
+import { CommonModule } from '@angular/common';
 
 import { ChichiNgComponent } from './chichi-ng.component';
 import { BypassPanelComponent } from './bypass-panel/bypass-panel.component';

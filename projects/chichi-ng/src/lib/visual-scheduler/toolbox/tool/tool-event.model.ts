@@ -26,7 +26,7 @@ export class ToolEvent {
     ) {
         this.id = ToolEvent.nextId++;
     }
-    
+
     public isStart(): boolean {
         return this.action === 'START';
     }

@@ -15,7 +15,7 @@ export class DropZoneComponent implements OnInit {
 
   @Input() agendaItem!: AgendaItem; // this is a faked up agendaItem representing an unscheduled area
 
-  // When a tool is dragged that is appropriate to drop on this zone, 
+  // When a tool is dragged that is appropriate to drop on this zone,
   // indicate this is an appropriate target via the is-dragging css class
   @HostBinding('class.is-dragging') isDragging: boolean = false;
 

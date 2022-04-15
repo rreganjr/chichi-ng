@@ -159,6 +159,70 @@ ng build demo --configuration production --outputPath=docs/demo/ --baseHref=/chi
 cp docs/demo/index.html docs/demo/404.html
 ```
 
+# Testing Library Components
+
+The test turning-glob-component.spec.ts was failing with the error:
+```
+Error: Unexpected synthetic listener @spin.done found. Please make sure that:
+  - Either `BrowserAnimationsModule` or `NoopAnimationsModule` are imported in your application.
+  - There is corresponding configuration for the animation named `@spin.done` defined in the `animations` field of the `@Component` decorator (see https://angular.io/api/core/Component#animations).
+```
+
+Because this is a library I don't want to include angular references and use `peerDependencies` in the package.json for 
+angular dependencies that will be included by the user of the library. To get the test to work I added the `BrowserAnimationsModule`
+to the `imports` of `TestBed.configureTestingModule()`
+
+```
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        BrowserAnimationsModule
+      ],
+      declarations: [ TurningGlobeComponent ]
+    })
+    .compileComponents();
+  }));
+```
+
+## Testing Scheduler Component
+
+The scheduler components have inputs and use the VisualSchedulerService, so extra configuration is needed.
+
+Error:
+```
+NullInjectorError: R3InjectorError(DynamicTestModule)[VisualSchedulerService -> VisualSchedulerService]:
+  NullInjectorError: No provider for VisualSchedulerService!
+```
+
+Any component that uses the scheduler must have it added to the testing modules as a provider:
+```
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AgendaItemComponent],
+      providers: [VisualSchedulerService]
+    })
+    .compileComponents();
+  });
+```
+also make sure the service is imported by path and not the chichi-ng
+```
+import { VisualSchedulerService } from '../../../visual-scheduler.service';
+```
+see https://stackoverflow.com/questions/54772990/karma-unit-testing-error-unexpected-value-imported-by-the-module-please-add-a
+
+Inputs need to be set on the component:
+```
+beforeEach(() => {
+    fixture = TestBed.createComponent(ChannelComponent);
+    component = fixture.componentInstance;
+    component.resourceName = 'resource-name';
+    component.channelName = 'channel-name';
+    fixture.detectChanges();
+  });
+```
+see https://stackoverflow.com/questions/36654834/angular2-unit-test-with-input
+
+
 # The Visual Scheduler Component
 
 The visual scheduler will have its own module in the chchi-ng library
@@ -201,6 +265,7 @@ ng g component event-scheduler/modal --project=demo
 ng g component event-scheduler/item-editor --project=demo
 
 ```
+
 # Interactive Development of Library and Demo
 
 ```

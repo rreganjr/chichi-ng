@@ -194,11 +194,11 @@ export class VisualSchedulerService {
   /**
    * Add an item to the agenda. If the supplied start/end date intersect with another agenda item in the same resource/channel the item is
    * not added.
-   * 
+   *
    * @param resourceName - The name of a specific {@link ResourceComponent}
    * @param channelName  - The name of a {@link ChannelComponent} in the named resource
-   * @param startDate 
-   * @param endDate 
+   * @param startDate - start date and time of new item
+   * @param endDate - end date and time of new item
    * @param data - Data for the agenda item not specific to the agenda except that the labeler function will use it.
    * @param labeler - A function that takes the supplied data to generate a label to display in the agenda.
    * @returns The id of the agenda item added to the agenda or undefined if not added
@@ -212,7 +212,7 @@ export class VisualSchedulerService {
       this._agendaItemsById.set(agendaItem.id, agendaItem);
       this._agendaItems.push(agendaItem);
       this._agendaItemsSubject.next(this._agendaItems);
-  
+
       const mapData = this.getResourceChannelMapData(this.getResourceChannelMapKey(resourceName, channelName));
       mapData.agendaItems.push(agendaItem);
       mapData.subject.next(mapData.agendaItems);

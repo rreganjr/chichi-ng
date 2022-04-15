@@ -21,7 +21,7 @@
 		"Angular.ng-template",
 		"esbenp.prettier-vscode",
 		"VisualStudioExptTeam.vscodeintellicode",
-		"shardulm94.trailing-spaces"		
+		"shardulm94.trailing-spaces"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

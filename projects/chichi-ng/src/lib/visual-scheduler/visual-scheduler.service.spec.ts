@@ -7,7 +7,7 @@ describe('VisualSchedulerService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(VisualSchedulerService);
+    service = new VisualSchedulerService();
   });
 
   it('should be created', () => {

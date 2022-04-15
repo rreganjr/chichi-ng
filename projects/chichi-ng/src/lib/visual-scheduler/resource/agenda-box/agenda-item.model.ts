@@ -9,10 +9,10 @@ export class AgendaItem {
     public readonly id: number;
 
     constructor(
-        private _resource: string, 
-        private _channel: string, 
-        private _bounds: Interval, 
-        private _data: object, 
+        private _resource: string,
+        private _channel: string,
+        private _bounds: Interval,
+        private _data: object,
         private _labeler: AgendaItemLabeler<any>
     ) {
         this.id = AgendaItem.nextId++;

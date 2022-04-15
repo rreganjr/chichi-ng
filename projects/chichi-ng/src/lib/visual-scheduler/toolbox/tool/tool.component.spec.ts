@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { VisualSchedulerService } from '../../visual-scheduler.service';
 
 import { ToolComponent } from './tool.component';
 
@@ -8,7 +9,8 @@ describe('ToolComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ToolComponent ]
+      declarations: [ ToolComponent ],
+      providers: [VisualSchedulerService]
     })
     .compileComponents();
   });

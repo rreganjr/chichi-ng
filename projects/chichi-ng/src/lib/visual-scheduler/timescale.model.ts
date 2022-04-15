@@ -4,12 +4,12 @@ import { Utils } from "./utils";
 /**
  * The {@link Timescale} defines the boundaries of when items can be scheduled in the scheduler and
  * the boundaries of what is visible in the scheduler.
- * 
+ *
  * It also defines the {@link TimelineComponent} boundaries, the primary units and sub-unit marks on
  * the timeline.
  */
 export class Timescale {
- 
+
     constructor(
         private _boundsInterval: Interval, // The min and max date range in the visual scheduler
         private _visibleDuration: Duration = Duration.fromDurationLike({hours: 12}), // The duration visible in the scheduler
@@ -39,14 +39,14 @@ export class Timescale {
     public get offsetDuration(): Duration {
         return this._offsetDuration;
     }
-    
+
     /**
      * The {@link Duration} of time visible in the scheduler
      */
      public get visibleDuration(): Duration {
         return this._visibleDuration;
     }
-    
+
     /**
      * @returns The {@link Interval} visible in the scheduler
      */
@@ -59,9 +59,9 @@ export class Timescale {
      * The timeline should start at the beginning of a unit to make it easier to read, for example if the start of
      * the bounds is 1:15 PM and the view size is 7 days, having the timelines show 1:15 PM 7 times is harder to read
      * than if the time line starts at the beginning of the day and shows the dates marked for each day.
-     * 
+     *
      * NOTE: this will vary based on the {@link Duration} visible
-     * 
+     *
      * @returns a {@link DateTimeUnit} indicating when the timeline starts, for example start of day or hour
      */
     public get primaryDateTimeUnit(): DateTimeUnit {
@@ -73,7 +73,7 @@ export class Timescale {
     }
 
     /**
-     * This is the first time unit (hour or day) visible in the timeline equal to or less than the start of the 
+     * This is the first time unit (hour or day) visible in the timeline equal to or less than the start of the
      * schedule boundaries.
      * @returns the {@link DateTime} of the first {@link DateTimeUnit} in the {@link Timescale#visibleDuration}
      */
@@ -82,7 +82,7 @@ export class Timescale {
     }
 
     /**
-     * This is the last time unit (hour or day) visible in the timeline equal to or greater than the end of the 
+     * This is the last time unit (hour or day) visible in the timeline equal to or greater than the end of the
      * schedule boundaries.
      * @returns the {@link DateTime} of the last {@link DateTimeUnit} in the {@link Timescale#visibleDuration}
      */
@@ -99,14 +99,14 @@ export class Timescale {
     }
 
     /**
-     * The duration from where the timeline starts versus the schedule bounds start 
+     * The duration from where the timeline starts versus the schedule bounds start
      * given the {@link Timescale#primaryDateTimeUnit}.
-     * 
+     *
      * @example
      *   // bounds start: 1/1/2020 12:14 pm
      *   // visible duration 1 day -> startAtDateTimeUnit = hour
      *   // timeline starts at 1/1/2020 12:00 pm
-     *   this.outOfBoundsStartDuration 
+     *   this.outOfBoundsStartDuration
      *   // returns 840 seconds (14 minutes in seconds)
      * @example
      *   // bounds start: 1/1/2020 12:14 pm
@@ -139,7 +139,7 @@ export class Timescale {
     }
 
     /**
-     * This is the first time unit (hour or day) in the timeline equal to or less than the start of the 
+     * This is the first time unit (hour or day) in the timeline equal to or less than the start of the
      * schedule boundaries.
      * @returns the {@link DateTime} of the first {@link DateTimeUnit} in the {@link Timescale#boundsInterval}
      */
@@ -150,5 +150,4 @@ export class Timescale {
     public get endOfTimeline(): DateTime {
         return Utils.getStartOfNext(this._boundsInterval.end, this.primaryDateTimeUnit);
     }
-
 }
