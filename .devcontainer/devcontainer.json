@@ -22,7 +22,8 @@
 		"esbenp.prettier-vscode",
 		"VisualStudioExptTeam.vscodeintellicode",
 		"shardulm94.trailing-spaces",
-		"markis.code-coverage"
+		"markis.code-coverage",
+		"ritwickdey.liveserver"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
