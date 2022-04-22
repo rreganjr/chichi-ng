@@ -9,11 +9,20 @@ import { Utils } from "./utils";
  * the timeline.
  */
 export class Timescale {
+    public static readonly DEFAULT_VISIBLE_DURATION:Duration = Duration.fromDurationLike({hours: 12});
+    public static readonly DEFAULT_OFFSET_DURATION:Duration = Duration.fromDurationLike({hours: 0});
+    public static readonly MAX_VISIBLE_HOURS_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT:number = 3*24;
 
+    /**
+     * 
+     * @param _boundsInterval The min and max date range in the visual scheduler
+     * @param _visibleDuration The duration visible in the scheduler
+     * @param _offsetDuration The duration from the start of the bounds to what is visible, i.e. the point of time at the start of the visible hours
+     */
     constructor(
-        private _boundsInterval: Interval, // The min and max date range in the visual scheduler
-        private _visibleDuration: Duration = Duration.fromDurationLike({hours: 12}), // The duration visible in the scheduler
-        private _offsetDuration:  Duration = Duration.fromDurationLike({hours: 0}) // The duration from the start of the bounds to what is visible, i.e. the point of time at the start of the visible hours
+        private _boundsInterval: Interval,
+        private _visibleDuration: Duration = Timescale.DEFAULT_VISIBLE_DURATION,
+        private _offsetDuration:  Duration = Timescale.DEFAULT_OFFSET_DURATION
     ) {
         // TODO: validate
     }
@@ -65,7 +74,7 @@ export class Timescale {
      * @returns a {@link DateTimeUnit} indicating when the timeline starts, for example start of day or hour
      */
     public get primaryDateTimeUnit(): DateTimeUnit {
-        if (this._visibleDuration.hours < 3*24) {
+        if (this._visibleDuration.hours < Timescale.MAX_VISIBLE_HOURS_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT) {
             return 'hour';
         } else {
             return 'day';

@@ -276,4 +276,23 @@ ng serve demo
 
 I want each visual scheduler to use its own visual scheduler service so that if there is more than one on a page they don't mess up each other. In the VisualSchedulerService I set @Injectable(providedIn: null) so there isn't a default at the root level. I didn't add it to the VisualSchedulerModule as a provider so that there wouldn't be one for all VisualScheduler components. In VisualSchedulerComponent I added it to the providers. I mistakenly added it to the TimescaleComponent and TimelineComponent which made it so that when I zoomed in or out in the timescale the timeline didn't get updated. Watching https://www.youtube.com/watch?v=XpfxmHM6E4E set me straight.
 
+# Testing
+The Karma Test Explorer (for Angular, Jasmine, and Mocha) [plugin: lucono.karma-test-explorer] makes it easy to run
+angular jasmine tests in the Test Explorer [plugin: hbenl.vscode-test-explorer] and see the status. It shows which
+tests pass in the test code and detects changes and reruns tests.
+
+## Code Coverage for Tests
+The generate a code coverage report run this
+```
+ng test chichi-ng --no-watch --code-coverage
+```
+the results are rendered as html in ./coverage/chichi-ng
+
+the trick is viewing the report inside the devcontainer. I added the Live Server [plugin: ritwickdey.liveserver]
+to serve up the files from the devcontainer to the host. right click on the ./coverage/chichi-ng/index.html page
+and select "Open with Live Server".
+
+NOTE: rerun this after changing the tests.
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.
