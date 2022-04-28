@@ -17,11 +17,11 @@
 	"extensions": [
 		"k--kato.intellij-idea-keybindings",
 		"dbaeumer.vscode-eslint",
-		"lucono.karma-test-explorer",
 		"Angular.ng-template",
 		"esbenp.prettier-vscode",
 		"VisualStudioExptTeam.vscodeintellicode",
 		"shardulm94.trailing-spaces",
+		"lucono.karma-test-explorer",
 		"markis.code-coverage",
 		"ritwickdey.liveserver"
 	],

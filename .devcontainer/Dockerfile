@@ -5,7 +5,7 @@ ARG VARIANT="16"
 FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 
 # install the latest angular CLI globally
-RUN npm install -g @angular/cli@13.3.1
+RUN npm install -g @angular/cli@13.3.3
 
 # For running tests in the container
 # see https://itnext.io/angular-development-in-docker-with-dev-containers-49d2cabad445
