@@ -38,6 +38,38 @@
     },
     {
       "type": "npm",
+      "script": "watch:lib",
+      "isBackground": true,
+      "presentation": {
+        "focus": true,
+        "panel": "dedicated"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "applyTo": "closedDocuments",
+        "fileLocation": [
+          "relative",
+          "${cwd}"
+        ],
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "Compiled |Failed to compile."
+          }
+        }
+      }
+    },
+    {
+      "type": "npm",
       "script": "test",
       "isBackground": true,
       "problemMatcher": {
@@ -53,6 +85,13 @@
           }
         }
       }
+    },
+    {
+      "type": "npm",
+      "script": "test:coverage",
+      "problemMatcher": [],
+      "label": "npm: test:coverage",
+      "detail": "ng test chichi-ng --no-watch --code-coverage"
     }
   ]
 }

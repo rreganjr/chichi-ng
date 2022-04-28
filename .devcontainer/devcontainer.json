@@ -23,7 +23,8 @@
 		"shardulm94.trailing-spaces",
 		"lucono.karma-test-explorer",
 		"markis.code-coverage",
-		"ritwickdey.liveserver"
+		"ritwickdey.liveserver",
+		"spmeesseman.vscode-taskexplorer"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
