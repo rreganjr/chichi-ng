@@ -1,5 +1,65 @@
 import { DateTime, DateTimeUnit, Duration, Interval } from "luxon";
+import { TimescaleInvalid } from "./timescale-invalid.error";
 import { Utils } from "./utils";
+
+export enum TimescaleValidatorErrorCode {
+    BoundsIntervalUndefined,
+    BoundsIntervalZeroDuration,
+    BoundsIntervalEndBeforeStart,
+    BoundsIntervalInvalidInterval,
+    OffsetDurationUndefined,
+    OffsetDurationOutOfBounds,
+    OffsetDurationInvalidDuration,
+    VisibleDurationUndefined,
+    VisibleDurationOutOfBounds,
+    VisibleDurationInvalidDuration,
+    OffsetDurationPlusVisibleDurationOutOfBounds
+}
+
+export class TimescaleValidator {
+
+    public static checkBoundsInterval(boundsInterval: Interval): void {
+        if (!boundsInterval) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalUndefined, `The boundsInterval cannot be undefined or null.`);
+        } else if (boundsInterval && boundsInterval.start.equals(boundsInterval.end)) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalZeroDuration,`The boundsInterval end ${boundsInterval.end} cannot equal the start interval.`);
+        } else if (boundsInterval && boundsInterval.start > boundsInterval.end) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalEndBeforeStart,`The boundsInterval end ${boundsInterval.end} must be later than the start ${boundsInterval.start}.`);
+        } else if (boundsInterval && !boundsInterval.isValid) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalInvalidInterval,`The boundsInterval is invalid: ${boundsInterval.invalidExplanation}`);
+        }
+    }
+
+    public static checkOffsetDuration(boundsInterval: Interval, offsetDuration: Duration): void {
+        if (!offsetDuration) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.OffsetDurationUndefined,`The offsetDuration cannot be undefined or null.`);
+        } else if (offsetDuration.as('seconds') > boundsInterval.toDuration().as('seconds')) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.OffsetDurationOutOfBounds,`The offsetDuration ${offsetDuration.as('seconds')} (seconds) cannot be longer than the duration of the boundsInterval ${boundsInterval.toDuration().as('seconds')} (seconds).`);
+        } else if (!offsetDuration.isValid) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.OffsetDurationInvalidDuration,`The offsetDuration is invalid: ${offsetDuration.invalidExplanation}`);
+        }
+    }
+
+    public static checkVisibleDuration(boundsInterval: Interval, visibleDuration: Duration): void {
+        if (!visibleDuration) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.VisibleDurationUndefined,`The visibleDuration cannot be undefined or null.`);
+        } else if (visibleDuration.as('seconds') > boundsInterval.toDuration().as('seconds')) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.VisibleDurationOutOfBounds,`The visibleDuration cannot be longer than the duration of the boundsInterval.`);
+        } else if (!visibleDuration.isValid) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.VisibleDurationInvalidDuration,`The visibleDuration is invalid: ${visibleDuration.invalidExplanation}`);
+        }
+    }
+
+    public static checkVisibleDurationWithOffsetDurationToBounds(boundsInterval: Interval, visibleDuration: Duration, offsetDuration: Duration): void {
+        const visibleEnd: DateTime = boundsInterval.start.plus(offsetDuration).plus(visibleDuration);
+        if (visibleEnd > boundsInterval.end) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.OffsetDurationPlusVisibleDurationOutOfBounds,
+                `The visibleDuration ${visibleDuration.as('seconds')} (seconds) ` +
+                `plus the offsetDuration ${offsetDuration.as('seconds')} (seconds) ends at ${visibleEnd}, ` +
+                `which extend passed the end of the boundsInterval ${boundsInterval.end}.`);
+        }
+    }
+}
 
 /**
  * The {@link Timescale} defines the boundaries of when items can be scheduled in the scheduler and
@@ -26,7 +86,10 @@ export class Timescale {
         private _visibleDuration: Duration = Timescale.DEFAULT_VISIBLE_DURATION,
         private _offsetDuration:  Duration = Timescale.DEFAULT_OFFSET_DURATION
     ) {
-        // TODO: validate
+        TimescaleValidator.checkBoundsInterval(_boundsInterval);
+        TimescaleValidator.checkVisibleDuration(_boundsInterval, _visibleDuration);
+        TimescaleValidator.checkOffsetDuration(_boundsInterval, _offsetDuration);
+        TimescaleValidator.checkVisibleDurationWithOffsetDurationToBounds(_boundsInterval, _visibleDuration, _offsetDuration);
     }
 
     /**
@@ -59,11 +122,12 @@ export class Timescale {
     }
 
     /**
-     * @returns The {@link Interval} visible in the scheduler
+     * @returns The {@link Interval} of schedulable time visible in the scheduler.
      */
      public get visibleBounds(): Interval {
-        const start:DateTime = this.startOfVisibleTimeline;
-        return Interval.fromDateTimes(start, start.plus(this._visibleDuration));
+        const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration);
+        const end:DateTime = start.plus(this._visibleDuration);
+        return Interval.fromDateTimes(start, end);
     }
 
     /**
@@ -106,7 +170,7 @@ export class Timescale {
      * @returns the Interval at the beginning of the timeline between the timeline start and the bounds start
      */
      public get outOfBoundsStartInterval(): Interval {
-        return Interval.fromDateTimes(this._boundsInterval.start.startOf(this.primaryDateTimeUnit), this._boundsInterval.start);
+        return Interval.fromDateTimes(this.startOfVisibleTimeline, this._boundsInterval.start);
     }
 
     /**

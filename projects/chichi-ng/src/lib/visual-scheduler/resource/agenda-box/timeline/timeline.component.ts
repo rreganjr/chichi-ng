@@ -151,7 +151,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * A timeline start on the hour or day creating an area at the start and end of the time line that are not in the timescale bounds.
+   * A timeline begins on the start of the hour or day creating an area at the start and end of the time line that are not in the timescale bounds.
    * This element demarks the time durations that aren't schedulable.
    * @param location - which end of the timeline being marked
    * @returns an {@link HTMLDivElement} representing the area at the start or end of the timeline that isn't part of the time bounds
@@ -169,14 +169,14 @@ export class TimelineComponent implements OnInit, OnDestroy {
         element.style.right = '0';
       }
       element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
-      element.className =  'outOfBounds';    
+      element.className =  'outOfBounds';
       return element;
     }
     return;
   }
 
   /**
-   * 
+   *
    * @param dateTime the {@link DateTime} used to generate the label for the time
    * @returns an {@link HTMLDivElement} div element containing the time label
    */
