@@ -34,39 +34,23 @@ describe('Timescale', () => {
   it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.BoundsIntervalUndefined', () => {
     // cast is to bypass Typescript static checking to make boundsInterval invalid
     expect(() => new Timescale(((undefined as unknown) as Interval)))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalUndefined);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalUndefined);
   });
 
   it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.BoundsIntervalZeroDuration', () => {
     const start: Date = new Date();
     expect(() => new Timescale(Interval.fromDateTimes(start, start)))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalZeroDuration);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalZeroDuration);
   });
 
-  it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.BoundsIntervalUndefined', () => {
+  it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.BoundsIntervalInvalid', () => {
     const start: Date = new Date();
     start.setSeconds(0);
     start.setMilliseconds(0);
     const end: Date = new Date(start.getTime() + 10 * 60 * 60 * 1000);
     const boundsInterval = Interval.fromDateTimes(end, start);
     expect(() => new Timescale(boundsInterval))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalEndBeforeStart);
-  });
-
-  // VisibleDurationUndefined,
-  // VisibleDurationOutOfBounds,
-  // VisibleDurationInvalidDuration,
-  // OffsetDurationPlusVisibleDurationOutOfBounds
-
-  it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.OffsetDurationUndefined', () => {
-    const start: Date = new Date();
-    start.setSeconds(0);
-    start.setMilliseconds(0);
-    const end: Date = new Date(start.getTime() + 10 * 60 * 60 * 1000);
-    const boundsInterval = Interval.fromDateTimes(start, end);
-    const visibleDuration = Duration.fromDurationLike({hours: 1});
-    expect(() => new Timescale(boundsInterval, visibleDuration, ((undefined as unknown) as Duration)))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationUndefined);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalInvalid);
   });
 
   it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.OffsetDurationOutOfBounds', () => {
@@ -79,7 +63,7 @@ describe('Timescale', () => {
     const visibleDuration = Duration.fromDurationLike({hours: 1});
     const offsetDuration = Duration.fromDurationLike({hours: boundsDurationHours}).plus({seconds: 1});
     expect(() => new Timescale(boundsInterval, visibleDuration, offsetDuration))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationOutOfBounds);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationOutOfBounds);
   });
 
   it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.OffsetDurationInvalidDuration', () => {
@@ -89,21 +73,10 @@ describe('Timescale', () => {
     start.setMilliseconds(0);
     const end: Date = new Date(start.getTime() + 10 * 60 * 60 * 1000);
     const boundsInterval = Interval.fromDateTimes(start, end);
-    const visibleDuration = Duration.fromDurationLike({hours: boundsDurationHours}).plus({seconds: 1});
-    const offsetDuration = Duration.fromDurationLike(('a' as DurationLike));
+    const visibleDuration = Duration.fromDurationLike({hours: boundsDurationHours}).plus({seconds: -1});
+    const offsetDuration = Duration.fromDurationLike(Interval.fromDateTimes(end, start).toDuration());
     expect(() => new Timescale(boundsInterval, visibleDuration, offsetDuration))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationInvalidDuration);
-  });
-
-  it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.VisibleDurationUndefined', () => {
-    const start: Date = new Date();
-    start.setSeconds(0);
-    start.setMilliseconds(0);
-    const end: Date = new Date(start.getTime() + 10 * 60 * 60 * 1000);
-    const boundsInterval = Interval.fromDateTimes(start, end);
-    const offsetDuration = Duration.fromDurationLike({hours: 1});
-    expect(() => new Timescale(boundsInterval, ((undefined as unknown) as Duration), offsetDuration))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.VisibleDurationUndefined);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationInvalidDuration);
   });
 
   it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.VisibleDurationOutOfBounds', () => {
@@ -116,7 +89,7 @@ describe('Timescale', () => {
     const visibleDuration = Duration.fromDurationLike({hours: boundsDurationHours}).plus({seconds: 1});
     const offsetDuration = Duration.fromDurationLike({hours: 1});
     expect(() => new Timescale(boundsInterval, visibleDuration, offsetDuration))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.VisibleDurationOutOfBounds);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.VisibleDurationOutOfBounds);
   });
 
   it('should throw TimescaleInvalid with TimescaleValidatorErrorCode.VisibleDurationInvalidDuration', () => {
@@ -126,9 +99,9 @@ describe('Timescale', () => {
     const end: Date = new Date(start.getTime() + 10 * 60 * 60 * 1000);
     const boundsInterval = Interval.fromDateTimes(start, end);
     const offsetDuration = Duration.fromDurationLike({hours: 1});
-    const visibleDuration = Duration.fromDurationLike(('a' as DurationLike));
+    const visibleDuration = Duration.fromDurationLike(Interval.fromDateTimes(end, start).toDuration());
     expect(() => new Timescale(boundsInterval, visibleDuration, offsetDuration))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.VisibleDurationInvalidDuration);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.VisibleDurationInvalidDuration);
   });
 
 
@@ -142,9 +115,8 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: boundsDurationHours}).plus({seconds: -1});
     const visibleDuration = Duration.fromDurationLike({hours: boundsDurationHours}).plus({seconds: -1});
     expect(() => new Timescale(boundsInterval, visibleDuration, offsetDuration))
-      .toThrowMatching((thrown: TimescaleInvalid)=> thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationPlusVisibleDurationOutOfBounds);
+      .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationPlusVisibleDurationOutOfBounds);
   });
-
 
   it('should be out of bounds when the supplied date is less than the boundsInterval start', () => {
     const start: Date = new Date();

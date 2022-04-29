@@ -20,5 +20,5 @@ export * from './lib/visual-scheduler/utils';
 
 export * from './lib/visual-scheduler/agenda-item-conflicts.error';
 export * from './lib/visual-scheduler/agenda-item-out-of-bounds.error';
-export * from './lib/visual-scheduler/timescale-not-set-error.error';
+export * from './lib/visual-scheduler/timescale-not-set.error';
 

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Duration } from 'luxon';
+import { Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../timescale.model';
 import { VisualSchedulerService } from '../visual-scheduler.service';
@@ -17,6 +17,16 @@ export class TimescaleComponent implements OnInit, OnDestroy {
 
   public static readonly FOUR_DAYS_IN_HOURS: number = 4*24;
   public static readonly WEEK_IN_HOURS: number = 7*24;
+
+  public static readonly VIEWPORT_SIZES: Duration[] = [
+    Duration.fromDurationLike({hours: 3}),
+    Duration.fromDurationLike({hours: 6}),
+    Duration.fromDurationLike({hours: 12}),
+    Duration.fromDurationLike({days: 1}),
+    Duration.fromDurationLike({days: 2}),
+    Duration.fromDurationLike({days: 4}),
+    Duration.fromDurationLike({weeks: 1})
+  ];
 
   private _timescaleSubscription?: Subscription;
   public _timescale!: Timescale;
@@ -39,61 +49,86 @@ export class TimescaleComponent implements OnInit, OnDestroy {
     }
   }
 
+  public get timescaleSizes(): Duration[] {
+    return TimescaleComponent.VIEWPORT_SIZES;
+  }
+
   public zoomIn(): void {
-    if (this._timescale.visibleDuration.hours === TimescaleComponent.WEEK_IN_HOURS) {
-      this._visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.FOUR_DAYS_IN_HOURS);
-    } else {
-      this._visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours / 2); 
+    const sizes = TimescaleComponent.VIEWPORT_SIZES;
+    let index = sizes.indexOf(this._timescale.visibleDuration);
+    if (index < 0) {
+      index = 0;
+    } else if (index < sizes.length - 1) {
+      index++;
+    }
+    this._visualSchedulerService.setViewportDuration(sizes[index]);
+  }
+
+  public zoomTo(index: number): void {
+    const sizes = TimescaleComponent.VIEWPORT_SIZES;
+    if (index >= 0 && index < sizes.length) {
+      this._visualSchedulerService.setViewportDuration(sizes[index]);
     }
   }
 
   public zoomOut(): void {
-    if (this._timescale.visibleDuration.hours === TimescaleComponent.FOUR_DAYS_IN_HOURS) {
-      this._visualSchedulerService.setTimeScaleVisibleHours(TimescaleComponent.WEEK_IN_HOURS);
-    } else {
-      this._visualSchedulerService.setTimeScaleVisibleHours(this._timescale.visibleDuration.hours * 2);
+    const sizes = TimescaleComponent.VIEWPORT_SIZES;
+    let index = sizes.indexOf(this._timescale.visibleDuration);
+    if (index < 0) {
+      index = 0;
+    } else if (index > 0) {
+      index--;
     }
+    this._visualSchedulerService.setViewportDuration(sizes[index]);
   }
 
   public scanToStart(): void {
-    this._visualSchedulerService.setTimeScaleOffsetHours(0);
+    this._visualSchedulerService.setViewportOffsetDuration(Duration.fromDurationLike({seconds: 0}));
   }
 
   public scanBack(): void {
-    if (this._timescale.offsetDuration.hours > 0) {
-      if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours > 0) {
-        this._visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.minus(this._timescale.visibleDuration).hours);
+    if (this._timescale.offsetDuration.as('seconds') > 0) {
+      if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).as('seconds') > 0) {
+        this._visualSchedulerService.setViewportOffsetDuration(this._timescale.offsetDuration.minus(this._timescale.visibleDuration));
       } else {
         this.scanToStart();
       }
     }
   }
 
+  /**
+   * Move the visibleDuration forward in time by setting the offsetDuration to the current offsetDuration plus
+   * the visibleDuration period such that the end of the visibleDuration period is not greater than the end of
+   * the scheduler bounds.
+   */
   public scanForward(): void {
-    if (this._timescale.offsetDuration > (this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration))) {
+
+    if (this._timescale.visibleBounds.end.plus(this._timescale.visibleDuration) > this._timescale.boundsInterval.end) {
         this.scanToEnd();
     } else {
-      this._visualSchedulerService.setTimeScaleOffsetHours(this._timescale.offsetDuration.hours + this._timescale.visibleDuration.hours);
+      this._visualSchedulerService.setViewportOffsetDuration(this._timescale.offsetDuration.plus(this._timescale.visibleDuration));
     }
   }
 
   public scanToEnd(): void {
-    this._visualSchedulerService.setTimeScaleOffsetHours(this._timescale.boundsInterval.toDuration("hours").hours - this._timescale.visibleDuration.hours);
+    const offset:Duration = Interval.fromDateTimes(this._timescale.boundsInterval.start,
+      this._timescale.boundsInterval.end.minus(this._timescale.visibleDuration)).toDuration();
+    this._visualSchedulerService.setViewportOffsetDuration(offset);
   }
 
-  public get visibleHours(): Duration {
+  public get viewportDuration(): Duration {
     return this._timescale.visibleDuration;
   }
-  
-  public setVisibleHours(visibleHours: number): void {
-    this._visualSchedulerService.setTimeScaleVisibleHours(visibleHours);
+
+  public set viewportDuration(duration: Duration) {
+    this._visualSchedulerService.setViewportDuration(duration);
   }
 
-  public get offsetHours(): Duration {
+  public get viewportOffset(): Duration {
     return this._timescale.offsetDuration;
   }
 
-  public setOffsetHours(offsetHours: number): void {
-    this._visualSchedulerService.setTimeScaleOffsetHours(offsetHours);
+  public set viewportOffset(offset: Duration) {
+    this._visualSchedulerService.setViewportOffsetDuration(offset);
   }
 }

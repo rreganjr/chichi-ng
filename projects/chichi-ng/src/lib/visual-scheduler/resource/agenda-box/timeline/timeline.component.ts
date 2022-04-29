@@ -30,7 +30,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       this.draw();
     });
   }
-  
+
   ngOnDestroy(): void {
     if (this._timescaleSubscription) {
       this._timescaleSubscription.unsubscribe();
@@ -124,7 +124,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 
+   *
    * @param dateTime the {@link DateTime} represented by this tick mark
    * @returns an {@link HTMLDivElement} representing the tick mark via its width and css class smallTick or mediumTick for hours
    */
@@ -136,7 +136,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 
+   *
    * @param dateTime the {@link DateTime} represented by this tick mark used for labeling
    * @returns an {@link HTMLDivElement} representing the tick mark via its width and css class day or primaryTick, and may contain a label
    */

@@ -5,8 +5,7 @@ import { Utils } from "./utils";
 export enum TimescaleValidatorErrorCode {
     BoundsIntervalUndefined,
     BoundsIntervalZeroDuration,
-    BoundsIntervalEndBeforeStart,
-    BoundsIntervalInvalidInterval,
+    BoundsIntervalInvalid,
     OffsetDurationUndefined,
     OffsetDurationOutOfBounds,
     OffsetDurationInvalidDuration,
@@ -21,12 +20,10 @@ export class TimescaleValidator {
     public static checkBoundsInterval(boundsInterval: Interval): void {
         if (!boundsInterval) {
             throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalUndefined, `The boundsInterval cannot be undefined or null.`);
+        } else if (boundsInterval && !boundsInterval.isValid) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalInvalid,`The boundsInterval is invalid: ${boundsInterval.invalidExplanation}`);
         } else if (boundsInterval && boundsInterval.start.equals(boundsInterval.end)) {
             throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalZeroDuration,`The boundsInterval end ${boundsInterval.end} cannot equal the start interval.`);
-        } else if (boundsInterval && boundsInterval.start > boundsInterval.end) {
-            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalEndBeforeStart,`The boundsInterval end ${boundsInterval.end} must be later than the start ${boundsInterval.start}.`);
-        } else if (boundsInterval && !boundsInterval.isValid) {
-            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalInvalidInterval,`The boundsInterval is invalid: ${boundsInterval.invalidExplanation}`);
         }
     }
 
@@ -127,7 +124,9 @@ export class Timescale {
      public get visibleBounds(): Interval {
         const start:DateTime = this._boundsInterval.start.plus(this._offsetDuration);
         const end:DateTime = start.plus(this._visibleDuration);
-        return Interval.fromDateTimes(start, end);
+        const visibleBounds = Interval.fromDateTimes(start, end);
+        console.log(`Timescale.visibleBounds() => ${visibleBounds}`);
+        return visibleBounds;
     }
 
     /**
