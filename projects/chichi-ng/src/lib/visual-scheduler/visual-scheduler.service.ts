@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { Duration, Interval, DateTime } from 'luxon';
-import { Timescale } from './timescale.model';
+import { Timescale, TimescaleValidator } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 import { ToolEvent } from './toolbox/tool/tool-event.model';
 import { AgendaItemConflicts } from './agenda-item-conflicts.error';
 import { AgendaItemOutOfBounds } from './agenda-item-out-of-bounds.error';
-import { TimescaleNotSetError } from './timescale-not-set-error.error';
+import { TimescaleNotSet } from './timescale-not-set.error';
 
 type ResourceChannelMapKey = string;
 
@@ -20,12 +20,14 @@ class ResourceChannelMapData {
   providedIn: null
 })
 export class VisualSchedulerService {
+  public static readonly MIN_VIEWPORT_DURATION: Duration = Duration.fromDurationLike({hours: 1});
+  public static readonly MAX_VIEWPORT_DURATION: Duration = Duration.fromDurationLike({days: 7});
 
   private _timescale: Timescale|undefined;
   private _timescaleSubject: ReplaySubject<Timescale> = new ReplaySubject(1);
 
   private _toolEventsSubject: Subject<ToolEvent> = new BehaviorSubject(ToolEvent.CLEAR);
-  
+
   private _agendaItemsById: Map<number,AgendaItem> = new Map<number, AgendaItem>();
   private _agendaItems: AgendaItem[] = [];
   private _agendaItemsSubject: ReplaySubject<AgendaItem[]> = new ReplaySubject(1);
@@ -67,11 +69,11 @@ export class VisualSchedulerService {
   }
 
   /**
-   * 
-   * @param resourceName 
-   * @param channelName 
-   * @param startDate 
-   * @param endDate 
+   *
+   * @param resourceName
+   * @param channelName
+   * @param startDate
+   * @param endDate
    * @returns a list of {@link AgendaItem}s that intersect with the supplied date interval. The list may be empty.
    */
   public getIntersectingAgendaItems(resourceName: string, channelName: string, startDate: Date, endDate: Date): AgendaItem[] {
@@ -80,11 +82,11 @@ export class VisualSchedulerService {
   }
 
   /**
-   * 
-   * @param resourceName 
-   * @param channelName 
-   * @param startDate 
-   * @param endDate 
+   *
+   * @param resourceName
+   * @param channelName
+   * @param startDate
+   * @param endDate
    * @returns true if the supplied date interval doesn't contain any scheduled items
    * @throws Error when the timescale is not defined yet
    */
@@ -108,7 +110,7 @@ export class VisualSchedulerService {
   public setBounds(startDate: Date, endDate: Date): void {
     this.setBoundsInterval(Interval.fromDateTimes(startDate, endDate));
   }
-  
+
   /**
    * Set the time bounds of the scheduler. adding an {@link AgendaItem} outside these
    * bounds is not allowed. scaling and panning the view outside these bounds is not allowed.
@@ -120,53 +122,62 @@ export class VisualSchedulerService {
     this._timescaleSubject.next(this._timescale);
   }
 
+  private _adjustOffsetToKeepViewportInbounds(timescale: Timescale, offset: Duration): Duration {
+    if (timescale.visibleBounds.end.plus(offset) > timescale.boundsInterval.end) {
+      offset = Interval.fromDateTimes(timescale.boundsInterval.start, timescale.boundsInterval.end.minus(timescale.visibleDuration)).toDuration();
+    }
+    return offset;
+  }
+
+  private _adjustViewportToBounds(bounds: Interval, duration: Duration): Duration {
+    if (duration > bounds.toDuration()) {
+      duration = bounds.toDuration();
+    }
+    return duration;
+  }
+
   /**
-   * Shift the viewport (visible hours) to the offset from the start time.
+   * Set the viewport offset from the start of the scheduler bounds. The offset
+   * will be adjusted such that the viewport stays within the scheduler bounds.
+   *
    * NOTE: this is the absolute position from the start, not adding to the current offset.
-   * 
-   * @param offsetHours - the hours from the bounds start time to the start of the visible hours
+   *
+   * @param offset - the {@link Duration} from the scheduler bounds start time to the start of the viewport
    * @throws Error when the timescale is not defined yet
    */
-  public setTimeScaleOffsetHours(offsetHours: number): void {
+  public setViewportOffsetDuration(offset: Duration): void {
     if (this._timescale == undefined) throw this.timescaleNotSetError();
-    if (offsetHours >= 0) {
-      offsetHours = Math.round(offsetHours);
-      let newDuration: Duration;
-      if (offsetHours >= this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration).hours) {
-        newDuration = this._timescale.boundsInterval.toDuration("hours").minus(this._timescale.visibleDuration).plus({hours: 1});
-      } else {
-        newDuration = Duration.fromDurationLike({hours: offsetHours});
-      }
-      if (!this._timescale.offsetDuration.equals(newDuration)) {
-        console.log(`setTimeScaleOffsetHours(offsetHours = ${offsetHours})`);
-        this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, newDuration);
-        this._timescaleSubject.next(this._timescale);  
+    if (offset.as('seconds') >= 0) {
+      offset = this._adjustOffsetToKeepViewportInbounds(this._timescale, offset);
+      if (!this._timescale.offsetDuration.equals(offset)) {
+        console.log(`setViewportOffsetDuration(offset = ${offset})`);
+        this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, offset);
+        this._timescaleSubject.next(this._timescale);
       }
     }
   }
 
   /**
-   * Set the viewport of the schedule to the specificed number of hours
-   * @param visibleHours - The size of what is visible in hours, minimum = 1 hour maximum = 7 days
-   * @throws Error when the timescale is not defined yet
+   * Set the viewport {@link Duration}. The viewport must be less than or equal to the scheduler duration as
+   * well as between {@link MIN_VIEWPORT_DURATION} and {@link MAX_VIEWPORT_DURATION} inclusive.
+   * @param duration - The viewport duration
+   * @throws Error when the timescale is not defined yet or invalid
    */
-  public setTimeScaleVisibleHours(visibleHours: number): void {
+  public setViewportDuration(duration: Duration): void {
     if (this._timescale == undefined) throw this.timescaleNotSetError();
-    visibleHours = Math.round(visibleHours);
-    if (visibleHours < 3) {
-      visibleHours = 3;
-    } else if (visibleHours > 7 * 24) {
-      visibleHours = 7 * 24;
+
+    if (duration < VisualSchedulerService.MIN_VIEWPORT_DURATION) {
+      duration = VisualSchedulerService.MIN_VIEWPORT_DURATION;
+    } else if (duration > VisualSchedulerService.MAX_VIEWPORT_DURATION) {
+      duration = VisualSchedulerService.MAX_VIEWPORT_DURATION;
     }
-    // adjust the offset if we pan out near the end
-    let offset: Duration = this._timescale.offsetDuration;
-    if (offset.hours >= this._timescale.boundsInterval.toDuration("hours").minus({hours: visibleHours}).hours) {
-      offset = this._timescale.boundsInterval.toDuration("hours").minus({hours: visibleHours}).plus({hours: 1});
-    }
-    if (visibleHours > 0 && visibleHours <= 7 * 24) {
-      this._timescale = new Timescale(this._timescale.boundsInterval, Duration.fromDurationLike({hours: visibleHours}), offset);
-      this._timescaleSubject.next(this._timescale);
-    }
+    duration = this._adjustViewportToBounds(this._timescale.boundsInterval, duration);
+
+    // adjust the offset so the viewport stays in the scheduler bounds
+    let offset: Duration = this._adjustOffsetToKeepViewportInbounds(this._timescale, this._timescale.offsetDuration);
+
+    this._timescale = new Timescale(this._timescale.boundsInterval, duration, offset);
+    this._timescaleSubject.next(this._timescale);
   }
 
   public getAgendaItemById(id: number): AgendaItem|undefined {
@@ -174,7 +185,7 @@ export class VisualSchedulerService {
   }
 
   /**
-   * 
+   *
    * @returns All the {@link AgendaItem}s in the {@link VisualSchedulerComponent}
    */
   public getAgendaItems$(): Observable<AgendaItem[]> {
@@ -182,7 +193,7 @@ export class VisualSchedulerService {
   }
 
   /**
-   * 
+   *
    * @param resourceName - The name of a specific {@link ResourceComponent}
    * @param channelName - The name of a {@link ChannelComponent} in the named resource
    * @returns The {@link AgendaItem}s in that channel of the resource
@@ -254,7 +265,7 @@ export class VisualSchedulerService {
         })
         if (mapDataIndex > -1) {
           mapData.agendaItems.splice(mapDataIndex, 1);
-          mapData.subject.next(mapData.agendaItems);    
+          mapData.subject.next(mapData.agendaItems);
         }
       }
       return index > -1;
@@ -275,8 +286,8 @@ export class VisualSchedulerService {
   }
 
   /**
-   * 
-   * @param key 
+   *
+   * @param key
    * @returns a {@link ResourceChannelMapData} which may have no items scheduled
    * NOTE: This adds a {@link ResourceChannelMapData} to the _agendaItemsByResourceChannelMap if not found
    */
@@ -294,7 +305,7 @@ export class VisualSchedulerService {
   }
 
   private timescaleNotSetError(): Error {
-    return new TimescaleNotSetError(`${this.constructor.name}.${this.setBounds.name}`);
+    return new TimescaleNotSet(`${this.constructor.name}.${this.setBounds.name}`);
   }
 
 }
