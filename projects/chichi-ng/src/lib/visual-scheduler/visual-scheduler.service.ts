@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { Duration, Interval, DateTime } from 'luxon';
-import { Timescale, TimescaleValidator } from './timescale.model';
+import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 import { ToolEvent } from './toolbox/tool/tool-event.model';
 import { AgendaItemConflicts } from './agenda-item-conflicts.error';

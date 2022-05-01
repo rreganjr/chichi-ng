@@ -232,6 +232,7 @@ ng g module visual-scheduler --project=chichi-ng
 ng g component visual-scheduler --project=chichi-ng
 ng g component visual-scheduler/timescale --project=chichi-ng
 ng g class visual-scheduler/timescale --type=model --project=chichi-ng
+ng g class visual-scheduler/timescale-validator --type=util --project=chichi-ng
 ng g component visual-scheduler/timeline --project=chichi-ng
 ng g component visual-scheduler/resource --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box --project=chichi-ng
