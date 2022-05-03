@@ -129,6 +129,11 @@ export class Timescale {
      * The duration from where the timeline starts versus the schedule bounds start
      * given the {@link Timescale#primaryDateTimeUnit}.
      *
+     * <strong>
+     * NOTE: Super Important!!!: if comparing always use seconds as a duration of 1 Hour <> a duration of 60 Minutes
+     * even though they are the same amount of time.
+     * </strong>
+     *
      * @example
      *   // bounds start: 1/1/2020 12:14 pm
      *   // visible duration 1 day -> startAtDateTimeUnit = hour
@@ -155,10 +160,10 @@ export class Timescale {
     }
 
     /**
-     * The duration from where the schedule bounds end and the time line ends
+     * The duration from where the schedule bounds end and the time line ends. NOTE: the duration is set in seconds
      */
      public get outOfBoundsEndDuration(): Duration {
-        return this.outOfBoundsEndInterval.toDuration('seconds');
+        return this.outOfBoundsEndInterval.toDuration();
     }
 
     public get timelineBounds(): Interval {
@@ -179,6 +184,6 @@ export class Timescale {
      * shedule boundary.
      */
     public get endOfTimeline(): DateTime {
-        return Utils.getStartOfNext(this._boundsInterval.end, this.primaryDateTimeUnit);
+        return this._boundsInterval.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit);
     }
 }
