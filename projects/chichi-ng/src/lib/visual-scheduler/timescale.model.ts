@@ -105,7 +105,7 @@ export class Timescale {
      * @returns the {@link DateTime} of the first {@link DateTimeUnit} in the {@link Timescale#visibleDuration}
      */
      public get startOfVisibleTimeline(): DateTime {
-        return this._boundsInterval.start.startOf(this.primaryDateTimeUnit).plus(this._offsetDuration);
+        return this._boundsInterval.start.plus(this._offsetDuration).startOf(this.primaryDateTimeUnit);
     }
 
     /**
@@ -156,7 +156,7 @@ export class Timescale {
      * @returns the Interval at the beginning of the timeline between the timeline start and the bounds start
      */
      public get outOfBoundsEndInterval(): Interval {
-        return Interval.fromDateTimes(this._boundsInterval.end, this._boundsInterval.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit))
+        return Interval.fromDateTimes(this._boundsInterval.end, this.timelineBounds.end);
     }
 
     /**
@@ -167,7 +167,9 @@ export class Timescale {
     }
 
     public get timelineBounds(): Interval {
-        return Interval.fromDateTimes(this.outOfBoundsStartInterval.start, this.outOfBoundsEndInterval.end);
+        return Interval.fromDateTimes(
+            this._boundsInterval.start.startOf(this.primaryDateTimeUnit),
+            this._boundsInterval.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit));
     }
 
     /**
