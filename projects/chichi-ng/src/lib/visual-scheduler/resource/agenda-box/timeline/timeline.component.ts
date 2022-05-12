@@ -100,7 +100,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
       const outOfBoundsStart: HTMLDivElement|undefined = this.makeOutOfBoundsElement('start');
       if (outOfBoundsStart) {
+        console.log('adding outOfBoundsStart');
         this.renderer.appendChild(this.timelineElement.nativeElement, outOfBoundsStart);
+      } else {
+        console.log('no outOfBoundsStart');
       }
 
       // add the tick marks that are visible
@@ -118,7 +121,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
       const outOfBoundsEnd: HTMLDivElement|undefined = this.makeOutOfBoundsElement('end');
       if (outOfBoundsEnd) {
+        console.log('adding outOfBoundsEnd');
         this.renderer.appendChild(this.timelineElement.nativeElement, outOfBoundsEnd);
+      } else {
+        console.log('no outOfBoundsEnd');
       }
     }
   }
@@ -160,7 +166,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const outOfBoundsInterval = (location === 'start' ? this._timescale.outOfBoundsStartInterval : this._timescale.outOfBoundsEndInterval);
     console.log(`outOfBoundsInterval location=${location} start = ${outOfBoundsInterval.start} end = ${outOfBoundsInterval.end}`);
     // calculate the intersection of the out of bounds interval to the visible duration interval
-    const visibleOutOfBounds: Interval|null = this._timescale.visibleBounds.intersection(outOfBoundsInterval);
+    const visibleOutOfBounds: Interval|null = this._timescale.timelineBounds.intersection(outOfBoundsInterval);
     if (visibleOutOfBounds?.toDuration('second')?.as('seconds') || 0 > 0) {
       const element: HTMLDivElement = this.renderer.createElement('div');
       if (location === 'start') {
@@ -168,7 +174,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       } else {
         element.style.right = '0';
       }
-      element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
+      element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.timelineBounds.toDuration('seconds').as('seconds')) * 100  + '%';
       element.className =  'outOfBounds';
       return element;
     }

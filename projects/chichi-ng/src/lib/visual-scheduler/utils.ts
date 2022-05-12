@@ -2,10 +2,10 @@ import { DateTime, DateTimeUnit } from "luxon";
 
 export class Utils {
 
-    public static readonly LUXON_ISO8601_HTML_DATETIME_LOCAL_OPTS = {suppressMilliseconds: false, includeOffset: false};
+    public static readonly LUXON_ISO8601_HTML_DATETIME_LOCAL_OPTS = {suppressMilliseconds: true, includeOffset: false};
 
     /**
-     * 
+     *
      * @param dateTime - the dateTime to convert
      * @returns a string suitable for an HTML datetime-local input element
      */

@@ -26,12 +26,12 @@ export class VisualSchedulerComponent implements OnChanges {
    * @param changes - start or end date changes
    */
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.startDate && this.endDate && 
+    if (this.startDate && this.endDate &&
         (changes['startDate']?.currentValue || changes['endDate']?.currentValue) &&
         (changes['startDate']?.currentValue !== changes['startDate']?.previousValue ||
         changes['endDate']?.currentValue !== changes['endDate']?.previousValue)
       ) {
-      console.log(`date bounds changed: startDate=${this.startDate} endDate=${this.endDate}`)
+      console.log(`date bounds changed: startDate=${this.startDate} DateTime.fromISO(this.startDate)=${DateTime.fromISO(this.startDate)} endDate=${this.endDate}`);
       this._visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(DateTime.fromISO(this.startDate), DateTime.fromISO(this.endDate)));
     }
   }

@@ -1,4 +1,4 @@
-import { DateTime, DateTimeUnit, Duration, Interval } from "luxon";
+import { DateTime, DateTimeUnit, Duration, DurationUnit, Interval } from "luxon";
 import { TimescaleValidator } from "./timescale-validator.util";
 import { Utils } from "./utils";
 
@@ -118,11 +118,10 @@ export class Timescale {
     }
 
     /**
-     * The timeline starts at the hour or day before the schedule bounds, this demarks the start and end of that area.
-     * @returns the Interval at the beginning of the timeline between the timeline start and the bounds start
+     * @returns the Interval before the start of the boundsInterval starting at the primary DateTime unit before the boundsInterval and ending at the boundsInterval start. Note it may have a duration of 0 and the duration will always be less than one primary datetime unit.
      */
      public get outOfBoundsStartInterval(): Interval {
-        return Interval.fromDateTimes(this.startOfVisibleTimeline, this._boundsInterval.start);
+        return Interval.fromDateTimes(this._boundsInterval.start.startOf(this.primaryDateTimeUnit), this._boundsInterval.start);
     }
 
     /**
@@ -130,7 +129,7 @@ export class Timescale {
      * given the {@link Timescale#primaryDateTimeUnit}.
      *
      * <strong>
-     * NOTE: Super Important!!!: if comparing always use seconds as a duration of 1 Hour <> a duration of 60 Minutes
+     * NOTE: Super Important!!!: if comparing always use seconds! A duration of 1 Hour <> a duration of 60 Minutes
      * even though they are the same amount of time.
      * </strong>
      *
@@ -147,29 +146,36 @@ export class Timescale {
      *   this.outOfBoundsStartDuration
      *   // returns 44,040 seconds (12 hours and 14 minutes in seconds)
      */
-    public get outOfBoundsStartDuration(): Duration {
-        return this.outOfBoundsStartInterval.toDuration('seconds');
+    public get outOfBoundsStartDurationSeconds(): Duration {
+        return this.getOutOfBoundsStartDuration('seconds');
+    }
+
+    public getOutOfBoundsStartDuration(unit: DurationUnit) {
+        return this.outOfBoundsStartInterval.toDuration(unit);
     }
 
     /**
-     * The timeline ends at the hour or day after the schedule bounds, this demarks the start and end of that area.
-     * @returns the Interval at the beginning of the timeline between the timeline start and the bounds start
+     * @returns The area adjacently after the boundInterval end to the start of the next primary DateTime unit
      */
      public get outOfBoundsEndInterval(): Interval {
-        return Interval.fromDateTimes(this._boundsInterval.end, this.timelineBounds.end);
+        return Interval.fromDateTimes(this._boundsInterval.end, this._boundsInterval.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit));
     }
 
     /**
      * The duration from where the schedule bounds end and the time line ends. NOTE: the duration is set in seconds
      */
-     public get outOfBoundsEndDuration(): Duration {
-        return this.outOfBoundsEndInterval.toDuration();
+     public get outOfBoundsEndDurationSeconds(): Duration {
+        return this.getOutOfBoundsEndDuration('seconds');
+    }
+
+    public getOutOfBoundsEndDuration(unit: DurationUnit) {
+        return this.outOfBoundsEndInterval.toDuration(unit);
     }
 
     public get timelineBounds(): Interval {
         return Interval.fromDateTimes(
-            this._boundsInterval.start.startOf(this.primaryDateTimeUnit),
-            this._boundsInterval.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit));
+            this.visibleBounds.start.startOf(this.primaryDateTimeUnit),
+            this.visibleBounds.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit));
     }
 
     /**

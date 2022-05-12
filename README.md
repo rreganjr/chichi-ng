@@ -259,6 +259,27 @@ npm install @types/luxon --save-dev
 
 ```
 
+# The Visual Scheduler TimeScale Concept
+
+Implemented by the Timescale.model.ts
+
+![TimeScale Diagram](https://github.com/rreganjr/chichi-ng/raw/master/projects/chichi-ng/assets/TimeScale.png)
+
+* The Primary DateTime Unit is an hour or day depending on the size of the VisibleDuration/Viewport
+* The Bounds Interval is the start and end DateTimes where items can be scheduled.
+* The offset duration is a value between 0 and the bounds interval end  minus the visible duration.
+* The visible duration can never be larger than the bounds interval duration or be positioned to start
+  before or after the bounds interval start or end.
+* The Timeline always starts and ends on a Primary DateTime Unit
+  * The Timeline will start on the primary datetime unit before the visible duration
+  * The Timeline will end on the primary datetime unit after the visible duration
+  * If the offset duration is zero, i.e. the visible duration starts at the start of the bounds interval, then the
+    duration between the start of the timeline and the bounds interval start is denoted as the out of bounds start interval
+    and is an unschedulable duration.
+  * If the offset duration plus visible duration is within a primary datetime unit of the bounds interval end then the
+    duration between the bounds interval end and the end of the timeline is denoted as the out of bounds end interval
+    and is an unschedulable duration.
+
 # The Visual Scheduler in the Demo
 
 ```

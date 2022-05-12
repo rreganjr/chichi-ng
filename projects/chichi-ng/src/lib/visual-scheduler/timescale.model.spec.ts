@@ -119,25 +119,6 @@ describe('Timescale', () => {
       .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.OffsetDurationPlusVisibleDurationOutOfBounds);
   });
 
-  it('something is messed up!', () => {
-    // this configuration with the offset 1 second from the end and a duration of 1 second causes
-    // the outOfBoundsStartInterval to be invalid:
-    // public get outOfBoundsStartInterval(): Interval {
-    //   return Interval.fromDateTimes(this.startOfVisibleTimeline, this._boundsInterval.start);
-    // }
-
-    const start: Date = new Date();
-    start.setMinutes(15);
-    start.setSeconds(0);
-    start.setMilliseconds(0);
-    const end: Date = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
-    const boundsInterval = Interval.fromDateTimes(start, end);
-    const visibleDuration = Duration.fromDurationLike({seconds: 1});
-    const offsetDuration = boundsInterval.toDuration().minus({seconds: 1});
-    let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
-    expect(timescale.outOfBoundsStartInterval.isValid).toBeTruthy();
-  });
-
   it('should be out of bounds when the supplied date is less than the boundsInterval start', () => {
     const start: Date = new Date();
     start.setSeconds(0);
@@ -411,7 +392,7 @@ describe('Timescale', () => {
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
     // important!! compare as seconds because a Duration of 60 seconds <> a Duration of 1 minute
-    expect(timescale.outOfBoundsStartDuration.as('seconds')).toEqual(Duration.fromDurationLike({minutes: testDurationMinutes}).as('seconds'));
+    expect(timescale.outOfBoundsStartDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({minutes: testDurationMinutes}).as('seconds'));
   });
 
   it('the outOfBoundsStartDuration should be the duration of the outOfBoundsStartInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT it should start at the hour before the bounds start.', () => {
@@ -427,7 +408,7 @@ describe('Timescale', () => {
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
     // important!! compare as seconds because a Duration of 60 seconds <> a Duration of 1 minute
-    expect(timescale.outOfBoundsStartDuration.as('seconds')).toEqual(Duration.fromDurationLike({minutes: testDurationMinutes}).as('seconds'));
+    expect(timescale.outOfBoundsStartDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({minutes: testDurationMinutes}).as('seconds'));
   });
 
   it('the outOfBoundsStartDuration should be the duration of the outOfBoundsStartInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT + 1 second it should start at the start of the day before the bounds start.', () => {
@@ -445,7 +426,7 @@ describe('Timescale', () => {
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
     // important!! compare as seconds because a Duration of 60 seconds <> a Duration of 1 minute
-    expect(timescale.outOfBoundsStartDuration.as('seconds')).toEqual(Duration.fromDurationLike({hours: testHours, minutes: testMinutes}).as('seconds'));
+    expect(timescale.outOfBoundsStartDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({hours: testHours, minutes: testMinutes}).as('seconds'));
   });
 
   it('the outOfBoundsEndInterval should start at the end of the boundsInterval for visibleDuration of 1 second and end at the start of the next hour', () => {
@@ -504,7 +485,7 @@ describe('Timescale', () => {
 
     // note: when testing the end subtract the absolute start time from the expected end
     // important!! compare as seconds because a Duration of 60 seconds <> a Duration of 1 minute
-    expect(timescale.outOfBoundsEndDuration.as('seconds')).toEqual(Duration.fromDurationLike({minutes: (60 - testMinutes)}).as('seconds'));
+    expect(timescale.outOfBoundsEndDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({minutes: (60 - testMinutes)}).as('seconds'));
   });
 
   it('the outOfBoundsEndDuration should be the duration of the outOfBoundsEndInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT and end at the start of the next hour', () => {
@@ -521,7 +502,7 @@ describe('Timescale', () => {
 
     // note: when testing the end subtract the absolute start time from the expected end
     // important!! compare as seconds because a Duration of 60 seconds <> a Duration of 1 minute
-    expect(timescale.outOfBoundsEndDuration.as('seconds')).toEqual(Duration.fromDurationLike({minutes: (60 - testMinutes)}).as('seconds'));
+    expect(timescale.outOfBoundsEndDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({minutes: (60 - testMinutes)}).as('seconds'));
   });
 
   it('the outOfBoundsEndDuration should be the duration of the outOfBoundsEndInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT plus 1 second and end at the start of the next day', () => {
@@ -540,7 +521,7 @@ describe('Timescale', () => {
 
     // note: when testing the end subtract the absolute start time from the expected end
     // important!! compare as seconds because a Duration of 60 seconds <> a Duration of 1 minute
-    expect(timescale.outOfBoundsEndDuration.as('seconds')).toEqual(Duration.fromDurationLike({hours: (23 - testHours), minutes: (60 - testMinutes)}).as('seconds'));
+    expect(timescale.outOfBoundsEndDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({hours: (23 - testHours), minutes: (60 - testMinutes)}).as('seconds'));
   });
 
   it('the timelineBounds should exist', () => {
