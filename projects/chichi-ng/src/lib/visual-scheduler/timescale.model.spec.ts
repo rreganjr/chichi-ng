@@ -199,10 +199,10 @@ describe('Timescale', () => {
 
     timescale = new Timescale(boundsInterval, Duration.fromDurationLike({seconds: 1}));
     expect(Timescale.HOUR_DATETIME_UNIT === timescale.primaryDateTimeUnit).toBeTrue();
-    expect(timescale.startOfTimeline).toEqual(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT));
+    expect(timescale.startOfVisibleTimeline).toEqual(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT));
 
     timescale = new Timescale(boundsInterval, Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT);
-    expect(timescale.startOfTimeline).toEqual(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT));
+    expect(timescale.startOfVisibleTimeline).toEqual(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT));
   });
 
   it('the start of the visible Time line should be the start of the Timescale.DAY_DATETIME_UNIT when the visible duration is greater than Timescale.MAX_VISIBLE_HOURS_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
@@ -213,7 +213,7 @@ describe('Timescale', () => {
     const boundsInterval = Interval.fromDateTimes(start, end);
     const moreThanMax: Duration = Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT.plus(Duration.fromDurationLike({seconds: 1}));
     let timescale: Timescale = new Timescale(boundsInterval, moreThanMax);
-    expect(timescale.startOfTimeline).toEqual(boundsInterval.start.startOf(Timescale.DAY_DATETIME_UNIT));
+    expect(timescale.startOfVisibleTimeline).toEqual(boundsInterval.start.startOf(Timescale.DAY_DATETIME_UNIT));
   });
 
   it('the end of the visible Time line should be the start of the next Timescale.HOUR_DATETIME_UNIT of the end of the visibleBounds when the visible duration is less than or equal to Timescale.MAX_VISIBLE_HOURS_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
@@ -225,10 +225,10 @@ describe('Timescale', () => {
     let timescale: Timescale;
 
     timescale = new Timescale(boundsInterval, Duration.fromDurationLike({seconds: 1}));
-    expect(timescale.endOfTimeline).toEqual(boundsInterval.end.plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT));
+    expect(timescale.endOfVisibleTimeline).toEqual(boundsInterval.start.plus(timescale.offsetDuration).plus(timescale.visibleDuration).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT));
 
     timescale = new Timescale(boundsInterval, Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT);
-    expect(timescale.endOfTimeline).toEqual(boundsInterval.end.plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT));
+    expect(timescale.endOfVisibleTimeline).toEqual(boundsInterval.start.plus(timescale.offsetDuration).plus(timescale.visibleDuration).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT));
   });
 
   it('the end of the visible Time line should be the start of the Timescale.DAY_DATETIME_UNIT when the visible duration is greater than Timescale.MAX_VISIBLE_HOURS_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
@@ -239,7 +239,7 @@ describe('Timescale', () => {
     const boundsInterval = Interval.fromDateTimes(start, end);
     const moreThanMax: Duration = Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT.plus(Duration.fromDurationLike({seconds: 1}));
     let timescale: Timescale = new Timescale(boundsInterval, moreThanMax);
-    expect(timescale.endOfTimeline).toEqual(boundsInterval.end.plus({days: 1}).startOf(Timescale.DAY_DATETIME_UNIT));
+    expect(timescale.endOfVisibleTimeline).toEqual(boundsInterval.start.plus(timescale.offsetDuration).plus(timescale.visibleDuration).plus({days: 1}).startOf(Timescale.DAY_DATETIME_UNIT));
   });
 
   it('the bounds of the visibly schedulable time starts at the bounds start plus the offset duration and ends at the bounds start plus the offset duration plus the visible duration', () => {
@@ -265,7 +265,7 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.startOfVisibleTimeline).toEqual(DateTime.fromJSDate(start).startOf('hour'));
+    expect(timescale.startOfVisibleTimeline).toEqual(DateTime.fromJSDate(start).startOf(Timescale.HOUR_DATETIME_UNIT));
   });
 
   it('the timeline should start on the hour for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
@@ -279,7 +279,7 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.startOfVisibleTimeline).toEqual(DateTime.fromJSDate(start).startOf('hour'));
+    expect(timescale.startOfVisibleTimeline).toEqual(DateTime.fromJSDate(start).startOf(Timescale.HOUR_DATETIME_UNIT));
   });
 
   it('the timeline should start on the day for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT + 1 second', () => {
@@ -293,7 +293,7 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.startOfVisibleTimeline).toEqual(DateTime.fromJSDate(start).startOf('day'));
+    expect(timescale.startOfVisibleTimeline).toEqual(DateTime.fromJSDate(start).startOf(Timescale.DAY_DATETIME_UNIT));
   });
 
   it('the timeline should end on the next hour for visibleDuration of 1 second', () => {
@@ -307,7 +307,7 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus({seconds: 1});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.endOfVisibleTimeline).toEqual(DateTime.fromJSDate(end).plus({hours: 1}).startOf('hour'));
+    expect(timescale.endOfVisibleTimeline).toEqual(DateTime.fromJSDate(end).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT));
   });
 
   it('the timeline should end on the hour for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
@@ -321,7 +321,7 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus(visibleDuration);
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.endOfVisibleTimeline).toEqual(DateTime.fromJSDate(end).plus({hours: 1}).startOf('hour'));
+    expect(timescale.endOfVisibleTimeline).toEqual(DateTime.fromJSDate(end).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT));
   });
 
   it('the timeline should end on the day for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT + 1 second', () => {
@@ -335,7 +335,7 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus(visibleDuration);
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.endOfVisibleTimeline).toEqual(DateTime.fromJSDate(end).plus({days: 1}).startOf('day'));
+    expect(timescale.endOfVisibleTimeline).toEqual(DateTime.fromJSDate(end).plus({days: 1}).startOf(Timescale.DAY_DATETIME_UNIT));
   });
 
   it('the outOfBoundsStartInterval should start on the hour for visibleDuration of 1 second and end at the boundsInterval start', () => {
@@ -349,7 +349,7 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.outOfBoundsStartInterval).toEqual(Interval.fromDateTimes(DateTime.fromJSDate(start).startOf('hour'), boundsInterval.start));
+    expect(timescale.outOfBoundsStartInterval).toEqual(Interval.fromDateTimes(DateTime.fromJSDate(start).startOf(Timescale.HOUR_DATETIME_UNIT), boundsInterval.start));
   });
 
   it('the outOfBoundsStartInterval should start on the hour for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT and end at the boundsInterval start', () => {
@@ -363,7 +363,7 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.outOfBoundsStartInterval).toEqual(Interval.fromDateTimes(DateTime.fromJSDate(start).startOf('hour'), boundsInterval.start));
+    expect(timescale.outOfBoundsStartInterval).toEqual(Interval.fromDateTimes(DateTime.fromJSDate(start).startOf(Timescale.HOUR_DATETIME_UNIT), boundsInterval.start));
   });
 
   it('the outOfBoundsStartInterval should start on the day for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT + 1 second and end at the boundsInterval start', () => {
@@ -377,7 +377,7 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({hours: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.outOfBoundsStartInterval).toEqual(Interval.fromDateTimes(DateTime.fromJSDate(start).startOf('day'), boundsInterval.start));
+    expect(timescale.outOfBoundsStartInterval).toEqual(Interval.fromDateTimes(DateTime.fromJSDate(start).startOf(Timescale.DAY_DATETIME_UNIT), boundsInterval.start));
   });
   it('the outOfBoundsStartDuration should be the duration of the outOfBoundsStartInterval for visibleDuration of 1 second it should start at the hour before the bounds start.', () => {
     const testDurationMinutes: number = 15;
@@ -440,7 +440,7 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus({seconds: 1});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.outOfBoundsEndInterval).toEqual(Interval.fromDateTimes(boundsInterval.end, DateTime.fromJSDate(end).plus({hours: 1}).startOf('hour')));
+    expect(timescale.outOfBoundsEndInterval).toEqual(Interval.fromDateTimes(boundsInterval.end, DateTime.fromJSDate(end).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT)));
   });
 
   it('the outOfBoundsEndInterval should start at the end of the boundsInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT and end at the start of the next hour', () => {
@@ -454,7 +454,7 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus(visibleDuration);
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.outOfBoundsEndInterval).toEqual(Interval.fromDateTimes(boundsInterval.end, DateTime.fromJSDate(end).plus({hours: 1}).startOf('hour')));
+    expect(timescale.outOfBoundsEndInterval).toEqual(Interval.fromDateTimes(boundsInterval.end, DateTime.fromJSDate(end).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT)));
   });
 
   it('the outOfBoundsEndInterval should start at the end of the boundsInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT plus 1 second and end at the start of the next day', () => {
@@ -468,7 +468,7 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus(visibleDuration);
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.outOfBoundsEndInterval).toEqual(Interval.fromDateTimes(boundsInterval.end, DateTime.fromJSDate(end).plus({days: 1}).startOf('day')));
+    expect(timescale.outOfBoundsEndInterval).toEqual(Interval.fromDateTimes(boundsInterval.end, DateTime.fromJSDate(end).plus({days: 1}).startOf(Timescale.DAY_DATETIME_UNIT)));
   });
 
   it('the outOfBoundsEndDuration should be the duration of the outOfBoundsEndInterval for visibleDuration of 1 second and end at the start of the next hour', () => {
@@ -524,7 +524,7 @@ describe('Timescale', () => {
     expect(timescale.outOfBoundsEndDurationSeconds.as('seconds')).toEqual(Duration.fromDurationLike({hours: (23 - testHours), minutes: (60 - testMinutes)}).as('seconds'));
   });
 
-  it('the timelineBounds should exist', () => {
+  it('the visibleTimelineBounds should exist', () => {
     const start: Date = new Date();
     start.setMinutes(15);
     start.setSeconds(0);
@@ -535,10 +535,10 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({seconds: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.timelineBounds).toBeTruthy();
+    expect(timescale.visibleTimelineBounds).toBeTruthy();
   });
 
-  it('the timelineBounds should start at the hour before the start of the boundsInterval for visibleDuration of 1 second and end at the start of the next hour after the end of the boundsInterval', () => {
+  it('the visibleTimelineBounds should start at the hour before the start of the boundsInterval.start plus the offsetDuration of 0 seconds for visibleDuration and end at the start of the next hour after the end of the boundsInterval.start plus the visibleDuration of 1 second', () => {
     const start: Date = new Date();
     start.setMinutes(15);
     start.setSeconds(0);
@@ -549,10 +549,10 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({seconds: 0});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.timelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf('hour'), boundsInterval.end.plus({hours: 1}).startOf('hour')));
+    expect(timescale.visibleTimelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT), boundsInterval.start.plus(offsetDuration).plus(visibleDuration).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT)));
   });
 
-  it('the timelineBounds should start at the hour before the start of the boundsInterval for visibleDuration of 1 second and end at the start of the next hour after the end of the boundsInterval when the offset equals the duration too', () => {
+  it('the visibleTimelineBounds should start at the hour before the start of the boundsInterval.start plus the offsetDuration of 1 seconds for visibleDuration and end at the start of the next hour after the end of the boundsInterval.start plus the visibleDuration of 1 second', () => {
     const start: Date = new Date();
     start.setMinutes(59);
     start.setSeconds(0);
@@ -563,13 +563,10 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({seconds: 1});
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    // TODO: if the offsetDuration is 1 second it pushes the start of the timelineBounds out one second
-    // making the timelineBounds.start 1 second later than it should be
-    console.log(`timescale.timelineBounds.start = ${timescale.timelineBounds.toISO} boundsInterval.start.startOf('hour') = ${boundsInterval.start.startOf('hour')}`);
-    expect(timescale.timelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf('hour')/*.plus({seconds: 1})*/, boundsInterval.end.plus({hours: 1}).startOf('hour')));
+    expect(timescale.visibleTimelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT), boundsInterval.start.plus(offsetDuration).plus(visibleDuration).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT)));
   })
 
-  it('the timelineBounds should start at the hour before the start of the boundsInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT and end at the start of the next hour after the end of the boundsInterval', () => {
+  it('the visibleTimelineBounds should start at the hour before the start of the boundsInterval.start plus the offsetDuration of 0 seconds for visibleDuration and end at the start of the next hour after the end of the boundsInterval.start plus the visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
     const start: Date = new Date();
     start.setMinutes(15);
     start.setSeconds(0);
@@ -580,10 +577,10 @@ describe('Timescale', () => {
     const offsetDuration = Duration.fromDurationLike({seconds: 0})
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.timelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf('hour'), boundsInterval.end.plus({hours: 1}).startOf('hour')));
+    expect(timescale.visibleTimelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf(Timescale.HOUR_DATETIME_UNIT), boundsInterval.start.plus(offsetDuration).plus(visibleDuration).plus({hours: 1}).startOf(Timescale.HOUR_DATETIME_UNIT)));
   });
 
-  it('the timelineBounds should start at the day before the start of the boundsInterval for visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT plus 1 second and end at the start of the next day after the end of the boundsInterval', () => {
+  it('the visibleTimelineBounds should start at the day before the start of the boundsInterval.start plus the offsetDuration of boundsInterval.toDuration().minus(visibleDuration) for visibleDuration and end at the start of the next day after the end of the boundsInterval.start plus the visibleDuration of Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT plus 1 second', () => {
     const start: Date = new Date();
     start.setMinutes(15);
     start.setSeconds(0);
@@ -594,7 +591,33 @@ describe('Timescale', () => {
     const offsetDuration = boundsInterval.toDuration().minus(visibleDuration);
     let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
 
-    expect(timescale.timelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.startOf('day'), boundsInterval.end.plus({days: 1}).startOf('day')));
+    expect(timescale.visibleTimelineBounds).toEqual(Interval.fromDateTimes(boundsInterval.start.plus(offsetDuration).startOf(Timescale.DAY_DATETIME_UNIT), boundsInterval.start.plus(offsetDuration).plus(visibleDuration).plus({days: 1}).startOf(Timescale.DAY_DATETIME_UNIT)));
   });
 
+  it('the onePrimaryDateTimeUnitDuration should be 1 hour when the visibleDuration is equal to or less than Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
+    const start: Date = new Date();
+    start.setMinutes(15);
+    start.setSeconds(0);
+    start.setMilliseconds(0);
+    const end: Date = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
+    const boundsInterval = Interval.fromDateTimes(start, end);
+    let timescale: Timescale = new Timescale(boundsInterval, Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT);
+    expect(timescale.onePrimaryDateTimeUnitDuration).toEqual(Duration.fromDurationLike({hours: 1}));
+    timescale = new Timescale(boundsInterval, Duration.fromDurationLike({seconds: 1}));
+    expect(timescale.onePrimaryDateTimeUnitDuration).toEqual(Duration.fromDurationLike({hours: 1}));
+  });
+
+  it('the onePrimaryDateTimeUnitDuration should be 1 day when the visibleDuration is greater than Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT', () => {
+    const start: Date = new Date();
+    start.setMinutes(15);
+    start.setSeconds(0);
+    start.setMilliseconds(0);
+    const end: Date = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
+    const boundsInterval = Interval.fromDateTimes(start, end);
+    const visibleDuration = Timescale.MAX_VISIBLE_DURATION_FOR_HOUR_BASED_PRIMARY_DATE_TIME_UNIT.plus(Duration.fromDurationLike({seconds: 1}));
+    const offsetDuration = boundsInterval.toDuration().minus(visibleDuration);
+    let timescale: Timescale = new Timescale(boundsInterval, visibleDuration, offsetDuration);
+
+    expect(timescale.onePrimaryDateTimeUnitDuration).toEqual(Duration.fromDurationLike({days: 1}));
+  });
 });

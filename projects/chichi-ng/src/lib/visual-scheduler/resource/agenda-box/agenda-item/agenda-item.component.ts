@@ -28,7 +28,7 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
       // TODO: I may be able remove the intersection part as I think the channel may rebuild the
       // TODO: agendaItems when the timescale or agendaItems change
       if (this._agendaItemElement && this._agendaItemElement.nativeElement) {
-        const visibleBounds: Interval = timescale.timelineBounds;
+        const visibleBounds: Interval = timescale.visibleTimelineBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
         const el = this._agendaItemElement.nativeElement;
         if (intersectingInterval !== null) {

@@ -118,6 +118,13 @@ export class Timescale {
     }
 
     /**
+     * @returns the {@link Interval} of the visible timeline
+     */
+     public get visibleTimelineBounds(): Interval {
+        return Interval.fromDateTimes(this.startOfVisibleTimeline, this.endOfVisibleTimeline);
+    }
+
+    /**
      * @returns the Interval before the start of the boundsInterval starting at the primary DateTime unit before the boundsInterval and ending at the boundsInterval start. Note it may have a duration of 0 and the duration will always be less than one primary datetime unit.
      */
      public get outOfBoundsStartInterval(): Interval {
@@ -170,28 +177,5 @@ export class Timescale {
 
     public getOutOfBoundsEndDuration(unit: DurationUnit) {
         return this.outOfBoundsEndInterval.toDuration(unit);
-    }
-
-    public get timelineBounds(): Interval {
-        return Interval.fromDateTimes(
-            this.visibleBounds.start.startOf(this.primaryDateTimeUnit),
-            this.visibleBounds.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit));
-    }
-
-    /**
-     * This is the first time unit (hour or day) in the timeline equal to or less than the start of the
-     * schedule boundary.
-     * @returns the {@link DateTime} of the first {@link DateTimeUnit} in the {@link Timescale#boundsInterval}
-     */
-     public get startOfTimeline(): DateTime {
-        return this._boundsInterval.start.startOf(this.primaryDateTimeUnit);
-    }
-
-    /**
-     * This the last time unit (hour or day) in the timeline equal to or greater than the end of the
-     * shedule boundary.
-     */
-    public get endOfTimeline(): DateTime {
-        return this._boundsInterval.end.plus(this.onePrimaryDateTimeUnitDuration).startOf(this.primaryDateTimeUnit);
     }
 }

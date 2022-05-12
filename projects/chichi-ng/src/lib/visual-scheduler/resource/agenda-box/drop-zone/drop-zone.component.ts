@@ -32,7 +32,7 @@ export class DropZoneComponent implements OnInit {
       // TODO: I may be able remove the intersection part as I think the channel may rebuild the
       // TODO: agendaItems when the timescale or agendaItems change
       if (this._dropZoneElement && this._dropZoneElement.nativeElement) {
-        const visibleBounds: Interval = timescale.timelineBounds;
+        const visibleBounds: Interval = timescale.visibleTimelineBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
         const el = this._dropZoneElement.nativeElement;
         if (intersectingInterval !== null) {
