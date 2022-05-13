@@ -1,7 +1,7 @@
-import { DateTime, Duration, DurationLike, Interval } from 'luxon';
+import { DateTime, Duration, Interval } from 'luxon';
 import { TimescaleInvalid } from './timescale-invalid.error';
 import { Timescale } from './timescale.model';
-import {TimescaleValidatorErrorCode} from './timescale-validator.util';
+import { TimescaleValidatorErrorCode } from './timescale-validator.util';
 
 describe('Timescale', () => {
   it('should create an instance using default visibleDuration and offsetDuration', () => {
