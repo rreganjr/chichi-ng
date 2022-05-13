@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DateTime } from 'luxon';
 import { first } from 'rxjs';
@@ -32,6 +32,85 @@ describe('VisualSchedulerComponent', () => {
 
   it('should be created', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('initial start and end dates through ngOnChanges to VisualSchedulerService', (done: DoneFn) => {
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        expect(DateTime.fromJSDate(testStartDate)).toEqual(timescale.boundsInterval.start);
+        expect(DateTime.fromJSDate(testEndDate)).toEqual(timescale.boundsInterval.end);
+        done();
+      }
+    );
+    component.ngOnChanges({
+      startDate: new SimpleChange(undefined, testStartDate.toISOString(), true),
+      endDate: new SimpleChange(undefined, testEndDate.toISOString(), true),
+    });
+    fixture.detectChanges();
+  });
+
+  it('change start date to later through ngOnChanges to VisualSchedulerService', (done: DoneFn) => {
+    const updatedStart = new Date(testStartDate.getTime() + (1 * 60 * 60 * 1000));
+    component.endDate = testEndDate.toISOString();
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        expect(DateTime.fromJSDate(updatedStart)).toEqual(timescale.boundsInterval.start);
+        expect(DateTime.fromJSDate(testEndDate)).toEqual(timescale.boundsInterval.end);
+        done();
+      }
+    );
+    component.ngOnChanges({
+      startDate: new SimpleChange(testStartDate.toISOString(), updatedStart.toISOString(), false)
+    });
+    fixture.detectChanges();
+  });
+
+  it('change start date to earlier through ngOnChanges to VisualSchedulerService', (done: DoneFn) => {
+    const updatedStart = new Date(testStartDate.getTime() - (1 * 60 * 60 * 1000));
+    component.endDate = testEndDate.toISOString();
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        expect(DateTime.fromJSDate(updatedStart)).toEqual(timescale.boundsInterval.start);
+        expect(DateTime.fromJSDate(testEndDate)).toEqual(timescale.boundsInterval.end);
+        done();
+      }
+    );
+    component.ngOnChanges({
+      startDate: new SimpleChange(testStartDate.toISOString(), updatedStart.toISOString(), false)
+    });
+    fixture.detectChanges();
+  });
+
+  it('change end date to later through ngOnChanges to VisualSchedulerService', (done: DoneFn) => {
+    const updatedEnd = new Date(testEndDate.getTime() + (1 * 60 * 60 * 1000));
+    component.startDate = testStartDate.toISOString();
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        expect(DateTime.fromJSDate(testStartDate)).toEqual(timescale.boundsInterval.start);
+        expect(DateTime.fromJSDate(updatedEnd)).toEqual(timescale.boundsInterval.end);
+        done();
+      }
+    );
+    component.ngOnChanges({
+      endDate: new SimpleChange(testStartDate.toISOString(), updatedEnd.toISOString(), false)
+    });
+    fixture.detectChanges();
+  });
+
+  it('change end date to earlier through ngOnChanges to VisualSchedulerService', (done: DoneFn) => {
+    const updatedEnd = new Date(testEndDate.getTime() - (1 * 60 * 60 * 1000));
+    component.startDate = testStartDate.toISOString();
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        expect(DateTime.fromJSDate(testStartDate)).toEqual(timescale.boundsInterval.start);
+        expect(DateTime.fromJSDate(updatedEnd)).toEqual(timescale.boundsInterval.end);
+        done();
+      }
+    );
+    component.ngOnChanges({
+      endDate: new SimpleChange(testStartDate.toISOString(), updatedEnd.toISOString(), false)
+    });
+    fixture.detectChanges();
   });
 });
 
