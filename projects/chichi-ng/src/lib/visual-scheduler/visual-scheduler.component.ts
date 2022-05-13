@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import { VisualSchedulerService } from './visual-scheduler.service';
 
@@ -22,7 +22,7 @@ export class VisualSchedulerComponent implements OnChanges {
   /**
    * Listen for changes to the start/end date triggered outside the component and update the bounds through
    * the {@link VisualSchedulerService}
-   * 
+   *
    * @param changes - start or end date changes
    */
   ngOnChanges(changes: SimpleChanges): void {

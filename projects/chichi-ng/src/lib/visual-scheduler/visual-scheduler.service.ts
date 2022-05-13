@@ -45,7 +45,7 @@ export class VisualSchedulerService {
     console.log(`dragEnd: ${toolType}`, $event);
     this._toolEventsSubject.next(ToolEvent.newDragEndEvent(toolType, $event));
   }
-  
+
   /**
    * Open a viewer/editor for the supplied {@link AgendaItem}
    * @param agendaItemOrId - The {@link AgendaItem} or the id of the agenda item to remove
