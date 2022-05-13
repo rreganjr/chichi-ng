@@ -49,7 +49,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the {@link Duration} between the primary or labeled tick marks in the timeline.
    */
   private get primaryTicksDuration(): Duration {
-    const visibleHours = this._timescale.visibleDuration.hours;
+    const visibleHours = this._timescale.visibleDuration.as('hours');
     if (visibleHours < 24) {
       return Duration.fromDurationLike({hours: 1});
     } else if (visibleHours < 2*24) {
@@ -67,7 +67,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the {@link Duration} between the previous primary or subordinate tick marks in the timeline.
    */
   private get betweenTicksDuration(): Duration {
-    const visibleHours = this._timescale.visibleDuration.hours;
+    const visibleHours = this._timescale.visibleDuration.as('hours');
     if (visibleHours < 12) {
       return Duration.fromDurationLike({minutes: 5});
     } else if (visibleHours < 24) {
