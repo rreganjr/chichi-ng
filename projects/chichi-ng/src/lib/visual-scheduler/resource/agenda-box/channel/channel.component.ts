@@ -56,7 +56,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
       debounceTime(50),
       // get the visible agenda items in the current view, plus one on each end so drop-zones can straddle
       // the visible bounds
-      //tap((agendaItems):void => console.log(`ChannelComponent['${this.resourceName}', '${this.channelName}'].agendaItems: `, agendaItems)),
+      //tap(([agendaItems, timeScale]):void => console.log(`ChannelComponent['${this.resourceName}', '${this.channelName}'].agendaItems: `, agendaItems)),
       map(([agendaItems, timeScale]):[AgendaItem[], Timescale] => [
         this.getVisibleAgendaItemsPlus(agendaItems, timeScale.visibleBounds), timeScale
       ]),
@@ -104,11 +104,11 @@ export class ChannelComponent implements OnInit, AfterViewInit {
       for (let i:number = 0; i < agendaItems?.length||0; i++) {
         if (bounds.intersection(agendaItems[i].bounds) === null) {
           // if the current item isn't visible
-          if (visibleAgendaItems.length === 0) {
-            // no visible items encountered assume this is the first item before the visible schedule
+          if (agendaItems[i].bounds.start < bounds.start) {
+            // if its before the start of the bounds
             beforeAgendaItem = agendaItems[i];
           } else {
-            // this is the next item after the last visible
+            // this is the next item after the last visible or the first item after the visible bounds
             afterAgendaItem = agendaItems[i];
             break;
           }
