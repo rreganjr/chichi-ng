@@ -36,26 +36,39 @@ export class VisualSchedulerService {
   constructor() {
   }
 
+  /**
+   * Causes a {@link ToolEvent} START action to be dispatched on the ToolEvents$ observables
+   * @param $event The {@link DragEvent} from the browser.
+   * @param toolType The type of the tool being dragged as defined by the cc-tool element in the cc-toolbox of the cc-visual-scheduler
+   */
   public dragStart($event: DragEvent, toolType: string): void {
     console.log(`dragStart: ${toolType}`, $event);
     this._toolEventsSubject.next(ToolEvent.newDragStartEvent(toolType, $event));
   }
 
-  public dragEnd($event: DragEvent, toolType: string): void {
+  /**
+   * Causes a {@link ToolEvent} END action to be dispatched on the ToolEvents$ observables
+   * @param $event The {@link DragEvent} from the browser.
+   * @param toolType The type of the tool being dragged as defined by the cc-tool element in the cc-toolbox of the cc-visual-scheduler
+   */
+   public dragEnd($event: DragEvent, toolType: string): void {
     console.log(`dragEnd: ${toolType}`, $event);
     this._toolEventsSubject.next(ToolEvent.newDragEndEvent(toolType, $event));
   }
 
   /**
-   * Open a viewer/editor for the supplied {@link AgendaItem}
+   * Causes a {@link ToolEvent} EDIT action to be dispatched on the ToolEvents$ observables
+   * NOTE: The host of the cc-visual-scheduler should open a viewer/editor for the supplied {@link AgendaItem}
    * @param agendaItemOrId - The {@link AgendaItem} or the id of the agenda item to remove
-   * @returns true if the viewer/editor
+   * @param $event The {@link Event} from the browser.
+   * @returns true if the {@link AgendaItem} exists and an event is dispatched
    */
    public openAgendaItemDetail(agendaItemOrId: AgendaItem|number, $event: Event): boolean {
     const agendaItem: AgendaItem|undefined = this.toAgendaItem(agendaItemOrId);
-    if (agendaItem !== undefined) {
+    if (agendaItem) {
       this._toolEventsSubject.next(ToolEvent.newEditEvent(agendaItem, $event));
-        console.log(`open agenda item: ${agendaItem.label} in resource ${agendaItem.resourceName} channel ${agendaItem.channelName}`);
+      console.log(`open agenda item: ${agendaItem.label} in resource ${agendaItem.resourceName} channel ${agendaItem.channelName}`);
+      return true;
     }
     return false;
   }
@@ -87,7 +100,7 @@ export class VisualSchedulerService {
    * @param channelName
    * @param startDate
    * @param endDate
-   * @returns true if the supplied date interval doesn't contain any scheduled items
+   * @returns true if the supplied date interval doesn't contain any scheduled items in the specific resource and channel
    * @throws Error when the timescale is not defined yet
    */
   public isIntervalAvailable(resourceName: string, channelName: string, startDate: Date, endDate: Date): boolean {
