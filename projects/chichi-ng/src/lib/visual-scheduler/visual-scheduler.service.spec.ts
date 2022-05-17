@@ -1,9 +1,9 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { Timescale } from 'chichi-ng';
 import { DateTime, Duration, Interval } from 'luxon';
 import { first, skip } from 'rxjs';
 import { AgendaItem, ToolEvent } from '../../public-api';
 import { TimescaleNotSet } from './timescale-not-set.error';
+import { Timescale } from './timescale.model';
 
 import { VisualSchedulerService } from './visual-scheduler.service';
 
@@ -250,22 +250,22 @@ describe('VisualSchedulerService', () => {
     .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
   });
 
-  // TODO: the subscribe isn't working, even though it works where I copied it from?
-  // it('VisualSchedulerService setViewportOffsetDuration()', (done: DoneFn) => {
-  //   const boundsStartDate = new Date('2022-01-01 00:00:00');
-  //   const boundsEndDate = new Date('2022-01-02 00:00:00');
-  //   const offsetDuration = Interval.fromDateTimes(boundsStartDate, boundsEndDate).toDuration().minus({hours: 12});
+  it('VisualSchedulerService setViewportOffsetDuration() should change the offsetDuration in the service', (done: DoneFn) => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const offsetDuration = Interval.fromDateTimes(boundsStartDate, boundsEndDate).toDuration().minus({hours: 12});
 
-  //   visualSchedulerService.getTimescale$().pipe(first()).subscribe(
-  //     (timescale:Timescale) => {
-  //       expect(DateTime.fromJSDate(boundsStartDate)).toEqual(timescale.boundsInterval.start);
-  //       expect(DateTime.fromJSDate(boundsEndDate)).toEqual(timescale.boundsInterval.end);
-  //       expect(offsetDuration).toEqual(timescale.offsetDuration);
-  //       done();
-  //     }
-  //   );
+    // skip the event for the setBounds
+    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+      (timescale:Timescale) => {
+        expect(DateTime.fromJSDate(boundsStartDate)).toEqual(timescale.boundsInterval.start);
+        expect(DateTime.fromJSDate(boundsEndDate)).toEqual(timescale.boundsInterval.end);
+        expect(offsetDuration.as('milliseconds')).toEqual(timescale.offsetDuration.as('milliseconds'));
+        done();
+      }
+    );
 
-  //   visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
-  //   visualSchedulerService.setViewportOffsetDuration(offsetDuration);
-  // });
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    visualSchedulerService.setViewportOffsetDuration(offsetDuration);
+  });
 });
