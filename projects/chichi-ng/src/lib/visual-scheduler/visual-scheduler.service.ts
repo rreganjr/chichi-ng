@@ -7,6 +7,7 @@ import { ToolEvent } from './toolbox/tool/tool-event.model';
 import { AgendaItemConflicts } from './agenda-item-conflicts.error';
 import { AgendaItemOutOfBounds } from './agenda-item-out-of-bounds.error';
 import { TimescaleNotSet } from './timescale-not-set.error';
+import { ResourceChannelNotValid } from './resource-channel-not-valid';
 
 type ResourceChannelMapKey = string;
 
@@ -82,11 +83,10 @@ export class VisualSchedulerService {
   }
 
   /**
-   *
-   * @param resourceName
-   * @param channelName
-   * @param startDate
-   * @param endDate
+   * @param resourceName the resource name to check
+   * @param channelName the channel in the resource to check
+   * @param startDate the start of the interval to find matching {@link AgendaItem}
+   * @param endDate the end of the interval, inclusive, to find matching {@link AgendaItem}
    * @returns a list of {@link AgendaItem}s that intersect with the supplied date interval. The list may be empty.
    */
   public getIntersectingAgendaItems(resourceName: string, channelName: string, startDate: Date, endDate: Date): AgendaItem[] {
@@ -95,23 +95,50 @@ export class VisualSchedulerService {
   }
 
   /**
+   * @param resourceName the resource name to check
+   * @param channelName the channel in the resource to check
+   * @returns true if the specified resource exists and the specified channel exists in the specified resource
+   */
+   public isResourceChannelExist(resourceName: string, channelName: string): boolean {
+    return this._agendaItemsByResourceChannelMap.get(this.getResourceChannelMapKey(resourceName, channelName)) !== undefined;
+  }
+
+  /**
    *
-   * @param resourceName
-   * @param channelName
-   * @param startDate
-   * @param endDate
-   * @returns true if the supplied date interval doesn't contain any scheduled items in the specific resource and channel
+   * @param resourceName the resource name to check
+   * @param channelName the channel of the resource to check
+   * @param startDate the date/time starting the interval
+   * @param endDate the date/time ending the interval, inclusive
+   * @returns true if the supplied resource and channel exist and the date interval doesn't contain any scheduled items in the specific resource and channel
    * @throws Error when the timescale is not defined yet
    */
   public isIntervalAvailable(resourceName: string, channelName: string, startDate: Date, endDate: Date): boolean {
     if (this._timescale == undefined) throw this.timescaleNotSetError();
 
+    if (this.isResourceChannelExist(resourceName, channelName)) {
+      const start = DateTime.fromJSDate(startDate);
+      const end = DateTime.fromJSDate(endDate);
+      return this.isIntervalInBounds(startDate, endDate) && this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate).length===0;
+    }
+    return false;
+  }
+
+  /**
+   *
+   * @param startDate the date/time starting the interval
+   * @param endDate the date/time ending the interval, inclusive
+   * @returns true if the supplied date interval is contained by the boundsInterval
+   * @throws Error when the timescale is not defined yet
+   */
+  public isIntervalInBounds(startDate: Date, endDate: Date): boolean {
+    if (this._timescale == undefined) throw this.timescaleNotSetError();
+
     const start = DateTime.fromJSDate(startDate);
     const end = DateTime.fromJSDate(endDate);
-    return this._timescale?.boundsInterval.contains(start) && (
-        this._timescale?.boundsInterval.contains(end) ||
-        this._timescale?.boundsInterval.end.equals(end)
-      ) && this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate).length===0;
+    return this._timescale.boundsInterval.contains(start) && (
+      this._timescale.boundsInterval.contains(end) ||
+      this._timescale.boundsInterval.end.equals(end)
+    );
   }
 
   /**
@@ -230,25 +257,29 @@ export class VisualSchedulerService {
    */
   public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler<any>): number {
     if (this._timescale == undefined) throw this.timescaleNotSetError();
-    const newItemInterval = Interval.fromDateTimes(startDate, endDate);
-    if (this.isIntervalAvailable(resourceName, channelName, startDate, endDate)) {
-      const agendaItem = new AgendaItem(resourceName, channelName, newItemInterval, data, labeler);
-      this._agendaItemsById.set(agendaItem.id, agendaItem);
-      this._agendaItems.push(agendaItem);
-      this._agendaItemsSubject.next(this._agendaItems);
+    if (this.isResourceChannelExist(resourceName, channelName)) {
+      const newItemInterval = Interval.fromDateTimes(startDate, endDate);
+      if (this.isIntervalAvailable(resourceName, channelName, startDate, endDate)) {
+        const agendaItem = new AgendaItem(resourceName, channelName, newItemInterval, data, labeler);
+        this._agendaItemsById.set(agendaItem.id, agendaItem);
+        this._agendaItems.push(agendaItem);
+        this._agendaItemsSubject.next(this._agendaItems);
 
-      const mapData = this.getResourceChannelMapData(this.getResourceChannelMapKey(resourceName, channelName));
-      mapData.agendaItems.push(agendaItem);
-      mapData.subject.next(mapData.agendaItems);
-      return agendaItem.id;
-    } else {
-      console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
-      const conflictingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
-      if (conflictingItems.length > 0) {
-        throw  new AgendaItemConflicts(newItemInterval, conflictingItems);
+        const mapData = this.getResourceChannelMapData(this.getResourceChannelMapKey(resourceName, channelName));
+        mapData.agendaItems.push(agendaItem);
+        mapData.subject.next(mapData.agendaItems);
+        return agendaItem.id;
       } else {
-        throw new AgendaItemOutOfBounds(newItemInterval, this._timescale.boundsInterval);
+        console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
+        const conflictingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
+        if (conflictingItems.length > 0) {
+          throw  new AgendaItemConflicts(newItemInterval, conflictingItems);
+        } else {
+          throw new AgendaItemOutOfBounds(newItemInterval, this._timescale.boundsInterval);
+        }
       }
+    } else {
+      throw new ResourceChannelNotValid(resourceName, channelName);
     }
   }
 
@@ -313,7 +344,12 @@ export class VisualSchedulerService {
     return mapData;
   }
 
-  private getResourceChannelMapKey(resourceName: string, channelName: string): string {
+  /**
+   * @param resourceName the name of the resource to look up
+   * @param channelName the name of the channel in the specified resource
+   * @returns A {@link ResourceChannelMapKey} to lookup the {@link ResourceChannelMapData}
+   */
+  private getResourceChannelMapKey(resourceName: string, channelName: string): ResourceChannelMapKey {
     return `resourceName: ${resourceName}, channelName: ${channelName}`;
   }
 

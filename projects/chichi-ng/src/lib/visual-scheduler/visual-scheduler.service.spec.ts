@@ -1,5 +1,6 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { Interval } from 'luxon';
+import { Timescale } from 'chichi-ng';
+import { DateTime, Duration, Interval } from 'luxon';
 import { first, skip } from 'rxjs';
 import { AgendaItem, ToolEvent } from '../../public-api';
 import { TimescaleNotSet } from './timescale-not-set.error';
@@ -96,35 +97,175 @@ describe('VisualSchedulerService', () => {
     expect(dataEmitted).toBeFalse();
   }));
 
-  it('getIntersectingAgendaItems() should return an empty list when no AgendaItems exist', () => {
-    expect(visualSchedulerService.getIntersectingAgendaItems('', '', new Date(), new Date)).toEqual([]);
+  it('VisualSchedulerService isResourceChannelExist() should return false if the resource or channel doesnt exist', () => {
+    expect(visualSchedulerService.isResourceChannelExist('', '')).toBeFalse();
   });
 
-  it('isIntervalAvailable() should throw TimescaleNotSet() Error', () => {
-    expect(() => visualSchedulerService.isIntervalAvailable('', '', new Date(), new Date()))
+  it('VisualSchedulerService isResourceChannelExist() should return true if the resource and channel exist', () => {
+    const resourceName: string = 'resource';
+    const channelName: string = 'channel';
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.isResourceChannelExist(resourceName, channelName)).toBeFalse(); // service doesn't think it exists
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+    expect(visualSchedulerService.isResourceChannelExist(resourceName, channelName)).toBeTrue();
+  });
+
+  it('VisualSchedulerService isIntervalInBounds() should throw TimescaleNotSet() Error if the Timescale has not been set', () => {
+    expect(() => visualSchedulerService.isIntervalInBounds(new Date(), new Date()))
     .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
   });
 
-  it('isIntervalAvailable() should return false if the start or end is out of bounds', () => {
+  it('VisualSchedulerService isIntervalInBounds() should return false if the start is out of bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = new Date(boundsStartDate.getTime() - 1);
+    const desiredIntervalEndDate = boundsEndDate;
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    expect(visualSchedulerService.isIntervalInBounds(desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+  });
+
+  it('VisualSchedulerService isIntervalInBounds() should return false if the end is out of bounds', () => {
     const boundsStartDate = new Date('2022-01-01 00:00:00');
     const boundsEndDate = new Date('2022-01-02 00:00:00');
     const desiredIntervalStartDate = boundsStartDate;
     const desiredIntervalEndDate = new Date(boundsEndDate.getTime() + 1);
 
-    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate)
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
     expect(visualSchedulerService.isIntervalAvailable('', '', desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
   });
 
-  it('isIntervalAvailable() should return false if the resource does not exist', () => {
+  it('VisualSchedulerService isIntervalInBounds() should return true if the interval equals the bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = boundsStartDate;
+    const desiredIntervalEndDate = boundsEndDate;
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    expect(visualSchedulerService.isIntervalInBounds(desiredIntervalStartDate, desiredIntervalEndDate)).toBeTrue();
+  });
+
+  it('VisualSchedulerService isIntervalInBounds() should return true if the interval is inside the bounds', () => {
     const boundsStartDate = new Date('2022-01-01 00:00:00');
     const boundsEndDate = new Date('2022-01-02 00:00:00');
     const desiredIntervalStartDate = new Date(boundsStartDate.getTime() + 1);
     const desiredIntervalEndDate = new Date(boundsEndDate.getTime() - 1);
-    const resource = 'resource';
-    const channel = 'channel';
 
-    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate)
-    expect(visualSchedulerService.isIntervalAvailable(resource, channel, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    expect(visualSchedulerService.isIntervalInBounds(desiredIntervalStartDate, desiredIntervalEndDate)).toBeTrue();
   });
 
+  it('VisualSchedulerService isIntervalAvailable() should throw TimescaleNotSet() Error if the Timescale has not been set', () => {
+    expect(() => visualSchedulerService.isIntervalAvailable('', '', new Date(), new Date()))
+    .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
+  });
+
+  it('VisualSchedulerService isIntervalAvailable() should return false if the start is out of bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = new Date(boundsEndDate.getTime() - 1);
+    const desiredIntervalEndDate = boundsEndDate;
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    expect(visualSchedulerService.isIntervalAvailable('', '', desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+  });
+
+  it('VisualSchedulerService isIntervalAvailable() should return false if the end is out of bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = boundsStartDate;
+    const desiredIntervalEndDate = new Date(boundsEndDate.getTime() + 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+  });
+
+  it('VisualSchedulerService isIntervalAvailable() should return true if the interval equals the bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = boundsStartDate;
+    const desiredIntervalEndDate = boundsEndDate;
+    const resourceName = 'resource';
+    const channelName = 'channel';
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeTrue(); // this resource/channel exist
+  });
+
+  it('VisualSchedulerService isIntervalAvailable() should return true if the interval is inside the bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = new Date(boundsStartDate.getTime() + 1);
+    const desiredIntervalEndDate = new Date(boundsEndDate.getTime() - 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeTrue(); // this resource/channel exist
+  });
+
+  it('VisualSchedulerService isIntervalAvailable() should return false if the channel does not exist', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = new Date(boundsStartDate.getTime() + 1);
+    const desiredIntervalEndDate = new Date(boundsEndDate.getTime() - 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const channelNameDoesntExist = 'no-channel-exists';
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse();
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate)).toBeTrue(); // this resource/channel exist
+    expect(visualSchedulerService.isIntervalAvailable(resourceName, channelNameDoesntExist, desiredIntervalStartDate, desiredIntervalEndDate)).toBeFalse(); // the resource exists but not the channel
+  });
+
+  it('VisualSchedulerService setViewportOffsetDuration() should throw TimescaleNotSet() Error if the Timescale has not been set', () => {
+    expect(() => visualSchedulerService.isIntervalInBounds(new Date(), new Date()))
+    .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
+  });
+
+  // TODO: the subscribe isn't working, even though it works where I copied it from?
+  // it('VisualSchedulerService setViewportOffsetDuration()', (done: DoneFn) => {
+  //   const boundsStartDate = new Date('2022-01-01 00:00:00');
+  //   const boundsEndDate = new Date('2022-01-02 00:00:00');
+  //   const offsetDuration = Interval.fromDateTimes(boundsStartDate, boundsEndDate).toDuration().minus({hours: 12});
+
+  //   visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+  //     (timescale:Timescale) => {
+  //       expect(DateTime.fromJSDate(boundsStartDate)).toEqual(timescale.boundsInterval.start);
+  //       expect(DateTime.fromJSDate(boundsEndDate)).toEqual(timescale.boundsInterval.end);
+  //       expect(offsetDuration).toEqual(timescale.offsetDuration);
+  //       done();
+  //     }
+  //   );
+
+  //   visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+  //   visualSchedulerService.setViewportOffsetDuration(offsetDuration);
+  // });
 });
