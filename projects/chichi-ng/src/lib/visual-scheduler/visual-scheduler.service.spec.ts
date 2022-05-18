@@ -268,4 +268,28 @@ describe('VisualSchedulerService', () => {
     visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
     visualSchedulerService.setViewportOffsetDuration(offsetDuration);
   });
+
+  it('VisualSchedulerService getIntersectingAgendaItems() ', () => {
+    const resourceName: string = 'resource';
+    const channelName: string = 'channel';
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const itemLabel: string = 'label';
+    const data: {label: string} = {label: itemLabel};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data: any) => data.label);
+    const items:AgendaItem[] = visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate);
+    expect(items).toBeTruthy();
+    expect(items.length).toEqual(1);
+    expect(items[0].resourceName).toEqual(resourceName);
+    expect(items[0].channelName).toEqual(channelName);
+    expect(items[0].startDate).toEqual(DateTime.fromJSDate(boundsStartDate));
+    expect(items[0].endDate).toEqual(DateTime.fromJSDate(boundsEndDate));
+    expect((items[0].data as {label: string}).label).toEqual(itemLabel);
+  });
 });
