@@ -1,3 +1,4 @@
+import { animate } from '@angular/animations';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { DateTime, Duration, Interval } from 'luxon';
 import { first, skip } from 'rxjs';
@@ -269,27 +270,59 @@ describe('VisualSchedulerService', () => {
     visualSchedulerService.setViewportOffsetDuration(offsetDuration);
   });
 
-  it('VisualSchedulerService getIntersectingAgendaItems() ', () => {
-    const resourceName: string = 'resource';
-    const channelName: string = 'channel';
+  it('VisualSchedulerService addAgendaItem() should return the id of the added item', () => {
     const boundsStartDate = new Date('2022-01-01 00:00:00');
     const boundsEndDate = new Date('2022-01-02 00:00:00');
-    const itemLabel: string = 'label';
-    const data: {label: string} = {label: itemLabel};
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
 
     visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
     // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
     // the scenes for the service to assume they exist.
     visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
 
-    visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data: any) => data.label);
-    const items:AgendaItem[] = visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate);
+    const itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    const agendaItem = visualSchedulerService.getAgendaItemById(itemId);
+    expect(agendaItem).toBeTruthy();
+    expect(agendaItem?.resourceName).toEqual(resourceName);
+    expect(agendaItem?.channelName).toEqual(channelName);
+    expect(agendaItem?.startDate.toJSDate()).toEqual(boundsStartDate);
+    expect(agendaItem?.endDate.toJSDate()).toEqual(boundsEndDate);
+    expect(agendaItem?.label).toEqual(label);
+    expect(agendaItem?.data).toEqual(data);
+  });
+
+  it('VisualSchedulerService getIntersectingAgendaItems() should return a list of agenda items that intersect with the specified interval', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const desiredIntervalStartDate = new Date(boundsStartDate.getTime() + 1);
+    const desiredIntervalEndDate = new Date(boundsEndDate.getTime() - 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate)).toEqual([]);
+
+    visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    const items:AgendaItem[] = visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, desiredIntervalStartDate, desiredIntervalEndDate);
     expect(items).toBeTruthy();
     expect(items.length).toEqual(1);
-    expect(items[0].resourceName).toEqual(resourceName);
-    expect(items[0].channelName).toEqual(channelName);
-    expect(items[0].startDate).toEqual(DateTime.fromJSDate(boundsStartDate));
-    expect(items[0].endDate).toEqual(DateTime.fromJSDate(boundsEndDate));
-    expect((items[0].data as {label: string}).label).toEqual(itemLabel);
+    const agendaItem: AgendaItem = items[0];
+    expect(agendaItem.resourceName).toEqual(resourceName);
+    expect(agendaItem.channelName).toEqual(channelName);
+    expect(agendaItem.startDate).toEqual(DateTime.fromJSDate(boundsStartDate));
+    expect(agendaItem.endDate).toEqual(DateTime.fromJSDate(boundsEndDate));
+    expect(agendaItem.label).toEqual(label);
+    expect(agendaItem.data).toEqual(data);
+    expect((agendaItem.data as {label: string}).label).toEqual(label);
+
   });
-});
+})

@@ -28,7 +28,7 @@ export class AgendaItem {
 
     public get label(): string {
         if (this._labeler instanceof Function) {
-            return `[${this.id}]: ${this._labeler(this.data)}`;
+            return `${this._labeler(this.data)}`;
         }
         return `${this.resourceName}.${this.channelName}[${this.id}]`;
     }
