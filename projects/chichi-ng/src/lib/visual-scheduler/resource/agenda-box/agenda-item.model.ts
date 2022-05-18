@@ -12,7 +12,7 @@ export class AgendaItem {
         private _resource: string,
         private _channel: string,
         private _bounds: Interval,
-        private _data: object,
+        public readonly data: object,
         private _labeler: AgendaItemLabeler<any>
     ) {
         this.id = AgendaItem.nextId++;
@@ -28,7 +28,7 @@ export class AgendaItem {
 
     public get label(): string {
         if (this._labeler instanceof Function) {
-            return `[${this.id}]: ${this._labeler(this._data)}`;
+            return `${this._labeler(this.data)}`;
         }
         return `${this.resourceName}.${this.channelName}[${this.id}]`;
     }
