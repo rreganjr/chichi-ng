@@ -1,10 +1,12 @@
 import { DateTime, Duration, Interval } from "luxon";
 import { TimescaleInvalid } from "./timescale-invalid.error";
+import { VisualSchedulerService } from "./visual-scheduler.service";
 
 export enum TimescaleValidatorErrorCode {
     BoundsIntervalUndefined,
-    BoundsIntervalZeroDuration,
     BoundsIntervalInvalid,
+    BoundsIntervalZeroDuration,
+    BoundsIntervalTooShort,
     OffsetDurationUndefined,
     OffsetDurationOutOfBounds,
     OffsetDurationInvalidDuration,
@@ -24,6 +26,8 @@ export class TimescaleValidator {
             throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalInvalid, `The boundsInterval is invalid: ${boundsInterval.invalidExplanation}`);
         } else if (boundsInterval && boundsInterval.start.equals(boundsInterval.end)) {
             throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalZeroDuration, `The boundsInterval end ${boundsInterval.end} cannot equal the start interval.`);
+        } else if (boundsInterval && boundsInterval.toDuration().as('milliseconds') < VisualSchedulerService.MIN_VIEWPORT_DURATION.as('milliseconds')) {
+            throw new TimescaleInvalid(TimescaleValidatorErrorCode.BoundsIntervalTooShort, `The boundsInterval must be at least ${VisualSchedulerService.MIN_VIEWPORT_DURATION.as('minutes')} minutes long.`);
         }
     }
 

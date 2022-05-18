@@ -3,7 +3,9 @@ import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { DateTime, Duration, Interval } from 'luxon';
 import { first, skip } from 'rxjs';
 import { AgendaItem, ToolEvent } from '../../public-api';
+import { TimescaleInvalid } from './timescale-invalid.error';
 import { TimescaleNotSet } from './timescale-not-set.error';
+import { TimescaleValidatorErrorCode } from './timescale-validator.util';
 import { Timescale } from './timescale.model';
 
 import { VisualSchedulerService } from './visual-scheduler.service';
@@ -247,7 +249,7 @@ describe('VisualSchedulerService', () => {
   });
 
   it('VisualSchedulerService setViewportOffsetDuration() should throw TimescaleNotSet() Error if the Timescale has not been set', () => {
-    expect(() => visualSchedulerService.isIntervalInBounds(new Date(), new Date()))
+    expect(() => visualSchedulerService.setViewportOffsetDuration(Duration.fromDurationLike({hours: 1})))
     .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
   });
 
@@ -259,9 +261,9 @@ describe('VisualSchedulerService', () => {
     // skip the event for the setBounds
     visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
       (timescale:Timescale) => {
-        expect(DateTime.fromJSDate(boundsStartDate)).toEqual(timescale.boundsInterval.start);
-        expect(DateTime.fromJSDate(boundsEndDate)).toEqual(timescale.boundsInterval.end);
-        expect(offsetDuration.as('milliseconds')).toEqual(timescale.offsetDuration.as('milliseconds'));
+        expect(timescale.boundsInterval.start).toEqual(DateTime.fromJSDate(boundsStartDate));
+        expect(timescale.boundsInterval.end).toEqual(DateTime.fromJSDate(boundsEndDate));
+        expect(timescale.offsetDuration.as('milliseconds')).toEqual(offsetDuration.as('milliseconds'));
         done();
       }
     );
@@ -323,6 +325,128 @@ describe('VisualSchedulerService', () => {
     expect(agendaItem.label).toEqual(label);
     expect(agendaItem.data).toEqual(data);
     expect((agendaItem.data as {label: string}).label).toEqual(label);
-
   });
+
+  it('VisualSchedulerService setViewportDuration() should throw TimescaleNotSet Error if the Timescale has not been set', () => {
+    expect(() => visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 1})))
+    .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
+  });
+
+  it('VisualSchedulerService setViewportDuration() should change the offsetDuration in the service', (done: DoneFn) => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const viewportDuration = Interval.fromDateTimes(boundsStartDate, boundsEndDate).toDuration().minus({hours: 12});
+
+    // skip the event for the setBounds
+    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+      (timescale:Timescale) => {
+        expect(timescale.boundsInterval.start).toEqual(DateTime.fromJSDate(boundsStartDate));
+        expect(timescale.boundsInterval.end).toEqual(DateTime.fromJSDate(boundsEndDate));
+        expect(timescale.visibleDuration.as('milliseconds')).toEqual(viewportDuration.as('milliseconds'));
+        done();
+      }
+    );
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    visualSchedulerService.setViewportDuration(viewportDuration);
+  });
+
+  it('VisualSchedulerService setViewportDuration() shouldnt be shorter than the minimum', (done: DoneFn) => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const viewportDuration =  VisualSchedulerService.MIN_VIEWPORT_DURATION.minus({seconds: 1});
+
+    // skip the event for the setBounds
+    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+      (timescale:Timescale) => {
+        expect(timescale.boundsInterval.start).toEqual(DateTime.fromJSDate(boundsStartDate));
+        expect(timescale.boundsInterval.end).toEqual(DateTime.fromJSDate(boundsEndDate));
+        expect(timescale.visibleDuration.as('milliseconds')).toEqual(VisualSchedulerService.MIN_VIEWPORT_DURATION.as('milliseconds'));
+        done();
+      }
+    );
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    visualSchedulerService.setViewportDuration(viewportDuration);
+  });
+
+  it('VisualSchedulerService setViewportDuration() shouldnt be longer than the maximum', (done: DoneFn) => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-08 00:00:00');
+    const viewportDuration =  VisualSchedulerService.MAX_VIEWPORT_DURATION.plus({seconds: 1});
+
+    // skip the event for the setBounds
+    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+      (timescale:Timescale) => {
+        expect(timescale.boundsInterval.start).toEqual(DateTime.fromJSDate(boundsStartDate));
+        expect(timescale.boundsInterval.end).toEqual(DateTime.fromJSDate(boundsEndDate));
+        expect(timescale.visibleDuration.as('milliseconds')).toEqual(VisualSchedulerService.MAX_VIEWPORT_DURATION.as('milliseconds'));
+        done();
+      }
+    );
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    visualSchedulerService.setViewportDuration(viewportDuration);
+  });
+
+  it('VisualSchedulerService setViewportDuration() shouldnt be longer than the scheduler bounds', (done: DoneFn) => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const boundsIntervalDuration = Interval.fromDateTimes(boundsStartDate, boundsEndDate).toDuration();
+    const viewportDuration = boundsIntervalDuration.plus({seconds: 1});
+
+    // skip the event for the setBounds
+    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+      (timescale:Timescale) => {
+        expect(timescale.boundsInterval.start).toEqual(DateTime.fromJSDate(boundsStartDate));
+        expect(timescale.boundsInterval.end).toEqual(DateTime.fromJSDate(boundsEndDate));
+        expect(timescale.visibleDuration.as('milliseconds')).toEqual(boundsIntervalDuration.as('milliseconds'));
+        done();
+      }
+    );
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    visualSchedulerService.setViewportDuration(viewportDuration);
+  });
+
+  it('VisualSchedulerService setBounds() the bounds interval must be at least the minimum viewport duration', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date(boundsStartDate.getTime() + VisualSchedulerService.MIN_VIEWPORT_DURATION.minus({seconds: 1}).as('milliseconds'));
+    expect(() => visualSchedulerService.setBounds(boundsStartDate, boundsEndDate))
+    .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.BoundsIntervalTooShort);
+  });
+
+  it('VisualSchedulerService getAgendaItems$() should return the list of current agenda items any time an agendaItem is added', (done: DoneFn) => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.getAgendaItems$().pipe(first()).subscribe(
+      (agendaItems:AgendaItem[]) => {
+        expect(agendaItems).toBeTruthy();
+        expect(agendaItems.length).toEqual(1);
+        const agendaItem:AgendaItem = agendaItems[0];
+        expect(agendaItem.resourceName).toEqual(resourceName);
+        expect(agendaItem.channelName).toEqual(channelName);
+        expect(agendaItem.startDate).toEqual(DateTime.fromJSDate(boundsStartDate));
+        expect(agendaItem.endDate).toEqual(DateTime.fromJSDate(boundsEndDate));
+        expect(agendaItem.label).toEqual(label);
+        expect(agendaItem.data).toEqual(data);
+        expect((agendaItem.data as {label: string}).label).toEqual(label);
+        done();
+      }
+    );
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate)).toEqual([]);
+
+    visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+  });
+
 })
