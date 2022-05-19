@@ -21,9 +21,9 @@ export class ToolComponent {
   @Input() toolType: string = '';
 
   /**
-   * Allow controlling if a tool is disabled from outside the scheduler
+   * Allow controlling if a tool is enabled from outside the scheduler
    */
-  @Input() disabled: boolean = false;
+  @Input() enabled: boolean = true;
 
   public readonly effectAllowed: EffectAllowed = 'copy';
 
