@@ -4,6 +4,8 @@ import { AgendaItemConflicts } from 'chichi-ng';
 import { DateTime, Duration, Interval } from 'luxon';
 import { first, skip } from 'rxjs';
 import { AgendaItem, ToolEvent } from '../../public-api';
+import { AgendaItemOutOfBounds } from './agenda-item-out-of-bounds.error';
+import { ResourceChannelNotValid } from './resource-channel-not-valid';
 import { TimescaleInvalid } from './timescale-invalid.error';
 import { TimescaleNotSet } from './timescale-not-set.error';
 import { TimescaleValidatorErrorCode } from './timescale-validator.util';
@@ -482,6 +484,89 @@ describe('VisualSchedulerService', () => {
     .toThrowMatching((thrown: TimescaleNotSet) => thrown.whoYouGonnaCall !== undefined);
   });
 
+  it('VisualSchedulerService addAgendaItem() should throw AgendaItemOutOfBounds if the item starts before the scheduler bounds start and doesnt conflict with another item', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const outOfboundsStartDate = new Date(boundsStartDate.getTime() - 1);
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    expect(() => visualSchedulerService.addAgendaItem(resourceName, channelName, outOfboundsStartDate, boundsEndDate, data, (data)=> data.label))
+    .toThrowMatching((thrown: AgendaItemOutOfBounds) => (
+      thrown.newItemInterval.equals(Interval.fromDateTimes(outOfboundsStartDate, boundsEndDate)) &&
+      thrown.schedulerBounds.equals(Interval.fromDateTimes(boundsStartDate, boundsEndDate))
+    ));
+  });
+
+  it('VisualSchedulerService addAgendaItem() should throw AgendaItemOutOfBounds if the item ends after the scheduler bounds start and doesnt conflict with another item', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const outOfboundsStartDate = new Date(boundsEndDate.getTime() + 1);
+    const outOfboundsEndDate = new Date(outOfboundsStartDate.getTime() + 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    expect(() => visualSchedulerService.addAgendaItem(resourceName, channelName, outOfboundsStartDate, outOfboundsEndDate, data, (data)=> data.label))
+    .toThrowMatching((thrown: AgendaItemOutOfBounds) => (
+      thrown.newItemInterval.equals(Interval.fromDateTimes(outOfboundsStartDate, outOfboundsEndDate)) &&
+      thrown.schedulerBounds.equals(Interval.fromDateTimes(boundsStartDate, boundsEndDate))
+    ));
+  });
+
+  it('VisualSchedulerService addAgendaItem() should throw ResourceChannelNotValid if the item ends after the scheduler bounds start and doesnt conflict with another item', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const outOfboundsStartDate = new Date(boundsEndDate.getTime() + 1);
+    const outOfboundsEndDate = new Date(outOfboundsStartDate.getTime() + 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    expect(() => visualSchedulerService.addAgendaItem(resourceName, channelName, outOfboundsStartDate, outOfboundsEndDate, data, (data)=> data.label))
+    .toThrowMatching((thrown: ResourceChannelNotValid) => (
+      thrown.resourceName === resourceName &&
+      thrown.channelName === channelName
+    ));
+  });
+
+  it('VisualSchedulerService addAgendaItem() should throw AgendaItemOutOfBounds if the item is completely out of the scheduler bounds', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const outOfboundsEndDate = new Date(boundsEndDate.getTime() + 1);
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    expect(() => visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, outOfboundsEndDate, data, (data)=> data.label))
+    .toThrowMatching((thrown: AgendaItemOutOfBounds) => (
+      thrown.newItemInterval.equals(Interval.fromDateTimes(boundsStartDate, outOfboundsEndDate)) &&
+      thrown.schedulerBounds.equals(Interval.fromDateTimes(boundsStartDate, boundsEndDate))
+    ));
+  });
+
   it('VisualSchedulerService addAgendaItem() should throw AgendaItemConflicts if the added item overlaps any other item', () => {
     const boundsStartDate = new Date('2022-01-01 00:00:00');
     const boundsEndDate = new Date('2022-01-02 00:00:00');
@@ -504,5 +589,99 @@ describe('VisualSchedulerService', () => {
       thrown.conflictingItems.length === 1 &&
       thrown.conflictingItems[0].id === itemId
       ));
+  });
+
+  it('VisualSchedulerService removeAgendaItem() should remove an item by id and return true', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    expect(visualSchedulerService.removeAgendaItem(itemId)).toBeTrue();
+    expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate).length).toBe(0);
+  });
+
+  it('VisualSchedulerService removeAgendaItem() should remove an item by reference and return true', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    let agendaItem:AgendaItem = visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate)[0];
+    expect(itemId).toEqual(agendaItem.id);
+    expect(visualSchedulerService.removeAgendaItem(agendaItem)).toBeTrue();
+    expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate).length).toBe(0);
+  });
+
+  it('VisualSchedulerService removeAgendaItem() should return false when id doesnt match an item', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    expect(visualSchedulerService.removeAgendaItem(itemId + 1)).toBeFalse();
+    expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate).length).toBe(1);
+  });
+
+  it('VisualSchedulerService removeAgendaItem() should return false when no items exist', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+    expect(visualSchedulerService.removeAgendaItem(1)).toBeFalse();
+  });
+
+  it('VisualSchedulerService removeAgendaItem() should return false when item doesnt match any scheduled item', () => {
+    const boundsStartDate = new Date('2022-01-01 00:00:00');
+    const boundsEndDate = new Date('2022-01-02 00:00:00');
+    const resourceName = 'resource';
+    const channelName = 'channel';
+    const label = 'label'
+    const data = {label: label};
+
+    visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
+
+    // TODO: the service doesn't actually know if a resource and channel exist, checking for an intersection initializes data behind
+    // the scenes for the service to assume they exist.
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
+
+    let agendaItem: AgendaItem = new AgendaItem(resourceName, channelName, Interval.fromDateTimes(boundsStartDate, boundsEndDate), data,  (data)=> data.label);
+    expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate).length).toBe(0);
+    expect(visualSchedulerService.removeAgendaItem(agendaItem)).toBeFalse();
   });
 })
