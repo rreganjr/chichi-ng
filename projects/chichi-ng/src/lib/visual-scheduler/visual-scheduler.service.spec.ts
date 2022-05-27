@@ -1,4 +1,3 @@
-import { animate } from '@angular/animations';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { AgendaItemConflicts } from 'chichi-ng';
 import { DateTime, Duration, Interval } from 'luxon';
@@ -462,8 +461,7 @@ describe('VisualSchedulerService', () => {
     // the scenes for the service to assume they exist.
     visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
 
-    const itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
-    const agendaItem = visualSchedulerService.getAgendaItemById(itemId);
+    const agendaItem = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
     expect(agendaItem).toBeTruthy();
     expect(agendaItem?.resourceName).toEqual(resourceName);
     expect(agendaItem?.channelName).toEqual(channelName);
@@ -581,7 +579,7 @@ describe('VisualSchedulerService', () => {
     // the scenes for the service to assume they exist.
     visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
 
-    const itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    const itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label).id;
 
     expect(() => visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label))
     .toThrowMatching((thrown: AgendaItemConflicts) => (
@@ -624,7 +622,7 @@ describe('VisualSchedulerService', () => {
     // the scenes for the service to assume they exist.
     visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
 
-    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label).id;
     let agendaItem:AgendaItem = visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate)[0];
     expect(itemId).toEqual(agendaItem.id);
     expect(visualSchedulerService.removeAgendaItem(agendaItem)).toBeTrue();
@@ -645,7 +643,7 @@ describe('VisualSchedulerService', () => {
     // the scenes for the service to assume they exist.
     visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate); // makes the service assume it exists
 
-    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label);
+    let itemId = visualSchedulerService.addAgendaItem(resourceName, channelName, boundsStartDate, boundsEndDate, data, (data)=> data.label).id;
     expect(visualSchedulerService.removeAgendaItem(itemId + 1)).toBeFalse();
     expect(visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, boundsStartDate, boundsEndDate).length).toBe(1);
   });

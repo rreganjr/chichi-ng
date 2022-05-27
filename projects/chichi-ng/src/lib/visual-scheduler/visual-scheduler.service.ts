@@ -255,7 +255,7 @@ export class VisualSchedulerService {
    * @returns The id of the agenda item added to the agenda or undefined if not added
    * @throws Error when the timescale is not defined yet or the start/end is out of bounds or the start/end overlaps another agenda item
    */
-  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler<any>): number {
+  public addAgendaItem(resourceName: string, channelName: string, startDate: Date, endDate: Date, data: object, labeler: AgendaItemLabeler<any>): AgendaItem {
     if (this._timescale == undefined) throw this.timescaleNotSetError();
     if (this.isResourceChannelExist(resourceName, channelName)) {
       const newItemInterval = Interval.fromDateTimes(startDate, endDate);
@@ -268,7 +268,7 @@ export class VisualSchedulerService {
         const mapData = this.getResourceChannelMapData(this.getResourceChannelMapKey(resourceName, channelName));
         mapData.agendaItems.push(agendaItem);
         mapData.subject.next(mapData.agendaItems);
-        return agendaItem.id;
+        return agendaItem;
       } else {
         console.log(`failed to add resourceName=${resourceName}, channelName=${channelName} agendaItem=${labeler(data)} `);
         const conflictingItems: AgendaItem[] = this.getIntersectingAgendaItems(resourceName, channelName, startDate, endDate);
@@ -292,11 +292,14 @@ export class VisualSchedulerService {
     const agendaItem: AgendaItem|undefined = this.toAgendaItem(agendaItemOrId);
     if (agendaItem) {
       const index = this._agendaItems.findIndex((item:AgendaItem) => {
+        // TODO: maybe just use id?
         return item.resourceName === agendaItem.resourceName &&
           item.channelName === agendaItem.channelName &&
-          item.bounds == agendaItem.bounds
+          item.bounds.equals(agendaItem.bounds) &&
+          item.id === agendaItem.id
       })
       if (index > -1) {
+        this._agendaItemsById.delete(agendaItem.id);
         this._agendaItems.splice(index, 1);
         this._agendaItemsSubject.next(this._agendaItems);
         // if the item is in the _agendaItems array, it will also be in the mapped data
@@ -311,6 +314,7 @@ export class VisualSchedulerService {
           mapData.agendaItems.splice(mapDataIndex, 1);
           mapData.subject.next(mapData.agendaItems);
         }
+        this._toolEventsSubject.next(ToolEvent.newDeleteEvent(agendaItem));
       }
       return index > -1;
     }

@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DateTime, Duration, Interval } from 'luxon';
+import { Duration, Interval } from 'luxon';
 import { first, skip } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
+import { ToolEvent } from '../../../toolbox/tool/tool-event.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
-import { AgendaItem } from '../agenda-item.model';
 
 import { AgendaItemComponent } from './agenda-item.component';
 
@@ -14,7 +14,7 @@ describe('AgendaItemComponent', () => {
   const schedulerBoundsEndDate: Date = new Date('2021-05-08 00:00:00');
   const agendaItemBoundsStart: Date = new Date(schedulerBoundsStartDate.getTime() + 24 * 60 * 60 * 1000); // 24 hours from scheduler start
   const agendaItemBoundsEnd: Date = new Date(agendaItemBoundsStart.getTime() + (1 * 60 * 60 * 1000)); // one hour long
-let visualSchedulerService: VisualSchedulerService;
+  let visualSchedulerService: VisualSchedulerService;
 
   let component: AgendaItemComponent;
   let fixture: ComponentFixture<AgendaItemComponent>;
@@ -29,12 +29,11 @@ let visualSchedulerService: VisualSchedulerService;
   });
 
   beforeEach(() => {
-    const testItem = new AgendaItem(resourceName, channelName, Interval.fromDateTimes(agendaItemBoundsStart, agendaItemBoundsEnd), {label: 'new item'}, (data:any)=>data.label);
-
     fixture = TestBed.createComponent(AgendaItemComponent);
     component = fixture.componentInstance;
-    component.agendaItem = testItem;
-
+    visualSchedulerService.setBounds(schedulerBoundsStartDate, schedulerBoundsEndDate);
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, schedulerBoundsStartDate, schedulerBoundsEndDate); // makes the service assume it exists
+    component.agendaItem = visualSchedulerService.addAgendaItem(resourceName, channelName, agendaItemBoundsStart, agendaItemBoundsEnd, {label: 'new item'}, (data:any)=>data.label);
     fixture.detectChanges();
   });
 
@@ -50,23 +49,20 @@ let visualSchedulerService: VisualSchedulerService;
         done();
       }
     );
-    visualSchedulerService.setBounds(schedulerBoundsStartDate, schedulerBoundsEndDate);
   });
 
-  it('display should be block and left should be 0% when the element is at the left edge of visible', (done: DoneFn) => {
+  it('should be fully visible, display should be block and left should be 0% when the element is at the left edge of visible', (done: DoneFn) => {
     const viewportDuration = Duration.fromDurationLike({hours: 3});
     const offsetDuration = Interval.fromDateTimes(schedulerBoundsStartDate, agendaItemBoundsStart).toDuration();
     visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe(
       (timescale:Timescale) => {
         expect(fixture.debugElement.nativeElement.style.display).toEqual('block');
-//        el.style.left = `${(offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;
         expect(fixture.debugElement.nativeElement.style.left).toEqual('0%');
         let percentOfVisibleTimelineBounds = `${( component.agendaItem.bounds.toDuration().as('seconds') / timescale.visibleTimelineBounds.toDuration().as('seconds')) * 100}%`;
         expect(fixture.debugElement.nativeElement.style.width).toEqual(percentOfVisibleTimelineBounds);
         done();
       }
     );
-    visualSchedulerService.setBounds(schedulerBoundsStartDate, schedulerBoundsEndDate);
     visualSchedulerService.setViewportDuration(viewportDuration);
     // when the next line executes the test agenda item should be visible and the
     // timescale observer above should match the native element in the view
@@ -74,7 +70,7 @@ let visualSchedulerService: VisualSchedulerService;
     fixture.detectChanges();
   });
 
-  it('display should be block and left should be off the edge by an hour', (done: DoneFn) => {
+  it('should be fully visible, display should be block and left should be off the edge by an hour', (done: DoneFn) => {
     const viewportDuration = Duration.fromDurationLike({hours: 3});
     const offsetDuration = Interval.fromDateTimes(schedulerBoundsStartDate, agendaItemBoundsStart).toDuration().minus({hours: 1});
     visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe(
@@ -87,7 +83,6 @@ let visualSchedulerService: VisualSchedulerService;
         done();
       }
     );
-    visualSchedulerService.setBounds(schedulerBoundsStartDate, schedulerBoundsEndDate);
     visualSchedulerService.setViewportDuration(viewportDuration);
     // when the next line executes the test agenda item should be visible and the
     // timescale observer above should match the native element in the view
@@ -95,4 +90,60 @@ let visualSchedulerService: VisualSchedulerService;
     fixture.detectChanges();
   });
 
+  it('should be partially visible display should be block and left should be at the edge', (done: DoneFn) => {
+    const viewportDuration = Duration.fromDurationLike({hours: 3});
+    const offsetDuration = Interval.fromDateTimes(schedulerBoundsStartDate, agendaItemBoundsStart).toDuration().plus({minutes: 30});
+    visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe(
+      (timescale:Timescale) => {
+        expect(fixture.debugElement.nativeElement.style.display).toEqual('block');
+        expect(fixture.debugElement.nativeElement.style.left).toEqual('0%');
+        const visibleAgendaItemBounds: Interval|null = timescale.visibleTimelineBounds.intersection(component.agendaItem.bounds);
+        let percentOfWidthOfVisibleTimelineBounds = `${(visibleAgendaItemBounds !== null?(visibleAgendaItemBounds.toDuration().as('seconds') / timescale.visibleTimelineBounds.toDuration().as('seconds')):0) * 100}%`;
+        expect(fixture.debugElement.nativeElement.style.width).toEqual(percentOfWidthOfVisibleTimelineBounds);
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(viewportDuration);
+    // when the next line executes the test agenda item should be partially visible and the
+    // timescale observer above should match the native element in the view
+    visualSchedulerService.setViewportOffsetDuration(offsetDuration);
+    fixture.detectChanges();
+  });
+
+  it('onOpen should fire an EDIT event', (done: DoneFn) => {
+    const eventType = 'click';
+    // skip the first event which is always a ToolEvent.CLEAR
+    visualSchedulerService.getToolEvents$().pipe(skip(1), first()).subscribe(
+      (toolEvent:ToolEvent) => {
+        expect(toolEvent.isEdit()).toBeTrue();
+        expect(toolEvent.agendaItem).toEqual(component.agendaItem);
+        expect(toolEvent.toolType).toEqual(channelName);
+        expect(toolEvent.event?.type).toEqual(eventType);
+        done();
+      }
+    );
+    component.onOpen(
+      new Event(eventType)
+    );
+  });
+
+  it('onDelete should remove the agendaItem from the scheduler and fire a DELETE event', (done: DoneFn) => {
+    const eventType = 'click';
+    // skip the first event which is always a ToolEvent.CLEAR
+    visualSchedulerService.getToolEvents$().pipe(skip(1), first()).subscribe(
+      (toolEvent:ToolEvent) => {
+        expect(toolEvent.isDelete()).toBeTrue();
+        expect(toolEvent.agendaItem).toEqual(component.agendaItem);
+        expect(toolEvent.toolType).toEqual(channelName);
+        expect(toolEvent.event).toBeNull();
+        done();
+      }
+    );
+    // the item should exist before the delete
+    expect(visualSchedulerService.getAgendaItemById(component.agendaItem.id)).toBeTruthy();
+    component.onDelete(new Event(eventType));
+    expect(visualSchedulerService.getAgendaItemById(component.agendaItem.id)).toBeUndefined();
+  });
+
+  // TODO: DOM based testing inside a host channel
 });
