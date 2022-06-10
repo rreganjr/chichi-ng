@@ -22,7 +22,7 @@ describe('DropZoneComponent', () => {
     start.setSeconds(0);
     start.setMilliseconds(0);
     const end: Date = new Date(start.getTime() +  24 * 60 * 60 * 1000);
-    const dropZone = new DropZoneAgendaItem('resource', 'channel', Interval.fromDateTimes(start, end), {label: 'drop zone'}, (data:any)=>data.label);
+    const dropZone = new DropZoneAgendaItem('resource', 'channel', Interval.fromDateTimes(start, end));
 
     fixture = TestBed.createComponent(DropZoneComponent);
     component = fixture.componentInstance;

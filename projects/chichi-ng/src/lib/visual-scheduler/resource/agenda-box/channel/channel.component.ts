@@ -6,16 +6,15 @@ import { AgendaItem, AgendaItemLabeler } from '../agenda-item.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 import { Timescale } from '../../../timescale.model';
 
+export const dropZoneLabeler = () => {return 'drop zone'}
 export class DropZoneAgendaItem extends AgendaItem {
   public readonly isDropZone: boolean = true;
   constructor(
      resource: string,
      channel: string,
-     bounds: Interval,
-     data: object,
-     labeler: AgendaItemLabeler<any>
+     bounds: Interval
 ) {
-    super(resource, channel, bounds, data, labeler)
+    super(resource, channel, bounds, {}, dropZoneLabeler)
   }
 }
 
@@ -87,7 +86,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
     * the AgendaItem before the bounds and after the bounds when ordering by date, if they exist.
     *
     * The AgendaItem before and after are needed so that when creating drop zones between the first and
-    * last AgendaItems in view, the drop zones fill completely between two AgendaItems and not just the 
+    * last AgendaItems in view, the drop zones fill completely between two AgendaItems and not just the
     * area visible, i.e. a drop zone straddles visible items up to the previous or next AgendaItem that
     * is not visible.
     *
@@ -143,7 +142,7 @@ export class ChannelComponent implements OnInit, AfterViewInit {
         const agendaItem: AgendaItem = agendaItems[index];
         const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, agendaItem.bounds.start);
         if (intervalBetween.toDuration().as('seconds') > 0) {
-          results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween, {label: 'drop zone'}, (data)=> data.label));
+          results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween));
         }
         results.push(agendaItem);
         previousEnd = agendaItem.bounds.end;
@@ -151,11 +150,11 @@ export class ChannelComponent implements OnInit, AfterViewInit {
       if (previousEnd < bounds.end) {
         // add a trailing drop zone
         const intervalBetween: Interval = Interval.fromDateTimes(previousEnd, bounds.end);
-        results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween, {label: 'drop zone'}, (data)=> data.label));
+        results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, intervalBetween));
       }
     } else {
       // fill the whole visible part of the channel with a drop zone
-      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, bounds, {label: 'drop zone'}, (data)=> data.label));
+      results.push(new DropZoneAgendaItem(this.resourceName, this.channelName, bounds));
     }
     return results;
   }
