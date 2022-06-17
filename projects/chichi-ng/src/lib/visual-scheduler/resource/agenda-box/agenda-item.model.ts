@@ -30,6 +30,10 @@ export class AgendaItem {
         return `${this._labeler(this.data)}`;
     }
 
+    public get labeler(): AgendaItemLabeler<any> {
+        return this._labeler
+    }
+
     public get startDate(): DateTime {
         return this._bounds.start;
     }

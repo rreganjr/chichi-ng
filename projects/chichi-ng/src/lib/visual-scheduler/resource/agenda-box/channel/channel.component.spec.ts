@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Duration, Interval } from 'luxon';
 import { first } from 'rxjs';
-import { Timescale } from '../../../timescale.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
-import { AgendaItem } from '../agenda-item.model';
+import { AgendaItem, AgendaItemLabeler } from '../agenda-item.model';
+import { DndDropEvent } from 'ngx-drag-drop';
 
 import { ChannelComponent, DropZoneAgendaItem } from './channel.component';
+import { AgendaItemConflicts } from '../../../agenda-item-conflicts.error';
 
 describe('ChannelComponent', () => {
   const resourceName: string = 'resource';
@@ -15,6 +16,9 @@ describe('ChannelComponent', () => {
   const agendaItemBoundsStart: Date = new Date(schedulerBoundsStartDate.getTime() + 24 * 60 * 60 * 1000); // 24 hours from scheduler start
   const agendaItemBoundsEnd: Date = new Date(agendaItemBoundsStart.getTime() + (1 * 60 * 60 * 1000)); // one hour long
   const schedulerOffset: Duration = Duration.fromDurationLike({days: 2});
+  const agendaItemData = {};
+  const agendaItemLabeler:AgendaItemLabeler<any> = () => {return 'label'};
+
   let visualSchedulerService: VisualSchedulerService;
 
   let component: ChannelComponent;
@@ -131,5 +135,42 @@ describe('ChannelComponent', () => {
 
       done();
     });
+  });
+
+  it('onDrop should cause a new agenda item to be added', (done: DoneFn) => {
+    const eventType = 'drag';
+     visualSchedulerService.getAgendaItems$().pipe(first()).subscribe(
+      (agendaItems:AgendaItem[]) => {
+        expect(agendaItems.length).toEqual(1);
+        const item:AgendaItem = agendaItems[0];
+        expect(item instanceof AgendaItem).toBeTrue();
+        expect(item.bounds).toEqual(Interval.fromDateTimes(agendaItemBoundsStart, agendaItemBoundsEnd));
+        expect(item.resourceName).toEqual(resourceName);
+        expect(item.channelName).toEqual(channelName);
+        done();
+      }
+    );
+
+    component.onDrop(
+      {event: new DragEvent(eventType), dropEffect: 'copy', isExternal: true},
+      new AgendaItem(resourceName, channelName, Interval.fromDateTimes(agendaItemBoundsStart, agendaItemBoundsEnd), agendaItemData, agendaItemLabeler)
+    );
+  });
+
+  it('onDrop over an existing item, note this shouldnt happen as drop only works over drop zones', () => {
+    const eventType = 'drag';
+    visualSchedulerService.getIntersectingAgendaItems(resourceName, channelName, schedulerBoundsStartDate, schedulerBoundsEndDate); // makes the service assume it exists
+    const testItem = visualSchedulerService.addAgendaItem(resourceName, channelName, agendaItemBoundsStart, agendaItemBoundsEnd, {label: 'item1'}, (data:any)=>data.label);
+    fixture.detectChanges();
+
+    expect(() => component.onDrop(
+      {event: new DragEvent(eventType), dropEffect: 'copy', isExternal: true},
+      new AgendaItem(resourceName, channelName, Interval.fromDateTimes(agendaItemBoundsStart, agendaItemBoundsEnd), agendaItemData, agendaItemLabeler)
+    ))
+    .toThrowMatching((thrown: AgendaItemConflicts) => (
+      thrown.conflictingInterval.equals(Interval.fromDateTimes(agendaItemBoundsStart, agendaItemBoundsEnd)) &&
+      thrown.conflictingItems.length === 1 &&
+      thrown.conflictingItems[0].id === testItem.id
+    ));
   });
 });

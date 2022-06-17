@@ -74,9 +74,9 @@ export class ChannelComponent implements OnInit, AfterViewInit {
   public onDrop($event:DndDropEvent, agendaItem: AgendaItem): void {
     console.log(`${this.resourceName} ${this.channelName} drop agendaItem.id=${agendaItem.id} starting ${agendaItem.startDateAsHtmlDateTimeLocalString} ending ${agendaItem.endDateAsHtmlDateTimeLocalString}`, agendaItem);
     try {
-      this._visualSchedulerService.addAgendaItem(this.resourceName, this.channelName, agendaItem.bounds.start.toJSDate(), agendaItem.bounds.end.toJSDate(), {label: 'new item'}, (data:any)=>data.label);
+      this._visualSchedulerService.addAgendaItem(this.resourceName, this.channelName, agendaItem.bounds.start.toJSDate(), agendaItem.bounds.end.toJSDate(), agendaItem.data, agendaItem.labeler);
     } catch (error: any) {
-      console.error(error.message, error);
+      throw error;
     }
   }
 
