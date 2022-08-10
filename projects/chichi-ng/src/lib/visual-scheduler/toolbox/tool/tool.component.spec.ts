@@ -29,7 +29,7 @@ describe('ToolComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it(' ToolComponent dragStart should generate a START ToolEvent', (done: DoneFn) => {
+  it('ToolComponent dragStart should generate a START ToolEvent', (done: DoneFn) => {
     const eventType = 'dragstart';
     const toolType = 'chat';
     // skip the first event which is always a ToolEvent.CLEAR
@@ -47,7 +47,7 @@ describe('ToolComponent', () => {
     );
   });
 
-  it(' ToolComponent onDragEnd should generate an END ToolEvent', (done: DoneFn) => {
+  it('ToolComponent onDragEnd should generate an END ToolEvent', (done: DoneFn) => {
     const eventType = 'dragend';
     const toolType = 'chat';
     // skip the first event which is always a ToolEvent.CLEAR
