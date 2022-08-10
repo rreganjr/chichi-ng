@@ -133,6 +133,26 @@ describe('DropZoneComponent', () => {
     visualSchedulerService.dragStart(new DragEvent(eventType),toolType)
   });
 
+  it('when a tool that doesnt match the channel is dragged, the drop zone should indicate isDragging', (done: DoneFn) => {
+    const eventType = 'dragstart';
+    // skip the first event which is always a ToolEvent.CLEAR
+    visualSchedulerService.getToolEvents$().pipe(skip(1), first()).subscribe(
+      (toolEvent:ToolEvent) => {
+        // verify the expected event from the tool
+        expect(toolEvent.isStart()).toBeTrue();
+        expect(toolEvent.toolType).toEqual(differentToolType);
+        expect(toolEvent.event?.type).toEqual(eventType);
+        expect(component.isDragging).toBeFalse();
+        done();
+      }
+    );
+    // before dragging starts
+    expect(component.isDragging).toBeFalse();
+
+    // simulate a tool onDragStart
+    visualSchedulerService.dragStart(new DragEvent(eventType),differentToolType)
+  });
+
   it('when a tool that matches the channel is dropped, isDragging should revert to false', (done: DoneFn) => {
     const eventType = 'dragstart';
     // skip the first event which is always a ToolEvent.CLEAR then look for drag start
