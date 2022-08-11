@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
-import { DateTime, DateTimeFormatOptions, DateTimeUnit, Duration, Interval } from 'luxon';
+import { DateTime, DateTimeFormatOptions, Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
@@ -85,8 +85,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * Adds a div element to the timeline containing the tick elements indicating times and days.
    */
   private draw(): void {
-    const element: HTMLDivElement = this.renderer.createElement('div');
-
     if (this.timelineElement !== undefined) {
       // clean-up previous elements
       for (const child of this.timelineElement.nativeElement.children) {
