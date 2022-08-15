@@ -25,11 +25,11 @@ describe('ToolComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a ToolComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ToolComponent dragStart should generate a START ToolEvent', (done: DoneFn) => {
+  it('ToolComponent onDragStart should generate a START ToolEvent', (done: DoneFn) => {
     const eventType = 'dragstart';
     const toolType = 'chat';
     // skip the first event which is always a ToolEvent.CLEAR
@@ -85,7 +85,7 @@ describe('ToolComponent when inside a test host', () => {
     fixture.detectChanges();  // trigger initial data binding
   }));
 
-  it('The toolType input should be set on the test host', () => {
+  it('ToolComponent toolType input should be set on the test host', () => {
       expect(testHost.toolType).toEqual(testToolType);
       expect(testHost.enabled).toEqual(testEnabledTrue);
   });

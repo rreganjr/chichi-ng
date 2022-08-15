@@ -19,7 +19,7 @@ describe('ModalComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a ModalComponent', () => {
     expect(component).toBeTruthy();
   });
 });

@@ -19,7 +19,7 @@ describe('SignUpOrInComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a SignUpOrInComponent', () => {
     expect(component).toBeTruthy();
   });
 });

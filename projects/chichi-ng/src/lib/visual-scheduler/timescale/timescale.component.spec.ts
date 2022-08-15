@@ -30,7 +30,7 @@ describe('TimescaleComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a TimescaleComponent', () => {
     expect(component).toBeTruthy();
   });
 });

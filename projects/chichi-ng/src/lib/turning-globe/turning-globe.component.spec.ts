@@ -23,7 +23,7 @@ describe('TurningGlobeComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a TurningGlobeComponent', () => {
     expect(component).toBeTruthy();
   });
 });

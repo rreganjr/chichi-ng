@@ -37,7 +37,7 @@ describe('AgendaItemComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a AgendaItemComponent', () => {
     expect(component).toBeTruthy();
   });
 

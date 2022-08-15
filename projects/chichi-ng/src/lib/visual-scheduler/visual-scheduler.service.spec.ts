@@ -20,7 +20,7 @@ describe('VisualSchedulerService', () => {
     visualSchedulerService = new VisualSchedulerService();
   });
 
-  it('should be created', () => {
+  it('sshould create a VisualSchedulerService', () => {
     expect(visualSchedulerService).toBeTruthy();
   });
 
@@ -54,7 +54,7 @@ describe('VisualSchedulerService', () => {
     );
   });
 
-  it(' VisualSchedulerService dragEnd should generate an END ToolEvent', (done: DoneFn) => {
+  it('VisualSchedulerService dragEnd should generate an END ToolEvent', (done: DoneFn) => {
     const eventType = 'dragend';
     const toolType = 'video';
     // skip the first event which is always a ToolEvent.CLEAR

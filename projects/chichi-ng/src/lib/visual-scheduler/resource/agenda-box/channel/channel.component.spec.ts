@@ -42,7 +42,7 @@ describe('ChannelComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a ChannelComponent', () => {
     expect(component).toBeTruthy();
   });
 

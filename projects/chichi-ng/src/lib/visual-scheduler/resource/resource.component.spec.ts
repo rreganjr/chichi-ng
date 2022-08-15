@@ -19,7 +19,7 @@ describe('ResourceComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a ResourceComponent', () => {
     expect(component).toBeTruthy();
   });
 });

@@ -21,7 +21,7 @@ describe('ItemEditorComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create an ItemEditorComponent', () => {
     expect(component).toBeTruthy();
   });
 });

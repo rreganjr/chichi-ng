@@ -1,9 +1,9 @@
 import { DebugElement, ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Timescale } from 'chichi-ng';
 import { Duration } from 'luxon';
 import { first, skip } from 'rxjs';
+import { Timescale } from '../../../timescale.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
 import { TimelineComponent } from './timeline.component';
@@ -37,7 +37,7 @@ describe('TimelineComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a TimelineComponent', () => {
     expect(component).toBeTruthy();
   });
 

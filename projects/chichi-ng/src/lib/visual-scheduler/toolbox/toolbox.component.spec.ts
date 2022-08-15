@@ -19,7 +19,7 @@ describe('ToolboxComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a ToolboxComponent', () => {
     expect(component).toBeTruthy();
   });
 });

@@ -30,7 +30,7 @@ describe('VisualSchedulerComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should be created', () => {
+  it('should create a VisualSchedulerComponent', () => {
     expect(component).toBeTruthy();
   });
 

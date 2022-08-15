@@ -41,7 +41,7 @@ describe('DropZoneComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a DropZoneComponent', () => {
     expect(component).toBeTruthy();
   });
 
