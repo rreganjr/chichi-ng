@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@ang
 import { DateTime, DateTimeFormatOptions, Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
+import { Utils } from '../../../utils';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
 @Component({
@@ -146,7 +147,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    */
   private makePrimaryTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
-    element.style.width = this.timeDivisionWidth;
+    element.id = Utils.toHtmlDateTimeLocalString(dateTime);    element.style.width = this.timeDivisionWidth;
     element.className = (dateTime.hour === 0) ? 'day' : 'primaryTick';
     if (this.showLabels) {
       this.renderer.appendChild(element, (dateTime.hour === 0) ? this.makeDayLabel(dateTime) : this.makeTimeLabel(dateTime));

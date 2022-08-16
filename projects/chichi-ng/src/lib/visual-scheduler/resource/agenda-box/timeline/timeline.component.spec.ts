@@ -41,12 +41,16 @@ describe('TimelineComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have a native element', (done: DoneFn) => {
-    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+  it('TimelineComponent should have a native element', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
       (timescale:Timescale) => {
-        let leftPercentOfVisibleTimelineBounds = `${(Duration.fromDurationLike({hours: 1}).as('seconds') / timescale.visibleTimelineBounds.toDuration().as('seconds')) * 100}%`;
-        expect(fixture.debugElement.nativeElement.style.display).toEqual('block');
-        expect(fixture.debugElement.nativeElement.style.display).toEqual('none');
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
         done();
       }
     );
