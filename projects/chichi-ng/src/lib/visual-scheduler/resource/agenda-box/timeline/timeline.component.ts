@@ -40,6 +40,24 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * <code>
+   *{
+      timeDivisionWidth: this.timeDivisionWidth,
+      primaryTicksDuration: this.primaryTicksDuration,
+      betweenTicksDuration: this.betweenTicksDuration
+    }
+    </code>
+   * @returns an object describing internals of the timeline, mainly for testing
+   */
+  public getInternalConfig(): object {
+    return {
+      timeDivisionWidth: this.timeDivisionWidth,
+      primaryTicksDuration: this.primaryTicksDuration,
+      betweenTicksDuration: this.betweenTicksDuration
+    }
+  }
+
+  /**
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
   private get timeDivisionWidth(): string {

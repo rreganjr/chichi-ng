@@ -41,11 +41,24 @@ describe('TimelineComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('TimelineComponent should have a native element', (done: DoneFn) => {
+  /*
+   * The timeline layout varies by the visible vieport
+   * < 12 hours
+   * < 1 day
+   * < 2 days
+   * < 3 days
+   * < 5 days
+   * < 7 days
+   * >= 7 days
+    */
+
+  it('TimelineComponent for viewport duration of one hour should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
     console.log(`hey Jude`);
     visualSchedulerService.getTimescale$().pipe(first()).subscribe(
       (timescale:Timescale) => {
         console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+
         let counter: number = 0
         fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
           console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
@@ -54,5 +67,126 @@ describe('TimelineComponent', () => {
         done();
       }
     );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 1}));
   })
+
+  it('TimelineComponent for viewport duration of twelve hours should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 12}));
+  })
+
+  it('TimelineComponent for viewport duration of one day should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 24}));
+  })
+
+  it('TimelineComponent for viewport duration of two days should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({days: 2}));
+  })
+
+  it('TimelineComponent for viewport duration of three days should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({days: 3}));
+  })
+
+  it('TimelineComponent for viewport duration of five days should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({days: 5}));
+  })
+
+  it('TimelineComponent for viewport duration of seven days should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({days: 7}));
+  })
+
+  it('TimelineComponent for viewport duration of more than seven days should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+    console.log(`hey Jude`);
+    visualSchedulerService.getTimescale$().pipe(first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: object = component.getInternalConfig();
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({days: 14}));
+  })
+
 });
