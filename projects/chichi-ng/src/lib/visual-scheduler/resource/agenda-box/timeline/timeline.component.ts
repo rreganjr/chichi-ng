@@ -5,6 +5,15 @@ import { Timescale } from '../../../timescale.model';
 import { Utils } from '../../../utils';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
+export interface TimelineComponentInternals {
+  visibleHours: number;
+  timeDivisionWidth: string;
+  primaryTicksDuration: Duration;
+  betweenTicksDuration: Duration;
+  startOfOutOfBoundsElementId: string|undefined;
+  endOfOutOfBoundsElementId: string|undefined;
+
+}
 @Component({
   selector: 'cc-timeline',
   templateUrl: './timeline.component.html',
@@ -17,6 +26,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private _dateFormatOptions: DateTimeFormatOptions | undefined = {dateStyle: 'short'};
   private _timeFormatOptions: DateTimeFormatOptions | undefined = {timeStyle: 'short'};
 
+  @Input() resourceName!: string;
+  @Input() channelName!: string;
   @Input() showLabels: boolean = false;
 
   constructor(
@@ -40,21 +51,22 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * <code>
-   *{
-      timeDivisionWidth: this.timeDivisionWidth,
-      primaryTicksDuration: this.primaryTicksDuration,
-      betweenTicksDuration: this.betweenTicksDuration
-    }
-    </code>
-   * @returns an object describing internals of the timeline, mainly for testing
+   *
+   * @returns a TimelineComponentInternals describing internals of the timeline for testing
    */
-  public getInternalConfig(): object {
+  public getInternalConfig(): TimelineComponentInternals {
     return {
+      visibleHours: this.visibleHours,
       timeDivisionWidth: this.timeDivisionWidth,
       primaryTicksDuration: this.primaryTicksDuration,
-      betweenTicksDuration: this.betweenTicksDuration
+      betweenTicksDuration: this.betweenTicksDuration,
+      startOfOutOfBoundsElementId: this.makeOutOfBoundsElement('start')?.id,
+      endOfOutOfBoundsElementId: this.makeOutOfBoundsElement('end')?.id,
     }
+  }
+
+  private get visibleHours(): number {
+    return this._timescale.visibleDuration.as('hours');
   }
 
   /**
@@ -68,7 +80,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the {@link Duration} between the primary or labeled tick marks in the timeline.
    */
   private get primaryTicksDuration(): Duration {
-    const visibleHours = this._timescale.visibleDuration.as('hours');
+    const visibleHours = this.visibleHours;
     if (visibleHours < 24) {
       return Duration.fromDurationLike({hours: 1});
     } else if (visibleHours < 2*24) {
@@ -86,7 +98,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the {@link Duration} between the previous primary or subordinate tick marks in the timeline.
    */
   private get betweenTicksDuration(): Duration {
-    const visibleHours = this._timescale.visibleDuration.as('hours');
+    const visibleHours = this.visibleHours;
     if (visibleHours < 12) {
       return Duration.fromDurationLike({minutes: 5});
     } else if (visibleHours < 24) {
@@ -193,6 +205,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       }
       element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.visibleTimelineBounds.toDuration('seconds').as('seconds')) * 100  + '%';
       element.className =  'outOfBounds';
+      element.id = `${this.resourceName}-${this.channelName}-${location}-out-of-bounds`;
       return element;
     }
     return;
