@@ -227,7 +227,7 @@ describe('TimelineComponent', () => {
   })
 
   it('TimelineComponent doesnt have outOfBounds regions when bounds match the primary ticks of hours', (done: DoneFn) => {
-    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
+    visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe(
       (timescale:Timescale) => {
         console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
         const timeLineInternals: TimelineComponentInternals = component.getInternalConfig();
@@ -237,7 +237,7 @@ describe('TimelineComponent', () => {
       }
     );
     visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 6}));
-    visualSchedulerService.setBounds(new Date('2021-05-01 00:00:00'), new Date('2021-05-01 06:00:00'));
+    visualSchedulerService.setBounds(new Date('2021-05-01 00:00:00'), new Date('2021-05-01 07:00:00'));
   })
 
   it('TimelineComponent doesnt have outOfBounds regions when bounds match the primary ticks of days', (done: DoneFn) => {
