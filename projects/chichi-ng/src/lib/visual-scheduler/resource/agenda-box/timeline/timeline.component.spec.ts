@@ -195,8 +195,7 @@ describe('TimelineComponent', () => {
       }
     );
     visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 6}));
-    visualSchedulerService.setBounds(new Date('2021-05-01 02:00:00'), new Date('2021-05-01 06:00:00'));
-
+    visualSchedulerService.setBounds(new Date('2021-05-01 02:00:00'), new Date('2021-05-01 08:00:00'));
   })
 
   it('TimelineComponent doesnt have outOfBounds regions when bounds match the primary ticks of days', (done: DoneFn) => {
@@ -212,8 +211,7 @@ describe('TimelineComponent', () => {
         done();
       }
     );
-    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 6}));
     visualSchedulerService.setBounds(new Date('2021-05-01 00:00:00'), new Date('2021-05-14 00:00:00'));
-
+    visualSchedulerService.setViewportDuration(Duration.fromDurationLike({hours: 6}));
   })
 });
