@@ -73,7 +73,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
   private get timeDivisionWidth(): string {
-    return (this.betweenTicksDuration.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
+    return new Number((this.betweenTicksDuration.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100).toPrecision(5)  + '%';
   }
 
   /**
@@ -139,13 +139,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
       for (let primaryTick: DateTime = startTick; primaryTick < lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
         this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(primaryTick));
         const nextPrimaryTick:DateTime = primaryTick.plus(primaryTicksDuration);
-        for (let betweenTick: DateTime = primaryTick.plus(betweenTicksDuration); betweenTick < nextPrimaryTick; betweenTick = betweenTick.plus(betweenTicksDuration)) {
-          // draw the inbetween marks, if one of these falls on the start of a day, add a primary mark instead
-          if (betweenTick.hour === 0 && betweenTick.minute === 0) {
-            this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(betweenTick));
-          } else {
-            this.renderer.appendChild(this.timelineElement.nativeElement, this.makeBetweenTickElement(betweenTick));
-          }
+          // draw the marks between the primary
+          for (let betweenTick: DateTime = primaryTick.plus(betweenTicksDuration); betweenTick < nextPrimaryTick; betweenTick = betweenTick.plus(betweenTicksDuration)) {
+          this.renderer.appendChild(this.timelineElement.nativeElement, this.makeBetweenTickElement(betweenTick));
         }
       }
       const outOfBoundsEnd: HTMLDivElement|undefined = this.makeOutOfBoundsElement('end');
@@ -165,6 +161,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    */
   private makeBetweenTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
+    element.id = `${this.resourceName}-${this.channelName}=${Utils.toHtmlDateTimeLocalString(dateTime)}`;
     element.style.width = this.timeDivisionWidth;
     element.className = (dateTime.minute === 0) ? 'mediumTick' : 'smallTick';
     return element;
@@ -177,7 +174,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
    */
   private makePrimaryTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
-    element.id = Utils.toHtmlDateTimeLocalString(dateTime);    element.style.width = this.timeDivisionWidth;
+    element.id = `${this.resourceName}-${this.channelName}=${Utils.toHtmlDateTimeLocalString(dateTime)}`;
+    element.style.width = this.timeDivisionWidth;
     element.className = (dateTime.hour === 0) ? 'day' : 'primaryTick';
     if (this.showLabels) {
       this.renderer.appendChild(element, (dateTime.hour === 0) ? this.makeDayLabel(dateTime) : this.makeTimeLabel(dateTime));

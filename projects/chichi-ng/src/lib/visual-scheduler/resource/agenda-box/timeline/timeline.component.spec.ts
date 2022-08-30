@@ -1,7 +1,7 @@
 import { DebugElement, ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Duration } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 import { first, skip } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
@@ -56,7 +56,7 @@ describe('TimelineComponent', () => {
    * >= 7 days
     */
 
-  it('TimelineComponent for viewport duration of one hour should have primaryTicks and betweenTicks  ', (done: DoneFn) => {
+  it('TimelineComponent for viewport duration of one hour should have primaryTicks and betweenTicks', (done: DoneFn) => {
     const viewPortDuration: Duration = Duration.fromDurationLike({hours: 1});
     visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
       (timescale:Timescale) => {
@@ -67,7 +67,20 @@ describe('TimelineComponent', () => {
         expect(timeLineInternals.betweenTicksDuration.as('seconds')).toEqual(Duration.fromDurationLike({minutes: 5}).as('seconds'));
         let counter: number = 0
         fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
-          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          if (debugElement.nativeElement.id !== 'resource-channel-start-out-of-bounds' && debugElement.nativeElement.id !== 'resource-channel-end-out-of-bounds') {
+            const timeLineInternals: TimelineComponentInternals = component.getInternalConfig();
+            console.log(`counter = ${counter} element = ${debugElement.nativeElement.id}   ${debugElement.nativeElement.style.width}`)
+            expect(debugElement.nativeElement.style.width).toEqual(timeLineInternals.timeDivisionWidth);
+            const tickDateTime:DateTime = DateTime.fromISO(debugElement.nativeElement.id.split('=')[1]);
+            if (tickDateTime.hour === 0 && tickDateTime.minute === 0) {
+              expect(debugElement.nativeElement.className).toEqual('day');
+            } else if (tickDateTime.minute === 0) {
+              expect(debugElement.nativeElement.className).toEqual('primaryTick');
+            } else {
+              expect(debugElement.nativeElement.className).toEqual('smallTick');
+            }
+          }
+
           counter++;
         })
         done();
@@ -153,6 +166,27 @@ describe('TimelineComponent', () => {
         done();
       }
     );
+    visualSchedulerService.setViewportDuration(viewPortDuration);
+  })
+
+  it('TimelineComponent that spans a day should have a day marker primary tick  ', (done: DoneFn) => {
+    const viewPortDuration: Duration = Duration.fromDurationLike({days: 7});
+    visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe(
+      (timescale:Timescale) => {
+        console.log(`timescale seconds: ${timescale.visibleTimelineBounds.toDuration().as('seconds')}`, fixture.debugElement.children);
+        const timeLineInternals: TimelineComponentInternals = component.getInternalConfig();
+        expect(timeLineInternals.visibleHours).toEqual(viewPortDuration.as('hours'));
+        expect(timeLineInternals.primaryTicksDuration.as('seconds')).toEqual(Duration.fromDurationLike({hours: 24}).as('seconds'));
+        expect(timeLineInternals.betweenTicksDuration.as('seconds')).toEqual(Duration.fromDurationLike({hours: 6}).as('seconds'));
+        let counter: number = 0
+        fixture.debugElement.children.forEach( (debugElement: DebugElement) => {
+          console.log(`child[${counter}] = ${debugElement.name}.${debugElement.nativeElement.className} ${debugElement.nativeElement.id} `);
+          counter++;
+        })
+        done();
+      }
+    );
+    visualSchedulerService.setBounds(new Date('2021-05-01 12:00:00'), new Date('2021-05-20 00:00:00'));
     visualSchedulerService.setViewportDuration(viewPortDuration);
   })
 
