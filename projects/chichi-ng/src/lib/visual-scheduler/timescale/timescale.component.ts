@@ -58,8 +58,8 @@ export class TimescaleComponent implements OnInit, OnDestroy {
     let index = sizes.indexOf(this._timescale.visibleDuration);
     if (index < 0) {
       index = 0;
-    } else if (index < sizes.length - 1) {
-      index++;
+    } else if (index  > 0) {
+      index--;
     }
     this._visualSchedulerService.setViewportDuration(sizes[index]);
   }
@@ -76,8 +76,8 @@ export class TimescaleComponent implements OnInit, OnDestroy {
     let index = sizes.indexOf(this._timescale.visibleDuration);
     if (index < 0) {
       index = 0;
-    } else if (index > 0) {
-      index--;
+    } else if (index < sizes.length - 1) {
+      index++;
     }
     this._visualSchedulerService.setViewportDuration(sizes[index]);
   }
