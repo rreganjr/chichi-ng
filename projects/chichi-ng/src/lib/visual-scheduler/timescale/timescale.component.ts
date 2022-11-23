@@ -74,8 +74,8 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   public zoomOut(): void {
     const sizes = TimescaleComponent.VIEWPORT_SIZES;
     let index = sizes.indexOf(this._timescale.visibleDuration);
-    if (index < 0) {
-      index = 0;
+    if (index > sizes.length - 1) {
+      index = sizes.length - 1;
     } else if (index < sizes.length - 1) {
       index++;
     }
@@ -87,12 +87,10 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public scanBack(): void {
-    if (this._timescale.offsetDuration.as('seconds') > 0) {
-      if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).as('seconds') > 0) {
-        this._visualSchedulerService.setViewportOffsetDuration(this._timescale.offsetDuration.minus(this._timescale.visibleDuration));
-      } else {
-        this.scanToStart();
-      }
+    if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).as('seconds') > 0) {
+      this._visualSchedulerService.setViewportOffsetDuration(this._timescale.offsetDuration.minus(this._timescale.visibleDuration));
+    } else {
+      this.scanToStart();
     }
   }
 
