@@ -83,11 +83,14 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public scanToStart(): void {
-    this._visualSchedulerService.setViewportOffsetDuration(Duration.fromDurationLike({seconds: 0}));
+    console.log(`scanToStart()`)
+    this._visualSchedulerService.setViewportOffsetDuration(Duration.fromDurationLike({hours: 0}));
   }
 
   public scanBack(): void {
+    console.log(`scanBack()`)
     if (this._timescale.offsetDuration.minus(this._timescale.visibleDuration).as('seconds') > 0) {
+      console.log(`scanBack() by ${this._timescale.visibleDuration.as('seconds')} seconds`)
       this._visualSchedulerService.setViewportOffsetDuration(this._timescale.offsetDuration.minus(this._timescale.visibleDuration));
     } else {
       this.scanToStart();

@@ -38,6 +38,22 @@ export class VisualSchedulerService {
   }
 
   /**
+   * This marks all the subjects as complete, used for tests
+   */
+  public shutdown(): void {
+    this._timescaleSubject.complete()
+    this._toolEventsSubject.complete()
+    this._agendaItemsSubject.complete()
+  }
+
+  /**
+   * Used for testing
+   */
+  public get timescale() {
+    return this._timescale
+  }
+
+  /**
    * Causes a {@link ToolEvent} START action to be dispatched on the ToolEvents$ observables
    * @param $event The {@link DragEvent} from the browser.
    * @param toolType The type of the tool being dragged as defined by the cc-tool element in the cc-toolbox of the cc-visual-scheduler
@@ -188,11 +204,14 @@ export class VisualSchedulerService {
   public setViewportOffsetDuration(offset: Duration): void {
     if (this._timescale == undefined) throw this.timescaleNotSetError();
     if (offset.as('seconds') >= 0) {
+      console.log(`setViewportOffsetDuration as ${offset.as('seconds')} seconds`)
       offset = this._adjustOffsetToKeepViewportInbounds(this._timescale, offset);
       if (!this._timescale.offsetDuration.equals(offset)) {
         console.log(`setViewportOffsetDuration(offset = ${offset})`);
         this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, offset);
         this._timescaleSubject.next(this._timescale);
+      } else {
+        console.log(`offset is the same, ignore`)
       }
     }
   }

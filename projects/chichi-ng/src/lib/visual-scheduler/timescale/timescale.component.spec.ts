@@ -142,27 +142,29 @@ describe('TimescaleComponent', () => {
     const viewportDuration = TimescaleComponent.VIEWPORT_SIZES[0];
     const offsetDuration = Duration.fromDurationLike({hours: 0});
 
-    visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe({ next:
-      (timescale:Timescale) => {
-        const newOffsettDuration: Duration = timescale.offsetDuration;
-        expect(newOffsettDuration).toEqual(offsetDuration);
+    visualSchedulerService.getTimescale$().pipe(skip(2)).subscribe({ complete:
+      () => {
+        console.log(`service offsetDuration ${visualSchedulerService.timescale?.offsetDuration.as('seconds')} offsetDuration = ${offsetDuration.as('seconds')}`)
+        expect(visualSchedulerService.timescale?.offsetDuration.as('seconds')).toEqual(offsetDuration.as('seconds'));
         done();
       }
     });
     visualSchedulerService.setViewportDuration(viewportDuration);
     visualSchedulerService.setViewportOffsetDuration(offsetDuration);
 
-    component.scanBack();
+    component.scanBack(); // this doesn't cause the timescale to update
+
+    visualSchedulerService.shutdown(); // this causes the timescale observable to be marked complete
   });
 
   it('if the offset is not at the minimum offset it should reset to 0 on scanBack if the viewport size is greater than or equal to the original offset', (done: DoneFn) => {
     const viewportDuration = TimescaleComponent.VIEWPORT_SIZES[0];
     const offsetDuration = Duration.fromDurationLike({hours: 1});
 
-    visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe({ next:
+    visualSchedulerService.getTimescale$().pipe(skip(3), first()).subscribe({ next:
       (timescale:Timescale) => {
         const newOffsettDuration: Duration = timescale.offsetDuration;
-        expect(newOffsettDuration).toEqual(Duration.fromDurationLike({hours: 0}));
+        expect(newOffsettDuration.as('seconds')).toEqual(Duration.fromDurationLike({hours: 0}).as('seconds'));
         done();
       }
     });
@@ -174,12 +176,13 @@ describe('TimescaleComponent', () => {
 
   it('if the offset is not at the minimum offset it should move back by the viewport duration on scanBack if the viewport size is greater than the original offset', (done: DoneFn) => {
     const viewportDuration = TimescaleComponent.VIEWPORT_SIZES[0];
-    const offsetDuration = Duration.fromDurationLike({hours: 12});
+    const offsetDuration = Duration.fromDurationLike({hours: 8});
 
     visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe({ next:
       (timescale:Timescale) => {
         const newOffsettDuration: Duration = timescale.offsetDuration;
-        expect(newOffsettDuration).toEqual(offsetDuration.minus(viewportDuration));
+        console.log(`newOffsettDuration = ${newOffsettDuration}`)
+        expect(newOffsettDuration.as('seconds')).toEqual(offsetDuration.as('seconds') - viewportDuration.as('seconds'));
         done();
       }
     });
@@ -198,7 +201,7 @@ describe('TimescaleComponent', () => {
     visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe({ next:
       (timescale:Timescale) => {
         const newOffsettDuration: Duration = timescale.offsetDuration;
-        expect(newOffsettDuration).toEqual(offsetDuration);
+        expect(newOffsettDuration.as('seconds')).toEqual(offsetDuration.as('seconds'));
         done();
       }
     });
@@ -217,7 +220,7 @@ describe('TimescaleComponent', () => {
     visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe({ next:
       (timescale:Timescale) => {
         const newOffsettDuration: Duration = timescale.offsetDuration;
-        expect(newOffsettDuration).toEqual(maximumOffset);
+        expect(newOffsettDuration.as('seconds')).toEqual(maximumOffset.as('seconds'));
         done();
       }
     });
@@ -236,7 +239,7 @@ describe('TimescaleComponent', () => {
     visualSchedulerService.getTimescale$().pipe(skip(2), first()).subscribe({ next:
       (timescale:Timescale) => {
         const newOffsettDuration: Duration = timescale.offsetDuration;
-        expect(newOffsettDuration).toEqual(maximumOffset.minus(viewportDuration));
+        expect(newOffsettDuration.as('seconds')).toEqual(maximumOffset.minus(viewportDuration).as('seconds'));
         done();
       }
     });
