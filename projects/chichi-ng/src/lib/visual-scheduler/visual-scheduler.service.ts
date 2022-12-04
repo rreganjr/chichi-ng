@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
-import { Duration, Interval, DateTime } from 'luxon';
+import { Duration, Interval, DateTime, DateInput } from 'luxon';
 import { Timescale } from './timescale.model';
 import { AgendaItem, AgendaItemLabeler } from './resource/agenda-box/agenda-item.model';
 import { ToolEvent } from './toolbox/tool/tool-event.model';
@@ -160,10 +160,10 @@ export class VisualSchedulerService {
   /**
    * Set the time bounds of the scheduler. adding an {@link AgendaItem} outside these
    * bounds is not allowed. scaling and panning the view outside these bounds is not allowed.
-   * @param startDate the minimum date/time of scheduled agenda items as a {@link Date}.
-   * @param endDate the maximum date/time of scheduled agenda items as a {@link Date}.
+   * @param startDate the minimum date/time of scheduled agenda items as a Luxon {@link DateInput}.
+   * @param endDate the maximum date/time of scheduled agenda items as a Luxon {@link DateInput}.
    */
-  public setBounds(startDate: Date, endDate: Date): void {
+  public setBounds(startDate: DateInput, endDate: DateInput): void {
     this.setBoundsInterval(Interval.fromDateTimes(startDate, endDate));
   }
 
@@ -179,14 +179,17 @@ export class VisualSchedulerService {
   }
 
   private _adjustOffsetToKeepViewportInbounds(timescale: Timescale, offset: Duration): Duration {
-    if (timescale.visibleBounds.end.plus(offset) > timescale.boundsInterval.end) {
+    console.log(`_adjustOffsetToKeepViewportInbounds(offset = ${offset.as('seconds')} seconds)`)
+    if (timescale.boundsInterval.start.plus(offset.plus(timescale.visibleDuration)) > timescale.boundsInterval.end) {
       offset = Interval.fromDateTimes(timescale.boundsInterval.start, timescale.boundsInterval.end.minus(timescale.visibleDuration)).toDuration();
+      console.log(`_adjustOffsetToKeepViewportInbounds() adjusted offset to ${offset.as('seconds')} seconds`)
     }
     return offset;
   }
 
   private _adjustViewportToBounds(bounds: Interval, duration: Duration): Duration {
     if (duration > bounds.toDuration()) {
+      console.log(`_adjustViewportToBounds() setting duration to bounds`)
       duration = bounds.toDuration();
     }
     return duration;
@@ -202,12 +205,12 @@ export class VisualSchedulerService {
    * @throws Error when the timescale is not defined yet
    */
   public setViewportOffsetDuration(offset: Duration): void {
+    console.log(`setViewportOffsetDuration(offset = ${offset.as('seconds')} seconds)`)
     if (this._timescale == undefined) throw this.timescaleNotSetError();
     if (offset.as('seconds') >= 0) {
-      console.log(`setViewportOffsetDuration as ${offset.as('seconds')} seconds`)
       offset = this._adjustOffsetToKeepViewportInbounds(this._timescale, offset);
       if (!this._timescale.offsetDuration.equals(offset)) {
-        console.log(`setViewportOffsetDuration(offset = ${offset})`);
+        console.log(`setViewportOffsetDuration() adjusted offset = ${offset.as('seconds')}`);
         this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, offset);
         this._timescaleSubject.next(this._timescale);
       } else {
@@ -219,10 +222,14 @@ export class VisualSchedulerService {
   /**
    * Set the viewport {@link Duration}. The viewport must be less than or equal to the scheduler duration as
    * well as between {@link MIN_VIEWPORT_DURATION} and {@link MAX_VIEWPORT_DURATION} inclusive.
+   *
+   * The viewportOffsetDuration may also change to keep the viewportDuration inside the boundsInterval
+   *
    * @param duration - The viewport duration
    * @throws Error when the timescale is not defined yet or invalid
    */
   public setViewportDuration(duration: Duration): void {
+    console.log(`setViewportDuration(duration = ${duration.as('seconds')} seconds)`)
     if (this._timescale == undefined) throw this.timescaleNotSetError();
 
     if (duration < VisualSchedulerService.MIN_VIEWPORT_DURATION) {

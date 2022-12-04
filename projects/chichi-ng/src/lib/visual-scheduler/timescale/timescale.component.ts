@@ -54,9 +54,10 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public zoomIn(): void {
+    console.log(`zoomIn()`);
     const sizes = TimescaleComponent.VIEWPORT_SIZES;
     let index = sizes.indexOf(this._timescale.visibleDuration);
-    if (index < 0) {
+    if (index <= 0) {
       index = 0;
     } else if (index  > 0) {
       index--;
@@ -65,6 +66,7 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public zoomTo(index: number): void {
+    console.log(`zoomTo(index = ${index})`);
     const sizes = TimescaleComponent.VIEWPORT_SIZES;
     if (index >= 0 && index < sizes.length) {
       this._visualSchedulerService.setViewportDuration(sizes[index]);
@@ -72,12 +74,17 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   }
 
   public zoomOut(): void {
+    console.log(`zoomOut()`);
     const sizes = TimescaleComponent.VIEWPORT_SIZES;
     let index = sizes.indexOf(this._timescale.visibleDuration);
-    if (index > sizes.length - 1) {
+    if (index >= sizes.length - 1) {
       index = sizes.length - 1;
     } else if (index < sizes.length - 1) {
       index++;
+    }
+    // keep the viewport size within the bounds and as one of the preset sizes
+    while( sizes[index] > this._timescale.boundsInterval.toDuration()) {
+      index--;
     }
     this._visualSchedulerService.setViewportDuration(sizes[index]);
   }
@@ -103,17 +110,19 @@ export class TimescaleComponent implements OnInit, OnDestroy {
    * the scheduler bounds.
    */
   public scanForward(): void {
-
-    if (this._timescale.visibleBounds.end.plus(this._timescale.visibleDuration) > this._timescale.boundsInterval.end) {
+    console.log(`scanForward()`);
+    if (this._timescale.visibleBounds.end.plus(this._timescale.visibleDuration) >= this._timescale.boundsInterval.end) {
         this.scanToEnd();
     } else {
-      this._visualSchedulerService.setViewportOffsetDuration(this._timescale.offsetDuration.plus(this._timescale.visibleDuration));
+      const offset:Duration = this._timescale.offsetDuration.plus(this._timescale.visibleDuration);
+      console.log(`scanForward(): boundsInterval.toDuration() = ${this._timescale.boundsInterval.toDuration().as('seconds')} seconds visibleDuration = ${this._timescale.visibleDuration.as('seconds')} seconds offset = ${offset.as('seconds')} seconds`)
+      this._visualSchedulerService.setViewportOffsetDuration(offset);
     }
   }
 
   public scanToEnd(): void {
-    const offset:Duration = Interval.fromDateTimes(this._timescale.boundsInterval.start,
-      this._timescale.boundsInterval.end.minus(this._timescale.visibleDuration)).toDuration();
+    const offset:Duration = this._timescale.boundsInterval.toDuration().minus(this._timescale.visibleDuration);
+    console.log(`scanToEnd(): boundsInterval.toDuration() = ${this._timescale.boundsInterval.toDuration().as('seconds')} seconds visibleDuration = ${this._timescale.visibleDuration.as('seconds')} seconds offset = ${offset.as('seconds')} seconds`)
     this._visualSchedulerService.setViewportOffsetDuration(offset);
   }
 
