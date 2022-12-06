@@ -446,4 +446,49 @@ describe('TimescaleComponent', () => {
     component.scanForward();
   });
 
+  it('if the viewport size is not at the maximum but the offset is at the maximum offset, setting viewport size larger should shift the offset so the view stays in the bounds ', (done: DoneFn) => {
+    const initialViewportDurationIndex = 0;
+    const initialViewportDuration = TimescaleComponent.VIEWPORT_SIZES[initialViewportDurationIndex];
+    const maximumOffset:Duration = Interval.fromDateTimes(schedulerBoundsStartDate,schedulerBoundsEndDate).toDuration().minus(initialViewportDuration);
+    const initialOffsetDuration = maximumOffset;
+
+    let timeScaleChangeCount: number = 0
+    let expectedViewportSizeIndex: number = 1;
+    visualSchedulerService.getTimescale$().subscribe({ next:
+      (timescale:Timescale) => {
+        switch (timeScaleChangeCount) {
+          case 0:
+            // initial setup
+            expect(timescale.visibleDuration).toEqual(Timescale.DEFAULT_VISIBLE_DURATION);
+            expect(timescale.offsetDuration).toEqual(Timescale.DEFAULT_OFFSET_DURATION);
+            break;
+          case 1:
+            // setViewportDuration()
+            expect(timescale.visibleDuration).toEqual(initialViewportDuration);
+            break;
+          case 2:
+            // setViewportOffsetDuration()
+            expect(timescale.offsetDuration).toEqual(initialOffsetDuration);
+            break;
+          default:
+            // additional setViewportDuration()
+            let newIndex: number = TimescaleComponent.VIEWPORT_SIZES.indexOf(timescale.visibleDuration);
+            expect(newIndex).toEqual(expectedViewportSizeIndex);
+            expect(timescale.offsetDuration.as('seconds')).toEqual(timescale.boundsInterval.toDuration().minus(timescale.visibleDuration).as('seconds'));
+            expectedViewportSizeIndex++;
+            if (newIndex === TimescaleComponent.VIEWPORT_SIZES.length - 1) {
+              done();
+            }
+        }
+        timeScaleChangeCount++;
+      }
+    });
+
+    visualSchedulerService.setViewportDuration(initialViewportDuration);
+    visualSchedulerService.setViewportOffsetDuration(initialOffsetDuration);
+    for ( let index = initialViewportDurationIndex+1; index < TimescaleComponent.VIEWPORT_SIZES.length; index++ ) {
+      visualSchedulerService.setViewportDuration(TimescaleComponent.VIEWPORT_SIZES[index]);
+    }
+  });
+
 });

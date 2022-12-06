@@ -178,21 +178,13 @@ export class VisualSchedulerService {
     this._timescaleSubject.next(this._timescale);
   }
 
-  private _adjustOffsetToKeepViewportInbounds(timescale: Timescale, offset: Duration): Duration {
-    console.log(`_adjustOffsetToKeepViewportInbounds(offset = ${offset.as('seconds')} seconds)`)
-    if (timescale.boundsInterval.start.plus(offset.plus(timescale.visibleDuration)) > timescale.boundsInterval.end) {
-      offset = Interval.fromDateTimes(timescale.boundsInterval.start, timescale.boundsInterval.end.minus(timescale.visibleDuration)).toDuration();
-      console.log(`_adjustOffsetToKeepViewportInbounds() adjusted offset to ${offset.as('seconds')} seconds`)
+  private _adjustOffsetToKeepViewportInbounds(bounds: Duration, offset: Duration, viewport: Duration): Duration {
+    console.log(`_adjustOffsetToKeepViewportInbounds(bounds: = ${bounds.as('seconds')} seconds, offset = ${offset.as('seconds')} second, viewport = ${viewport.as('seconds')} seconds  ) `)
+    if (bounds < offset.plus(viewport)) {
+      offset = bounds.minus(viewport);
+      console.log(`_adjustOffsetToKeepViewportInbounds() adjusted offset to ${offset.as('seconds')} seconds`);
     }
     return offset;
-  }
-
-  private _adjustViewportToBounds(bounds: Interval, duration: Duration): Duration {
-    if (duration > bounds.toDuration()) {
-      console.log(`_adjustViewportToBounds() setting duration to bounds`)
-      duration = bounds.toDuration();
-    }
-    return duration;
   }
 
   /**
@@ -208,7 +200,7 @@ export class VisualSchedulerService {
     console.log(`setViewportOffsetDuration(offset = ${offset.as('seconds')} seconds)`)
     if (this._timescale == undefined) throw this.timescaleNotSetError();
     if (offset.as('seconds') >= 0) {
-      offset = this._adjustOffsetToKeepViewportInbounds(this._timescale, offset);
+      offset = this._adjustOffsetToKeepViewportInbounds(this._timescale.boundsInterval.toDuration(), offset, this._timescale.visibleDuration);
       if (!this._timescale.offsetDuration.equals(offset)) {
         console.log(`setViewportOffsetDuration() adjusted offset = ${offset.as('seconds')}`);
         this._timescale = new Timescale(this._timescale.boundsInterval, this._timescale.visibleDuration, offset);
@@ -225,24 +217,23 @@ export class VisualSchedulerService {
    *
    * The viewportOffsetDuration may also change to keep the viewportDuration inside the boundsInterval
    *
-   * @param duration - The viewport duration
+   * @param viewport - The viewport duration
    * @throws Error when the timescale is not defined yet or invalid
    */
-  public setViewportDuration(duration: Duration): void {
-    console.log(`setViewportDuration(duration = ${duration.as('seconds')} seconds)`)
+  public setViewportDuration(viewport: Duration): void {
+    console.log(`setViewportDuration(duration = ${viewport.as('seconds')} seconds)`)
     if (this._timescale == undefined) throw this.timescaleNotSetError();
 
-    if (duration < VisualSchedulerService.MIN_VIEWPORT_DURATION) {
-      duration = VisualSchedulerService.MIN_VIEWPORT_DURATION;
-    } else if (duration > VisualSchedulerService.MAX_VIEWPORT_DURATION) {
-      duration = VisualSchedulerService.MAX_VIEWPORT_DURATION;
+    if (viewport < VisualSchedulerService.MIN_VIEWPORT_DURATION) {
+      viewport = VisualSchedulerService.MIN_VIEWPORT_DURATION;
+    } else if (viewport > VisualSchedulerService.MAX_VIEWPORT_DURATION) {
+      viewport = VisualSchedulerService.MAX_VIEWPORT_DURATION;
     }
-    duration = this._adjustViewportToBounds(this._timescale.boundsInterval, duration);
 
     // adjust the offset so the viewport stays in the scheduler bounds
-    let offset: Duration = this._adjustOffsetToKeepViewportInbounds(this._timescale, this._timescale.offsetDuration);
+    let offset: Duration = this._adjustOffsetToKeepViewportInbounds(this._timescale.boundsInterval.toDuration(), this._timescale.offsetDuration, viewport);
 
-    this._timescale = new Timescale(this._timescale.boundsInterval, duration, offset);
+    this._timescale = new Timescale(this._timescale.boundsInterval, viewport, offset);
     this._timescaleSubject.next(this._timescale);
   }
 
