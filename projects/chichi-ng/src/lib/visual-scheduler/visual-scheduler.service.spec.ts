@@ -387,24 +387,15 @@ describe('VisualSchedulerService', () => {
     visualSchedulerService.setViewportDuration(viewportDuration);
   });
 
-  it('VisualSchedulerService setViewportDuration() shouldnt be longer than the scheduler bounds', (done: DoneFn) => {
+  it('VisualSchedulerService setViewportDuration() shouldnt be longer than the scheduler bounds', () => {
     const boundsStartDate = new Date('2022-01-01 00:00:00');
     const boundsEndDate = new Date('2022-01-02 00:00:00');
     const boundsIntervalDuration = Interval.fromDateTimes(boundsStartDate, boundsEndDate).toDuration();
     const viewportDuration = boundsIntervalDuration.plus({seconds: 1});
 
-    // skip the event for the setBounds
-    visualSchedulerService.getTimescale$().pipe(skip(1), first()).subscribe(
-      (timescale:Timescale) => {
-        expect(timescale.boundsInterval.start).toEqual(DateTime.fromJSDate(boundsStartDate));
-        expect(timescale.boundsInterval.end).toEqual(DateTime.fromJSDate(boundsEndDate));
-        expect(timescale.visibleDuration.as('milliseconds')).toEqual(boundsIntervalDuration.as('milliseconds'));
-        done();
-      }
-    );
-
     visualSchedulerService.setBounds(boundsStartDate, boundsEndDate);
-    visualSchedulerService.setViewportDuration(viewportDuration);
+    expect(() => visualSchedulerService.setViewportDuration(viewportDuration))
+    .toThrowMatching((thrown: TimescaleInvalid) => thrown.validatorCode === TimescaleValidatorErrorCode.VisibleDurationOutOfBounds);
   });
 
   it('VisualSchedulerService setBounds() the bounds interval must be at least the minimum viewport duration', () => {
