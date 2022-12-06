@@ -2,7 +2,7 @@
     <div class="scale">
         <div class="ends"><div class="material-icons  md-48">schedule</div><div>ZOOM</div></div>
         <div (click)="zoomIn()" class="button"><span class="material-icons md-48">zoom_in</span></div>
-        <div *ngFor="let size of timescaleSizes; let idx = index" (click)="zoomTo(idx)" class="button" [ngClass]="{'selected': _timescale.visibleDuration.equals(size)}">{{size.toHuman()}}</div>
+        <div *ngFor="let size of timescaleSizes; let idx = index" (click)="zoomTo(idx)" class="button" [ngClass]="{'selected': viewportDuration.equals(size)}">{{size.toHuman()}}</div>
         <div (click)="zoomOut()" class="button"><span class="material-icons md-48">zoom_out</span></div>
         <div class="ends">&nbsp;</div>
     </div>
@@ -16,7 +16,7 @@
         <div class="ends">&nbsp;</div>
     </div>
     <div>
-        <div><span>startDate: </span><span>{{_timescale.boundsInterval.start.toBSON()| date:'long' }}</span></div>
-        <div><span>endDate: </span><span>{{_timescale.boundsInterval.end.toBSON()| date:'long'}}</span></div>
+        <div><span>startDate: </span><span>{{boundsInterval.start.toBSON()| date:'long' }}</span></div>
+        <div><span>endDate: </span><span>{{boundsInterval.end.toBSON()| date:'long'}}</span></div>
     </div>
 </div>

@@ -29,7 +29,7 @@ export class TimescaleComponent implements OnInit, OnDestroy {
   ];
 
   private _timescaleSubscription?: Subscription;
-  public _timescale!: Timescale;
+  private _timescale!: Timescale;
 
   constructor(
     private _visualSchedulerService: VisualSchedulerService
@@ -126,19 +126,14 @@ export class TimescaleComponent implements OnInit, OnDestroy {
     this._visualSchedulerService.setViewportOffsetDuration(offset);
   }
 
+  public get boundsInterval(): Interval {
+    return this._timescale.boundsInterval;
+  }
   public get viewportDuration(): Duration {
     return this._timescale.visibleDuration;
   }
 
-  public set viewportDuration(duration: Duration) {
-    this._visualSchedulerService.setViewportDuration(duration);
-  }
-
   public get viewportOffset(): Duration {
     return this._timescale.offsetDuration;
-  }
-
-  public set viewportOffset(offset: Duration) {
-    this._visualSchedulerService.setViewportOffsetDuration(offset);
   }
 }
