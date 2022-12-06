@@ -28,18 +28,18 @@
         <div>primaryDateTimeUnit = {{timeScale?.primaryDateTimeUnit?.toString()}}</div>
 
         <h3>Fixed by start and end date</h3>
-        <div>timelineBounds start = {{timeScale?.timelineBounds?.start}}</div>
-        <div>startOfTimeline = {{timeScale?.startOfTimeline}}</div>
+        <div>timelineBounds start = {{timeScale?.visibleTimelineBounds?.start}}</div>
+        <div>startOfTimeline = {{timeScale?.startOfVisibleTimeline}}</div>
         <div>outOfBoundsStartInterval start = {{timeScale?.outOfBoundsStartInterval?.start}}</div>
-        <div>outOfBoundsStartDuration = {{timeScale?.outOfBoundsStartDuration}}</div>
+        <div>outOfBoundsStartDuration = {{timeScale?.outOfBoundsStartDurationSeconds}}</div>
         <div>outOfBoundsStartInterval end = {{timeScale?.outOfBoundsStartInterval?.end}}</div>
         <div>bounds start = {{timeScale?.boundsInterval?.start}}</div>
         <div>bounds end = {{timeScale?.boundsInterval?.end}}</div>
         <div>outOfBoundsEndInterval start = {{timeScale?.outOfBoundsEndInterval?.start}}</div>
-        <div>outOfBoundsEndDuration = {{timeScale?.outOfBoundsEndDuration}}</div>
+        <div>outOfBoundsEndDuration = {{timeScale?.outOfBoundsEndDurationSeconds}}</div>
         <div>outOfBoundsEndInterval end = {{timeScale?.outOfBoundsEndInterval?.end}}</div>
-        <div>endOfTimeline = {{timeScale?.endOfTimeline}}</div>
-        <div>timelineBounds end = {{timeScale?.timelineBounds?.end}}</div>
+        <div>endOfTimeline = {{timeScale?.endOfVisibleTimeline}}</div>
+        <div>timelineBounds end = {{timeScale?.visibleTimelineBounds?.end}}</div>
 
         <h3>Time Scale Adjustments</h3>
         <div>offsetDuration = {{timeScale?.offsetDuration}}</div>

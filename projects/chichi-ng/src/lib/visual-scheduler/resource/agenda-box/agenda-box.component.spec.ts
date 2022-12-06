@@ -19,7 +19,7 @@ describe('AgendaBoxComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a AgendaBoxComponent', () => {
     expect(component).toBeTruthy();
   });
 });

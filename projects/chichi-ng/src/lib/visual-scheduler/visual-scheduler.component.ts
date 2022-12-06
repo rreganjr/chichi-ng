@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import { VisualSchedulerService } from './visual-scheduler.service';
 
@@ -22,17 +22,25 @@ export class VisualSchedulerComponent implements OnChanges {
   /**
    * Listen for changes to the start/end date triggered outside the component and update the bounds through
    * the {@link VisualSchedulerService}
-   * 
+   *
    * @param changes - start or end date changes
    */
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.startDate && this.endDate && 
-        (changes['startDate']?.currentValue || changes['endDate']?.currentValue) &&
-        (changes['startDate']?.currentValue !== changes['startDate']?.previousValue ||
-        changes['endDate']?.currentValue !== changes['endDate']?.previousValue)
-      ) {
-      console.log(`date bounds changed: startDate=${this.startDate} endDate=${this.endDate}`)
-      this._visualSchedulerService.setBoundsInterval(Interval.fromDateTimes(DateTime.fromISO(this.startDate), DateTime.fromISO(this.endDate)));
+    const oldStartDate:string = changes['startDate']?.previousValue;
+    const newStartDate:string = changes['startDate']?.currentValue;
+    const oldEndDate:string = changes['endDate']?.previousValue;
+    const newEndDate:string = changes['endDate']?.currentValue;
+
+    let boundsInterval: Interval|undefined = undefined;
+    if (newStartDate && newStartDate !== oldStartDate && newEndDate && newEndDate !== oldEndDate) {
+      boundsInterval = Interval.fromDateTimes(DateTime.fromISO(newStartDate), DateTime.fromISO(newEndDate));
+    } else if (newStartDate && newStartDate !== oldStartDate) {
+      boundsInterval = Interval.fromDateTimes(DateTime.fromISO(newStartDate), DateTime.fromISO(this.endDate));
+    } else if (newEndDate && newEndDate !== oldEndDate) {
+      boundsInterval = Interval.fromDateTimes(DateTime.fromISO(this.startDate), DateTime.fromISO(newEndDate));
+    }
+    if (boundsInterval) {
+      this._visualSchedulerService.setBoundsInterval(boundsInterval);
     }
   }
 }

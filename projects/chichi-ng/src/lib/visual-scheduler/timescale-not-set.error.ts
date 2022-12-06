@@ -1,9 +1,9 @@
 
-export class TimescaleNotSetError extends Error {
+export class TimescaleNotSet extends Error {
     public readonly whoYouGonnaCall: string;
 
     constructor(whoYouGonnaCall: string) {
-        super(TimescaleNotSetError.createMessage(whoYouGonnaCall));
+        super(TimescaleNotSet.createMessage(whoYouGonnaCall));
         this.whoYouGonnaCall = whoYouGonnaCall;
     }
 

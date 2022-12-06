@@ -1,9 +1,19 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
-import { DateTime, DateTimeFormatOptions, DateTimeUnit, Duration, Interval } from 'luxon';
+import { DateTime, DateTimeFormatOptions, Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
+import { Utils } from '../../../utils';
 import { VisualSchedulerService } from '../../../visual-scheduler.service';
 
+export interface TimelineComponentInternals {
+  visibleHours: number;
+  timeDivisionWidth: string;
+  primaryTicksDuration: Duration;
+  betweenTicksDuration: Duration;
+  startOfOutOfBoundsElementId: string|undefined;
+  endOfOutOfBoundsElementId: string|undefined;
+
+}
 @Component({
   selector: 'cc-timeline',
   templateUrl: './timeline.component.html',
@@ -16,6 +26,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private _dateFormatOptions: DateTimeFormatOptions | undefined = {dateStyle: 'short'};
   private _timeFormatOptions: DateTimeFormatOptions | undefined = {timeStyle: 'short'};
 
+  @Input() resourceName!: string;
+  @Input() channelName!: string;
   @Input() showLabels: boolean = false;
 
   constructor(
@@ -30,7 +42,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       this.draw();
     });
   }
-  
+
   ngOnDestroy(): void {
     if (this._timescaleSubscription) {
       this._timescaleSubscription.unsubscribe();
@@ -39,17 +51,36 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
+   *
+   * @returns a TimelineComponentInternals describing internals of the timeline for testing
+   */
+  public getInternalConfig(): TimelineComponentInternals {
+    return {
+      visibleHours: this.visibleHours,
+      timeDivisionWidth: this.timeDivisionWidth,
+      primaryTicksDuration: this.primaryTicksDuration,
+      betweenTicksDuration: this.betweenTicksDuration,
+      startOfOutOfBoundsElementId: this.makeOutOfBoundsElement('start')?.id,
+      endOfOutOfBoundsElementId: this.makeOutOfBoundsElement('end')?.id,
+    }
+  }
+
+  private get visibleHours(): number {
+    return this._timescale.visibleDuration.as('hours');
+  }
+
+  /**
    * @returns the percent width of each time division in the timeline for the current timescale.
    */
   private get timeDivisionWidth(): string {
-    return (this.betweenTicksDuration.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
+    return new Number((this.betweenTicksDuration.as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100).toPrecision(5)  + '%';
   }
 
   /**
    * @returns the {@link Duration} between the primary or labeled tick marks in the timeline.
    */
   private get primaryTicksDuration(): Duration {
-    const visibleHours = this._timescale.visibleDuration.hours;
+    const visibleHours = this.visibleHours;
     if (visibleHours < 24) {
       return Duration.fromDurationLike({hours: 1});
     } else if (visibleHours < 2*24) {
@@ -67,7 +98,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * @returns the {@link Duration} between the previous primary or subordinate tick marks in the timeline.
    */
   private get betweenTicksDuration(): Duration {
-    const visibleHours = this._timescale.visibleDuration.hours;
+    const visibleHours = this.visibleHours;
     if (visibleHours < 12) {
       return Duration.fromDurationLike({minutes: 5});
     } else if (visibleHours < 24) {
@@ -85,8 +116,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
    * Adds a div element to the timeline containing the tick elements indicating times and days.
    */
   private draw(): void {
-    const element: HTMLDivElement = this.renderer.createElement('div');
-
     if (this.timelineElement !== undefined) {
       // clean-up previous elements
       for (const child of this.timelineElement.nativeElement.children) {
@@ -100,48 +129,52 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
       const outOfBoundsStart: HTMLDivElement|undefined = this.makeOutOfBoundsElement('start');
       if (outOfBoundsStart) {
+        console.log('adding outOfBoundsStart');
         this.renderer.appendChild(this.timelineElement.nativeElement, outOfBoundsStart);
+      } else {
+        console.log('no outOfBoundsStart');
       }
 
       // add the tick marks that are visible
       for (let primaryTick: DateTime = startTick; primaryTick < lastTick; primaryTick = primaryTick.plus(primaryTicksDuration)) {
         this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(primaryTick));
         const nextPrimaryTick:DateTime = primaryTick.plus(primaryTicksDuration);
-        for (let betweenTick: DateTime = primaryTick.plus(betweenTicksDuration); betweenTick < nextPrimaryTick; betweenTick = betweenTick.plus(betweenTicksDuration)) {
-          // draw the inbetween marks, if one of these falls on the start of a day, add a primary mark instead
-          if (betweenTick.hour === 0 && betweenTick.minute === 0) {
-            this.renderer.appendChild(this.timelineElement.nativeElement, this.makePrimaryTickElement(betweenTick));
-          } else {
-            this.renderer.appendChild(this.timelineElement.nativeElement, this.makeBetweenTickElement(betweenTick));
-          }
+          // draw the marks between the primary
+          for (let betweenTick: DateTime = primaryTick.plus(betweenTicksDuration); betweenTick < nextPrimaryTick; betweenTick = betweenTick.plus(betweenTicksDuration)) {
+          this.renderer.appendChild(this.timelineElement.nativeElement, this.makeBetweenTickElement(betweenTick));
         }
       }
       const outOfBoundsEnd: HTMLDivElement|undefined = this.makeOutOfBoundsElement('end');
       if (outOfBoundsEnd) {
+        console.log('adding outOfBoundsEnd');
         this.renderer.appendChild(this.timelineElement.nativeElement, outOfBoundsEnd);
+      } else {
+        console.log('no outOfBoundsEnd');
       }
     }
   }
 
   /**
-   * 
+   *
    * @param dateTime the {@link DateTime} represented by this tick mark
    * @returns an {@link HTMLDivElement} representing the tick mark via its width and css class smallTick or mediumTick for hours
    */
   private makeBetweenTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
+    element.id = `${this.resourceName}-${this.channelName}=${Utils.toHtmlDateTimeLocalString(dateTime)}`;
     element.style.width = this.timeDivisionWidth;
     element.className = (dateTime.minute === 0) ? 'mediumTick' : 'smallTick';
     return element;
   }
 
   /**
-   * 
+   *
    * @param dateTime the {@link DateTime} represented by this tick mark used for labeling
    * @returns an {@link HTMLDivElement} representing the tick mark via its width and css class day or primaryTick, and may contain a label
    */
   private makePrimaryTickElement(dateTime: DateTime): HTMLDivElement {
     const element: HTMLDivElement = this.renderer.createElement('div');
+    element.id = `${this.resourceName}-${this.channelName}=${Utils.toHtmlDateTimeLocalString(dateTime)}`;
     element.style.width = this.timeDivisionWidth;
     element.className = (dateTime.hour === 0) ? 'day' : 'primaryTick';
     if (this.showLabels) {
@@ -151,7 +184,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * A timeline start on the hour or day creating an area at the start and end of the time line that are not in the timescale bounds.
+   * A timeline begins on the start of the hour or day creating an area at the start and end of the time line that are not in the timescale bounds.
    * This element demarks the time durations that aren't schedulable.
    * @param location - which end of the timeline being marked
    * @returns an {@link HTMLDivElement} representing the area at the start or end of the timeline that isn't part of the time bounds
@@ -160,7 +193,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const outOfBoundsInterval = (location === 'start' ? this._timescale.outOfBoundsStartInterval : this._timescale.outOfBoundsEndInterval);
     console.log(`outOfBoundsInterval location=${location} start = ${outOfBoundsInterval.start} end = ${outOfBoundsInterval.end}`);
     // calculate the intersection of the out of bounds interval to the visible duration interval
-    const visibleOutOfBounds: Interval|null = this._timescale.visibleBounds.intersection(outOfBoundsInterval);
+    const visibleOutOfBounds: Interval|null = this._timescale.visibleTimelineBounds.intersection(outOfBoundsInterval);
     if (visibleOutOfBounds?.toDuration('second')?.as('seconds') || 0 > 0) {
       const element: HTMLDivElement = this.renderer.createElement('div');
       if (location === 'start') {
@@ -168,15 +201,16 @@ export class TimelineComponent implements OnInit, OnDestroy {
       } else {
         element.style.right = '0';
       }
-      element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.visibleDuration.as('seconds')) * 100  + '%';
-      element.className =  'outOfBounds';    
+      element.style.width = (outOfBoundsInterval.toDuration('seconds').as('seconds') / this._timescale.visibleTimelineBounds.toDuration('seconds').as('seconds')) * 100  + '%';
+      element.className =  'outOfBounds';
+      element.id = `${this.resourceName}-${this.channelName}-${location}-out-of-bounds`;
       return element;
     }
     return;
   }
 
   /**
-   * 
+   *
    * @param dateTime the {@link DateTime} used to generate the label for the time
    * @returns an {@link HTMLDivElement} div element containing the time label
    */

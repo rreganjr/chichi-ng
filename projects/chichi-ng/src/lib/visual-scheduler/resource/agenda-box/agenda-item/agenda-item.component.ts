@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { Duration, Interval } from 'luxon';
 import { Subscription } from 'rxjs';
 import { Timescale } from '../../../timescale.model';
@@ -28,13 +28,11 @@ export class AgendaItemComponent implements OnInit, OnDestroy {
       // TODO: I may be able remove the intersection part as I think the channel may rebuild the
       // TODO: agendaItems when the timescale or agendaItems change
       if (this._agendaItemElement && this._agendaItemElement.nativeElement) {
-        const visibleBounds: Interval = timescale.visibleBounds;
+        const visibleBounds: Interval = timescale.visibleTimelineBounds;
         const intersectingInterval: Interval|null = visibleBounds.intersection(this.agendaItem.bounds);
         const el = this._agendaItemElement.nativeElement;
         if (intersectingInterval !== null) {
-          // add the {@link Timescale.outOfBoundsStartDuration} to account for the timeline starting on an hour or day before
-          // the actual start boundary, which requires the items to shift by that amount to line up properly
-          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start); //.plus(timescale.outOfBoundsStartDuration);
+          const offset: Duration = intersectingInterval.start.diff(visibleBounds.start);
           const duration: Duration = intersectingInterval.toDuration();
           el.style.display = 'block';
           el.style.left = `${(offset.as('seconds') / visibleBounds.toDuration().as('seconds')) * 100}%`;

@@ -1,7 +1,7 @@
 <div dndDraggable
     [dndType]="toolType"
     [dndEffectAllowed]="effectAllowed"
-    [dndDisableIf]="disabled"
+    [dndDisableIf]="!enabled"
     (dndStart)="onDragStart($event, toolType)"
     (dndEnd)="onDragEnd($event, toolType)"
     >

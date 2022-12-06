@@ -19,7 +19,7 @@ describe('ChichiNgComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a ChichiNgComponent', () => {
     expect(component).toBeTruthy();
   });
 });

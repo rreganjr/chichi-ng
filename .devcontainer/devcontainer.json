@@ -7,7 +7,10 @@
 		// Update 'VARIANT' to pick a Node version: 16, 14, 12.
 		// Append -bullseye or -buster to pin to an OS version.
 		// Use -bullseye variants on local arm64/Apple Silicon.
-		"args": { "VARIANT": "16" }
+		"args": {
+			"VARIANT": "16",
+			"ANGULAR_CLI_VERSION": "14.2.10"
+		}
 	},
 
 	// Set *default* container specific settings.json values on container create.
@@ -15,11 +18,16 @@
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"dbaeumer.vscode-eslint",
 		"k--kato.intellij-idea-keybindings",
+		"dbaeumer.vscode-eslint",
 		"Angular.ng-template",
 		"esbenp.prettier-vscode",
-		"VisualStudioExptTeam.vscodeintellicode"
+		"VisualStudioExptTeam.vscodeintellicode",
+		"shardulm94.trailing-spaces",
+		"lucono.karma-test-explorer",
+		"markis.code-coverage",
+		"ritwickdey.liveserver",
+		"spmeesseman.vscode-taskexplorer"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

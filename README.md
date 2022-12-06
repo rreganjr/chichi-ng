@@ -159,6 +159,70 @@ ng build demo --configuration production --outputPath=docs/demo/ --baseHref=/chi
 cp docs/demo/index.html docs/demo/404.html
 ```
 
+# Testing Library Components
+
+The test turning-glob-component.spec.ts was failing with the error:
+```
+Error: Unexpected synthetic listener @spin.done found. Please make sure that:
+  - Either `BrowserAnimationsModule` or `NoopAnimationsModule` are imported in your application.
+  - There is corresponding configuration for the animation named `@spin.done` defined in the `animations` field of the `@Component` decorator (see https://angular.io/api/core/Component#animations).
+```
+
+Because this is a library I don't want to include angular references and use `peerDependencies` in the package.json for 
+angular dependencies that will be included by the user of the library. To get the test to work I added the `BrowserAnimationsModule`
+to the `imports` of `TestBed.configureTestingModule()`
+
+```
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        BrowserAnimationsModule
+      ],
+      declarations: [ TurningGlobeComponent ]
+    })
+    .compileComponents();
+  }));
+```
+
+## Testing Scheduler Component
+
+The scheduler components have inputs and use the VisualSchedulerService, so extra configuration is needed.
+
+Error:
+```
+NullInjectorError: R3InjectorError(DynamicTestModule)[VisualSchedulerService -> VisualSchedulerService]:
+  NullInjectorError: No provider for VisualSchedulerService!
+```
+
+Any component that uses the scheduler must have it added to the testing modules as a provider:
+```
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AgendaItemComponent],
+      providers: [VisualSchedulerService]
+    })
+    .compileComponents();
+  });
+```
+also make sure the service is imported by path and not the chichi-ng
+```
+import { VisualSchedulerService } from '../../../visual-scheduler.service';
+```
+see https://stackoverflow.com/questions/54772990/karma-unit-testing-error-unexpected-value-imported-by-the-module-please-add-a
+
+Inputs need to be set on the component:
+```
+beforeEach(() => {
+    fixture = TestBed.createComponent(ChannelComponent);
+    component = fixture.componentInstance;
+    component.resourceName = 'resource-name';
+    component.channelName = 'channel-name';
+    fixture.detectChanges();
+  });
+```
+see https://stackoverflow.com/questions/36654834/angular2-unit-test-with-input
+
+
 # The Visual Scheduler Component
 
 The visual scheduler will have its own module in the chchi-ng library
@@ -168,6 +232,7 @@ ng g module visual-scheduler --project=chichi-ng
 ng g component visual-scheduler --project=chichi-ng
 ng g component visual-scheduler/timescale --project=chichi-ng
 ng g class visual-scheduler/timescale --type=model --project=chichi-ng
+ng g class visual-scheduler/timescale-validator --type=util --project=chichi-ng
 ng g component visual-scheduler/timeline --project=chichi-ng
 ng g component visual-scheduler/resource --project=chichi-ng
 ng g component visual-scheduler/resource/agenda-box --project=chichi-ng
@@ -183,6 +248,7 @@ ng g class visual-scheduler/toolbox/tool/tool-event --type=model --project=chich
 ng g service visual-scheduler/visual-scheduler --project=chichi-ng
 
 ng g class visual-scheduler/timescale-not-set-error --type=error --project=chichi-ng
+ng g class visual-scheduler/timescale-invalid --type=error --project=chichi-ng
 ng g class visual-scheduler/agenda-item-out-of-bounds --type=error --project=chichi-ng
 ng g class visual-scheduler/agenda-item-conflicts --type=error --project=chichi-ng
 
@@ -193,6 +259,27 @@ npm install @types/luxon --save-dev
 
 ```
 
+# The Visual Scheduler TimeScale Concept
+
+Implemented by the Timescale.model.ts
+
+![TimeScale Diagram](https://github.com/rreganjr/chichi-ng/raw/master/projects/chichi-ng/assets/TimeScale.png)
+
+* The Primary DateTime Unit is an hour or day depending on the size of the VisibleDuration/Viewport
+* The Bounds Interval is the start and end DateTimes where items can be scheduled.
+* The offset duration is a value between 0 and the bounds interval end  minus the visible duration.
+* The visible duration can never be larger than the bounds interval duration or be positioned to start
+  before or after the bounds interval start or end.
+* The Timeline always starts and ends on a Primary DateTime Unit
+  * The Timeline will start on the primary datetime unit before the visible duration
+  * The Timeline will end on the primary datetime unit after the visible duration
+  * If the offset duration is zero, i.e. the visible duration starts at the start of the bounds interval, then the
+    duration between the start of the timeline and the bounds interval start is denoted as the out of bounds start interval
+    and is an unschedulable duration.
+  * If the offset duration plus visible duration is within a primary datetime unit of the bounds interval end then the
+    duration between the bounds interval end and the end of the timeline is denoted as the out of bounds end interval
+    and is an unschedulable duration.
+
 # The Visual Scheduler in the Demo
 
 ```
@@ -201,6 +288,7 @@ ng g component event-scheduler/modal --project=demo
 ng g component event-scheduler/item-editor --project=demo
 
 ```
+
 # Interactive Development of Library and Demo
 
 ```
@@ -210,5 +298,24 @@ ng serve demo
 # Service Providers
 
 I want each visual scheduler to use its own visual scheduler service so that if there is more than one on a page they don't mess up each other. In the VisualSchedulerService I set @Injectable(providedIn: null) so there isn't a default at the root level. I didn't add it to the VisualSchedulerModule as a provider so that there wouldn't be one for all VisualScheduler components. In VisualSchedulerComponent I added it to the providers. I mistakenly added it to the TimescaleComponent and TimelineComponent which made it so that when I zoomed in or out in the timescale the timeline didn't get updated. Watching https://www.youtube.com/watch?v=XpfxmHM6E4E set me straight.
+
+# Testing
+The Karma Test Explorer (for Angular, Jasmine, and Mocha) [plugin: lucono.karma-test-explorer] makes it easy to run
+angular jasmine tests in the Test Explorer [plugin: hbenl.vscode-test-explorer] and see the status. It shows which
+tests pass in the test code and detects changes and reruns tests.
+
+## Code Coverage for Tests
+The generate a code coverage report run this
+```
+ng test chichi-ng --no-watch --code-coverage
+```
+the results are rendered as html in ./coverage/chichi-ng
+
+the trick is viewing the report inside the devcontainer. I added the Live Server [plugin: ritwickdey.liveserver]
+to serve up the files from the devcontainer to the host. right click on the ./coverage/chichi-ng/index.html page
+and select "Open with Live Server".
+
+NOTE: rerun this after changing the tests.
+
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.3.

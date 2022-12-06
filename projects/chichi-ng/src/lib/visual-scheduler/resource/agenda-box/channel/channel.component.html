@@ -1,8 +1,8 @@
 <ng-template ngFor let-agendaItem [ngForOf]="visibleAgendaItems$ | async" let-i="index">
     <cc-agenda-item *ngIf="!agendaItem.hasOwnProperty('isDropZone')" [agendaItem]="agendaItem"></cc-agenda-item>
-    <cc-drop-zone *ngIf="agendaItem.hasOwnProperty('isDropZone')" 
-        [agendaItem]="agendaItem" 
+    <cc-drop-zone *ngIf="agendaItem.hasOwnProperty('isDropZone')"
+        [agendaItem]="agendaItem"
         [dndDropzone]="[channelName]"
         (dndDrop)="onDrop($event, agendaItem)">
- </cc-drop-zone>
+    </cc-drop-zone>
 </ng-template>

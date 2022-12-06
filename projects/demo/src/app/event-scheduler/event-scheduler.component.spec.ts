@@ -19,7 +19,7 @@ describe('EventSchedulerComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create an EventSchedulerComponent', () => {
     expect(component).toBeTruthy();
   });
 });

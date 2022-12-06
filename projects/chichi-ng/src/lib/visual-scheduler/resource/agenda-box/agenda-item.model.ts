@@ -9,10 +9,10 @@ export class AgendaItem {
     public readonly id: number;
 
     constructor(
-        private _resource: string, 
-        private _channel: string, 
-        private _bounds: Interval, 
-        private _data: object, 
+        private _resource: string,
+        private _channel: string,
+        private _bounds: Interval,
+        public readonly data: object,
         private _labeler: AgendaItemLabeler<any>
     ) {
         this.id = AgendaItem.nextId++;
@@ -27,10 +27,11 @@ export class AgendaItem {
     }
 
     public get label(): string {
-        if (this._labeler instanceof Function) {
-            return `[${this.id}]: ${this._labeler(this._data)}`;
-        }
-        return `${this.resourceName}.${this.channelName}[${this.id}]`;
+        return `${this._labeler(this.data)}`;
+    }
+
+    public get labeler(): AgendaItemLabeler<any> {
+        return this._labeler
     }
 
     public get startDate(): DateTime {
@@ -38,7 +39,7 @@ export class AgendaItem {
     }
 
     public get startDateAsHtmlDateTimeLocalString(): string {
-        return this.startDate ? Utils.toHtmlDateTimeLocalString(this.startDate) : '';
+        return Utils.toHtmlDateTimeLocalString(this.startDate);
     }
 
     public get endDate(): DateTime {
@@ -46,7 +47,7 @@ export class AgendaItem {
     }
 
     public get endDateAsHtmlDateTimeLocalString(): string {
-        return this.endDate ? Utils.toHtmlDateTimeLocalString(this.endDate) : '';
+        return Utils.toHtmlDateTimeLocalString(this.endDate);
     }
 
     public durationAs(units: DurationUnit): Duration {

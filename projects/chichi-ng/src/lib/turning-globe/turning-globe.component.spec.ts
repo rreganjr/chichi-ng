@@ -1,4 +1,5 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { TurningGlobeComponent } from './turning-globe.component';
 
@@ -6,8 +7,11 @@ describe('TurningGlobeComponent', () => {
   let component: TurningGlobeComponent;
   let fixture: ComponentFixture<TurningGlobeComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
+      imports: [
+        BrowserAnimationsModule
+      ],
       declarations: [ TurningGlobeComponent ]
     })
     .compileComponents();
@@ -19,7 +23,7 @@ describe('TurningGlobeComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create a TurningGlobeComponent', () => {
     expect(component).toBeTruthy();
   });
 });

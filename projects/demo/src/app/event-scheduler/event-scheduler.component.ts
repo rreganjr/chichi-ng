@@ -1,13 +1,13 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { VisualSchedulerService, AgendaItem, AgendaItemLabeler, ToolEvent, Timescale, Utils,
-  TimescaleNotSetError, 
+  TimescaleNotSet,
   AgendaItemOutOfBounds,
   AgendaItemConflicts} from 'chichi-ng';
 import { filter } from 'rxjs';
 
 class ChatData {
   constructor(
-    public label: string = 'new chat'    
+    public label: string = 'new chat'
   ) {}
 }
 const chatLabeler: AgendaItemLabeler<ChatData> = (data: ChatData) => data.label;
@@ -50,7 +50,7 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.log(`EventSchedulerComponent.ngOnInit()`);      
+    console.log(`EventSchedulerComponent.ngOnInit()`);
     // if you initialize pre-existing agenda items here, set the bounds on the visualSchedulerService first
     this._visualSchedulerService.setBounds(new Date(Date.parse(this.startDate)), new Date(Date.parse(this.endDate)));
     this.makeTestData();
@@ -67,7 +67,7 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
     // });
   }
 
-  ngAfterViewInit(): void {      
+  ngAfterViewInit(): void {
     console.log(`EventSchedulerComponent ngAfterViewInit()`);
     // initialize pre-existing agenda items here, after the start/end date gets passed through
     // the visual-schduler component
@@ -77,7 +77,7 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
   /**
    * Listen for save/cancel on the {@link ItemEditorComponent.output} and close the editor.
    * The {@link ItemEditorComponent} deals with validation and actual saving
-   * 
+   *
    * @param event - listen for 'save' or 'cancel' from the {@link ItemEditorComponent.output}
    */
   onEditEvent(event: 'save'|'cancel'): void {
@@ -101,7 +101,7 @@ export class EventSchedulerComponent implements OnInit, AfterViewInit {
         this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'chat', startDate, endDate, new ChatData(`chat ${i}`), chatLabeler);
         this._visualSchedulerService.addAgendaItem(`room-${(i%3)+1}`, 'video', startDate, endDate, new VideoData(`video ${i}`), videoLabeler);
       } catch (error: any) {
-        if (error instanceof TimescaleNotSetError) {
+        if (error instanceof TimescaleNotSet) {
           console.log(error.message, error);
         } else if (error instanceof AgendaItemOutOfBounds) {
           console.log(error.message, error);

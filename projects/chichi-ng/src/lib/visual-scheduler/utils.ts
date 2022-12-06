@@ -2,10 +2,10 @@ import { DateTime, DateTimeUnit } from "luxon";
 
 export class Utils {
 
-    public static readonly LUXON_ISO8601_HTML_DATETIME_LOCAL_OPTS = {suppressMilliseconds: false, includeOffset: false};
+    public static readonly LUXON_ISO8601_HTML_DATETIME_LOCAL_OPTS = {suppressMilliseconds: true, includeOffset: false};
 
     /**
-     * 
+     *
      * @param dateTime - the dateTime to convert
      * @returns a string suitable for an HTML datetime-local input element
      */
@@ -20,11 +20,9 @@ export class Utils {
         }
     }
 
-
-    
   /**
    * Given a dateTime get the start of the next unit.
-   * 
+   *
    * @param dateTime - the starting {@link DateTime}
    * @param unit - the {@link DateTimeUnit} to get the next one of
    * @example
@@ -33,7 +31,7 @@ export class Utils {
    * @example
    *   getStartOfNext('2022-01-01T12:15:15.123', 'hour');
    *   // returns '2022-01-01T13:00:00.000'
-   * @returns 
+   * @returns The {@link DateTime} instant of the beginning of the next {@link DateTimeUnit} from the supplied {@link DateTime}
    */
    public static getStartOfNext(dateTime: DateTime, unit: DateTimeUnit): DateTime {
         switch (unit) {

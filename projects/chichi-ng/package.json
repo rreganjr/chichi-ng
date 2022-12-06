@@ -12,7 +12,7 @@
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
-    "@angular/common": "^13.1.0",
-    "@angular/core": "^13.1.0"
+    "@angular/common": "^14.2.0",
+    "@angular/core": "^14.2.0"
   }
 }
